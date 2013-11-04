@@ -31,12 +31,12 @@ instance Yesod App where
       fmap (Just . if development
                    then id
                    else customizeSessionCookies $
-                        \cookie -> cookie { setCookiePath = Just "/name/on/server" })
+                        \cookie -> cookie { setCookiePath = Just "/team2/tictactoe" })
         $ defaultClientSessionBackend
           (120 * 60) -- session idle timeout is 120 minutes
           (if development
            then "config/client_session_key.aes"
-           else "/srv/www/vhosts/www-pg-data/name/on/server/client_session_key.aes")
+           else "/srv/www/vhosts/www-pg-data/team2/tictactoe/client_session_key.aes")
 
     defaultLayout widget = do
         master <- getYesod
