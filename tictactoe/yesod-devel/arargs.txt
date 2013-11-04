@@ -1,1 +1,0 @@
-["-r","-c","dist/build/libHSpaketname-0.0.0.a","dist/build/Application.o","dist/build/Foundation.o","dist/build/Import.o","dist/build/Settings.o","dist/build/Settings/Development.o","dist/build/Handler/Home.o","dist/build/Handler/Circle.o","dist/build/Handler/Another.o","dist/build/Handler/Form.o","dist/build/Handler/Skipping.o"]
