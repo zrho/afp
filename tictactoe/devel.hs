@@ -1,5 +1,5 @@
 {-# LANGUAGE PackageImports #-}
-import "paketname" Application (getApplicationDev)
+import "tictactoe" Application (getApplicationDev)
 
 -- Bis auf den Paketnamen muss in dieser Datei im Normalfall nichts geändert werden.
 

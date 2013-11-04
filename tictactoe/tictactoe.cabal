@@ -1,4 +1,4 @@
-name:              paketname
+name:              tictactoe
 version:           0.0.0
 cabal-version:     >= 1.8
 build-type:        Simple
@@ -94,7 +94,7 @@ executable         main.cgi
     main-is:           main.hs
     hs-source-dirs:    app
     build-depends:     base
-                     , paketname
+                     , tictactoe
                      , yesod
 
     ghc-options:       -threaded -O2
