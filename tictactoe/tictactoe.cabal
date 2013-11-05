@@ -27,11 +27,10 @@ library
                      Import
                      Settings
                      Settings.Development
-                     Handler.Home
-                     Handler.Circle
-                     Handler.Another
-                     Handler.Form
-                     Handler.Skipping
+                     Handler.Game
+                     Handler.Field
+                     GameLogic.TicTacToe
+                     GameLogic.Search
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

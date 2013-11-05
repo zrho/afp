@@ -10,6 +10,25 @@ import Text.Hamlet (hamletFile)
 import System.Log.FastLogger (Logger)
 import Web.Cookie (setCookiePath)
 
+--------------------------------------------------------------------------------
+-- I added the following here because I wasn't sure where to put it - Fabian
+-- TODO: find good location
+
+import GameLogic.TicTacToe
+import qualified Data.Text as T
+
+-------------------------------------------------------------------------
+-- ** Routes Helper
+
+instance PathPiece TicTacToe where
+  toPathPiece (TicTacToe fx fo) = T.pack $ show (fx, fo)
+  fromPathPiece s =
+    case reads $ T.unpack s of
+      -- TODO: validate
+      ((fx, fo), "") : _ -> Just $ TicTacToe fx fo
+      _                  -> Nothing
+--------------------------------------------------------------------------------
+
 data App = App
     { settings :: AppConfig DefaultEnv ()
     , appLogger :: Logger

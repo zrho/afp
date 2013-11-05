@@ -16,11 +16,8 @@ import System.Log.FastLogger (mkLogger)
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
-import Handler.Home
-import Handler.Circle
-import Handler.Another
-import Handler.Form
-import Handler.Skipping
+import Handler.Game
+import Handler.Field
 
 mkYesodDispatch "App" resourcesApp
 
