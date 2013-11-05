@@ -4,6 +4,7 @@ import Import
 
 import Diagrams.Prelude hiding ((<>))
 import Diagrams.Backend.SVG
+import Diagrams.Coordinates ((&))
 import GameLogic.TicTacToe
 import Data.Maybe
 
@@ -25,7 +26,7 @@ posInPicture f (px, py)
   $ p2 (px, py)
 
 picture :: TicTacToe -> QDiagram SVG R2 [Pos]
-picture = alignTL . scale 30 . picture'
+picture = alignTL . pad 1.05 . picture'
 
 picture' :: TicTacToe -> QDiagram SVG R2 [Pos]
 picture' f = mconcat $ fmap (\p -> boxT p $ getField f p) positions where
@@ -34,9 +35,21 @@ picture' f = mconcat $ fmap (\p -> boxT p $ getField f p) positions where
     # translateX x'
     # translateY y'
     # value [(x, y)] where
-      x' = fromIntegral x
-      y' = 3 - fromIntegral y
-  box p = square 1 # lw 0.2 <> player p
-  player Nothing  = mempty
-  player (Just O) = text "O" # translateY (-0.1)
-  player (Just X) = text "X" # translateY (-0.1)
+      x' = boxSize * (1 - fromIntegral x) -- (1 - ...) for centering the origin
+      y' = boxSize * (1 - fromIntegral y)
+
+  box p = square boxSize # lw 5 <> playerSymbol p
+
+  playerSymbol Nothing  = mempty
+  playerSymbol (Just X) = stroke ((topLeft ~~ bottomRight) <> (bottomLeft ~~ topRight))
+                      # lw lnWidth # lc blue
+  playerSymbol (Just O) = circle (half - lnWidth)
+                      # lw lnWidth # lc red
+  boxSize = 100 -- size of each box
+  lnWidth = 5   -- line width
+  half = boxSize / 2
+  topLeft = origin .+^ ((-half) & half)
+  bottomRight = origin .+^ (half & (-half))
+  bottomLeft = origin .+^ ((-half) & (-half))
+  topRight = origin .+^ (half & half)
+
