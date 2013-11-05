@@ -1,5 +1,5 @@
-<h1>_{MsgHello}
+<h1>_{MsgTTT}
 
-<h2>Eine Zwischenüberschrift
+<h2>_{MsgTeam2}
 
-Dieser Text steht in der .hamlet-Datei.
+<p>Click on the image to make your turn.<br/>
