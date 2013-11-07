@@ -18,6 +18,8 @@ import System.Log.FastLogger (mkLogger)
 -- Don't forget to add new modules to your cabal file!
 import Handler.Game
 import Handler.Field
+import Handler.Over
+import Handler.Smiley
 
 mkYesodDispatch "App" resourcesApp
 

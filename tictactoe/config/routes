@@ -2,3 +2,5 @@
 
 /team2/tictactoe/ GameR GET POST
 /team2/tictactoe/field/#TicTacToe FieldR GET
+/team2/tictactoe/over OverR GET
+/team2/tictactoe/smiley SmileyR GET

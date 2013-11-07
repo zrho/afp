@@ -29,6 +29,8 @@ library
                      Settings.Development
                      Handler.Game
                      Handler.Field
+                     Handler.Over
+                     Handler.Smiley
                      GameLogic.TicTacToe
                      GameLogic.Search
 
