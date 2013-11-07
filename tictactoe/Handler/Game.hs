@@ -2,6 +2,7 @@
 module Handler.Game (getGameR, postGameR) where
 
 import Import
+import Data.Maybe ()
 import GameLogic.TicTacToe
 import GameLogic.Search
 import Handler.Field
@@ -33,6 +34,10 @@ gameHandler f@(TicTacToe fx fo) = defaultLayout $ do
     <embed src="@{FieldR f}" type="image/svg+xml" onload="t3init(this);" />
   |]
   toWidgetBody [julius|
+
+    $if isJust (winner f) || length (freePositions f) < 1
+    window.location='@{OverR}';
+    $else
 
     function t3init(svg) {
       svg.getSVGDocument().onclick = t3click;
