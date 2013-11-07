@@ -31,14 +31,22 @@ positionForm = (,,,) <$> ireq doubleField "X" <*> ireq doubleField "Y" <*> ireq 
 gameHandler :: TicTacToe -> Handler Html
 gameHandler f@(TicTacToe fx fo) = defaultLayout $ do
   [whamlet|
+    <h1>
+      TicTacToe - α-β-Pruning Edition
+    <p>
+      <embed src="@{FieldR f}" type="image/svg+xml" onload="t3init(this);" />
+
     $if isJust (winner f) || null (freePositions f)
+      <p>
+        $if isJust (winner f)
+          You lost!
+        $if null (freePositions f)
+          Draw!
       <p>
         <embed src="@{SmileyR}" type="image/svg+xml" />
       <p>
         <a href="@{GameR}" id=newgame>Start new Game
 
-    <p>
-      <embed src="@{FieldR f}" type="image/svg+xml" onload="t3init(this);" />
   |]
   toWidgetBody [julius|
 

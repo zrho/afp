@@ -13,7 +13,7 @@ getFieldR
   = return
   . TypedContent typeSvg
   . toContent
-  . renderDia SVG (SVGOptions Absolute Nothing)
+  . renderDia SVG (SVGOptions Absolute)
   . picture
 
 -------------------------------------------------------------------------
