@@ -14,7 +14,7 @@ getSmileyR =
   . TypedContent typeSvg
   . toContent
   . renderDia SVG (SVGOptions Absolute Nothing)
-  $ (smileyPic :: QDiagram SVG R2 Any)
+  $ (smileyPic # scale 100 :: QDiagram SVG R2 Any)
 
 --smileypic :: QDiagram SVG R2 [(Int, Int)]
 smileyPic = 

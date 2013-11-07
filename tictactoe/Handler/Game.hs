@@ -2,7 +2,7 @@
 module Handler.Game (getGameR, postGameR) where
 
 import Import
-import Data.Maybe ()
+import Data.Maybe (isJust)
 import GameLogic.TicTacToe
 import GameLogic.Search
 import Handler.Field
@@ -31,13 +31,16 @@ positionForm = (,,,) <$> ireq doubleField "X" <*> ireq doubleField "Y" <*> ireq 
 gameHandler :: TicTacToe -> Handler Html
 gameHandler f@(TicTacToe fx fo) = defaultLayout $ do
   [whamlet|
-    <embed src="@{FieldR f}" type="image/svg+xml" onload="t3init(this);" />
+    $if isJust (winner f) || null (freePositions f)
+      <p>
+        <embed src="@{SmileyR}" type="image/svg+xml" />
+      <p>
+        <a href="@{GameR}" id=newgame>Start new Game
+
+    <p>
+      <embed src="@{FieldR f}" type="image/svg+xml" onload="t3init(this);" />
   |]
   toWidgetBody [julius|
-
-    $if isJust (winner f) || length (freePositions f) < 1
-    window.location='@{OverR}';
-    $else
 
     function t3init(svg) {
       svg.getSVGDocument().onclick = t3click;
