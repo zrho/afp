@@ -6,16 +6,18 @@ import Diagrams.Prelude hiding ((<>))
 import Diagrams.Backend.SVG
 import Diagrams.Coordinates ((&))
 
+
+
 getSmileyR :: Handler TypedContent
 getSmileyR = 
     return
   . TypedContent typeSvg
   . toContent
-  . renderDia SVG (SVGOptions Absolute)
-  $ smileypic
+  . renderDia SVG (SVGOptions Absolute Nothing)
+  $ (smileyPic :: QDiagram SVG R2 Any)
 
 --smileypic :: QDiagram SVG R2 [(Int, Int)]
-smileypic = 
+smileyPic = 
   eye # translate (0.45 & 0.3) `atop`
   eye # translate ((-0.45) & 0.3) `atop`
   mouth # translate (0 & (-0.4)) `atop`
