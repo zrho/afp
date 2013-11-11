@@ -2,51 +2,19 @@
 module Handler.Start (getStartR) where
 
 import Import
+import Handler.Helper
 import GameLogic.TicTacToe
 import GameLogic.Search
+import GameLogic.Interaction
 import Data.Maybe (fromJust)
 
 getStartR :: Handler Html
 getStartR = defaultLayout $ do
+  makeHeader
   [whamlet|
-    <h1>
-      TicTacToe - α-β-Pruning Edition
     <p>
-      <a href=@{GameR computerStartField}>Computer, you begin!
-    <p>
-      <embed src="@{FieldR initialField}" type="image/svg+xml" onload="t3init(this);" />
-
+      <a href=@{GameR computerStartField}>Computer, you start!
   |]
-  toWidgetBody [julius|
-
-    function t3init(svg) {
-      svg.getSVGDocument().onclick = t3click;
-    }
-
-    function t3click(event) {
-      var form = document.createElement('form');
-      form.setAttribute('method','post');
-      form.setAttribute('action','@{GameR initialField}');
-      var hiddenField = document.createElement('input');
-      hiddenField.setAttribute('type','hidden');
-      hiddenField.setAttribute('name','X');
-      hiddenField.setAttribute('value',event.clientX);
-      form.appendChild(hiddenField);
-      var hiddenField=document.createElement('input');
-      hiddenField.setAttribute('type','hidden');
-      hiddenField.setAttribute('name','Y');
-      hiddenField.setAttribute('value',-event.clientY);
-      form.appendChild(hiddenField);
-      document.body.appendChild(form);
-      form.submit();
-    }
-  |] where
-    computerStartField = fromJust . nextDraw $ initialField
-
-
-nextDraw :: TicTacToe -> Maybe TicTacToe
-nextDraw
-  = fmap (\(Node x _) -> x)
-  . selectMaxAB
-  . prune 7
-  . unfoldTree moves
+  makeTicTacToeField True initialField
+  makeFooter where
+    computerStartField = computerMove initialField
