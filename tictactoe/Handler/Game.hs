@@ -10,26 +10,28 @@ import Handler.Field
 -------------------------------------------------------------------------------
 -- * GET and POST handler (both of which use the function gameHandler)
 
-getGameR :: Handler Html
-getGameR = gameHandler initialField -- start with empty field
+getGameR :: TicTacToe -> Handler Html
+getGameR f = gameHandler f -- start with empty field
 
-postGameR :: Handler Html
-postGameR = do
-  (px, py, fx, fo) <- runInputPost positionForm -- get info about move and field
-  let f = TicTacToe fx fo -- build the field
-  case posInPicture f (px, py) of
-    Just pos -> gameHandler $ play f pos
-    Nothing  -> gameHandler initialField
+postGameR :: TicTacToe -> Handler Html
+postGameR f = do
+  (px, py) <- runInputPost positionForm -- get info about move and field
+  let
+    newField =
+      case posInPicture f (px, py) of
+        Just pos -> play f pos
+        Nothing  -> f
+  redirect (GameR newField) where
 
-positionForm :: FormInput Handler (Double, Double, Int, Int)
-positionForm = (,,,) <$> ireq doubleField "X" <*> ireq doubleField "Y" <*> ireq intField "fx" <*> ireq intField "fo"
+positionForm :: FormInput Handler (Double, Double)
+positionForm = (,) <$> ireq doubleField "X" <*> ireq doubleField "Y"
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
 -- * gameHandler prints the given field
 
 gameHandler :: TicTacToe -> Handler Html
-gameHandler f@(TicTacToe fx fo) = defaultLayout $ do
+gameHandler f = defaultLayout $ do
   [whamlet|
     <h1>
       TicTacToe - α-β-Pruning Edition
@@ -45,7 +47,7 @@ gameHandler f@(TicTacToe fx fo) = defaultLayout $ do
       <p>
         <embed src="@{SmileyR}" type="image/svg+xml" />
       <p>
-        <a href="@{GameR}" id=newgame>Start new Game
+        <a href=@{StartR}>Start new Game
 
   |]
   toWidgetBody [julius|
@@ -57,7 +59,7 @@ gameHandler f@(TicTacToe fx fo) = defaultLayout $ do
     function t3click(event) {
       var form = document.createElement('form');
       form.setAttribute('method','post');
-      form.setAttribute('action','@{GameR}');
+      form.setAttribute('action','@{GameR f}');
       var hiddenField = document.createElement('input');
       hiddenField.setAttribute('type','hidden');
       hiddenField.setAttribute('name','X');
@@ -67,16 +69,6 @@ gameHandler f@(TicTacToe fx fo) = defaultLayout $ do
       hiddenField.setAttribute('type','hidden');
       hiddenField.setAttribute('name','Y');
       hiddenField.setAttribute('value',-event.clientY);
-      form.appendChild(hiddenField);
-      var hiddenField = document.createElement('input');
-      hiddenField.setAttribute('type','hidden');
-      hiddenField.setAttribute('name','fx');
-      hiddenField.setAttribute('value',#{toJSON $ show fx});
-      form.appendChild(hiddenField);
-      var hiddenField = document.createElement('input');
-      hiddenField.setAttribute('type','hidden');
-      hiddenField.setAttribute('name','fo');
-      hiddenField.setAttribute('value',#{toJSON $ show fo});
       form.appendChild(hiddenField);
       document.body.appendChild(form);
       form.submit();

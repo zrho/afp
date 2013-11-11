@@ -31,6 +31,7 @@ library
                      Handler.Field
                      Handler.Over
                      Handler.Smiley
+                     Handler.Start
                      GameLogic.TicTacToe
                      GameLogic.Search
 

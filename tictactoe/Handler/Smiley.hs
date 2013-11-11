@@ -13,7 +13,7 @@ getSmileyR =
     return
   . TypedContent typeSvg
   . toContent
-  . renderDia SVG (SVGOptions Absolute)
+  . renderDia SVG (SVGOptions Absolute Nothing)
   $ (smileyPic # scale 100 :: QDiagram SVG R2 Any)
 
 --smileypic :: QDiagram SVG R2 [(Int, Int)]

@@ -10,6 +10,5 @@ getOverR :: Handler Html
 getOverR = defaultLayout $ do
   [whamlet|
     <embed src="@{SmileyR}" type="image/svg+xml" />
-    <a href="@{GameR}" id=newgame>Start new Game
   |]
 

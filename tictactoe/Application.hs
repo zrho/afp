@@ -20,6 +20,7 @@ import Handler.Game
 import Handler.Field
 import Handler.Over
 import Handler.Smiley
+import Handler.Start
 
 mkYesodDispatch "App" resourcesApp
 

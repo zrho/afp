@@ -1,6 +1,7 @@
 -- Alle routes hier sollten mit /name/on/server/ beginnen!
 
-/team2/tictactoe/ GameR GET POST
+/team2/tictactoe/ StartR GET
+/team2/tictactoe/game/#TicTacToe GameR GET POST
 /team2/tictactoe/field/#TicTacToe FieldR GET
 /team2/tictactoe/over OverR GET
 /team2/tictactoe/smiley SmileyR GET
