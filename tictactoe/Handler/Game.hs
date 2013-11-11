@@ -4,24 +4,29 @@ module Handler.Game (getGameR, postGameR) where
 import Import
 import Data.Maybe (isJust)
 import GameLogic.TicTacToe
-import GameLogic.Search
+import GameLogic.Interaction
 import Handler.Field
 
 -------------------------------------------------------------------------------
 -- * GET and POST handler (both of which use the function gameHandler)
 
 getGameR :: TicTacToe -> Handler Html
-getGameR f = gameHandler f -- start with empty field
+getGameR f = gameHandler f
 
 postGameR :: TicTacToe -> Handler Html
 postGameR f = do
   (px, py) <- runInputPost positionForm -- get info about move and field
-  let
-    newField =
-      case posInPicture f (px, py) of
-        Just pos -> play f pos
-        Nothing  -> f
-  redirect (GameR newField) where
+  let f' = case posInPicture f (px, py) of
+             Just pos -> userMove f pos
+             Nothing  -> f
+
+  let f'' = if ended f'
+              then f'
+              else computerMove f'
+
+  if ended f''
+    then redirect (OverR f'')
+    else redirect (GameR f'')
 
 positionForm :: FormInput Handler (Double, Double)
 positionForm = (,) <$> ireq doubleField "X" <*> ireq doubleField "Y"
@@ -35,6 +40,8 @@ gameHandler f = defaultLayout $ do
   [whamlet|
     <h1>
       TicTacToe - α-β-Pruning Edition
+    <p>
+      <a href=@{StartR}>Restart game.
     <p>
       <embed src="@{FieldR f}" type="image/svg+xml" onload="t3init(this);" />
 
@@ -74,20 +81,4 @@ gameHandler f = defaultLayout $ do
       form.submit();
     }
   |]
---------------------------------------------------------------------------------
 
--------------------------------------------------------------------------
--- * Game Logic
-
-play :: TicTacToe -> Pos -> TicTacToe
-play field pos = case getField field pos of
-  Just _  -> field
-  Nothing -> maybe field' id $ nextDraw field' where
-    field' = setField field X pos
-
-nextDraw :: TicTacToe -> Maybe TicTacToe
-nextDraw
-  = fmap (\(Node x _) -> x)
-  . selectMaxAB
-  . prune 7
-  . unfoldTree moves

@@ -12,6 +12,8 @@ getStartR = defaultLayout $ do
     <h1>
       TicTacToe - α-β-Pruning Edition
     <p>
+      <a href=@{GameR computerStartField}>Computer, you begin!
+    <p>
       <embed src="@{FieldR initialField}" type="image/svg+xml" onload="t3init(this);" />
 
   |]

@@ -5,9 +5,10 @@ import Import
 import Diagrams.Prelude hiding ((<>))
 import Diagrams.Backend.SVG
 import Diagrams.Coordinates ((&))
+import GameLogic.TicTacToe
 
-getOverR :: Handler Html
-getOverR = defaultLayout $ do
+getOverR :: TicTacToe -> Handler Html
+getOverR _ = defaultLayout $ do
   [whamlet|
     <embed src="@{SmileyR}" type="image/svg+xml" />
   |]

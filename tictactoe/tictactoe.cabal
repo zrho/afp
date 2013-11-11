@@ -34,6 +34,7 @@ library
                      Handler.Start
                      GameLogic.TicTacToe
                      GameLogic.Search
+                     GameLogic.Interaction
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
