@@ -1,0 +1,7 @@
+<p>
+  $if won f
+    Computer won.
+  $elseif draw f
+    It's a draw.
+<p>
+  <a href=@{StartR}>Restart game.
