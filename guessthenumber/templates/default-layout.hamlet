@@ -1,0 +1,7 @@
+<h1>_{MsgTitle}
+
+<h2>_{MsgTeamInfo}
+
+$maybe msg <- mmsg
+  <div #message>#{msg}
+^{widget}
