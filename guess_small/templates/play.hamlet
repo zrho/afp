@@ -1,0 +1,15 @@
+<p> I know a number between #{ub} and #{lb}.
+
+$case wrong
+    $of Nothing
+    $of Just num
+        <p> You guessed #{num}.&nbsp;
+            $if num > answer
+                My number is lower.
+            $else
+                My number is greater.
+
+<form method=post action=@{PlayR gameExt} enctype=#enctype>
+    <p> Take a guess!
+    <input type=text name=guess>
+    <button>Submit

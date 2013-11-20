@@ -1,0 +1,5 @@
+<form method=post action=@{HomeR} enctype=#enctype>
+    <p> Input a minimum and a maximum bound
+    <input type=text name=lower value=0>
+    <input type=text name=upper value=100>
+    <button>Submit
