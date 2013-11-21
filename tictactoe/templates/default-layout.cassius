@@ -1,0 +1,28 @@
+body
+  color: #555
+  width: 700px
+  font-size: 18px
+  line-height: 1.5
+  margin: 60px auto
+  font-family: sans-serif
+
+h1, h2, h3, h4
+  color: #000
+  text-align: center
+  font-weight: normal
+
+h1
+  font-size: 250%
+
+h2
+  font-size: 180%
+
+h3
+  font-size: 150%
+
+h4
+  font-size: 120%
+
+p
+  margin: 20px 0px
+  text-align: justify

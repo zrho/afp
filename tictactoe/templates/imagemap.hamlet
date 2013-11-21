@@ -5,12 +5,13 @@
 
     <area coords="#{        0}, #{        0}, #{  m`div`3},   #{m`div`3}" shape="rect" href="" />
     <area coords="#{  m`div`3}, #{        0}, #{2*m`div`3},   #{m`div`3}" shape="rect" href="" />
-    <area coords="#{2*m`div`3}, #{        0}, #{3*m`div`3},   #{m`div`3}" shape="rect" href="" />
+    <area coords="#{2*m`div`3}, #{        0}, #{  m      },   #{m`div`3}" shape="rect" href="" />
     <area coords="#{        0}, #{  m`div`3}, #{  m`div`3}, #{2*m`div`3}" shape="rect" href="" />
     <area coords="#{  m`div`3}, #{  m`div`3}, #{2*m`div`3}, #{2*m`div`3}" shape="rect" href="" />
-    <area coords="#{2*m`div`3}, #{  m`div`3}, #{3*m`div`3}, #{2*m`div`3}" shape="rect" href="" />
-    <area coords="#{        0}, #{2*m`div`3}, #{  m`div`3}, #{3*m`div`3}" shape="rect" href="" />
-    <area coords="#{  m`div`3}, #{2*m`div`3}, #{2*m`div`3}, #{3*m`div`3}" shape="rect" href="" />
-    <area coords="#{2*m`div`3}, #{2*m`div`3}, #{3*m`div`3}, #{3*m`div`3}" shape="rect" href="" />
+    <area coords="#{2*m`div`3}, #{  m`div`3}, #{  m      }, #{2*m`div`3}" shape="rect" href="" />
+    <area coords="#{        0}, #{2*m`div`3}, #{  m`div`3}, #{  m      }" shape="rect" href="" />
+    <area coords="#{  m`div`3}, #{2*m`div`3}, #{2*m`div`3}, #{  m      }" shape="rect" href="" />
+    <area coords="#{2*m`div`3}, #{2*m`div`3}, #{  m      }, #{  m      }" shape="rect" href="" />
 
   <img src="" border="0" usemap="#ttt" />
+
