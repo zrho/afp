@@ -104,3 +104,4 @@ makeTicTacToeField interactive f =
         <p>
           <embed src="@{FieldR f}" type="image/svg+xml" />
       |]
+      
