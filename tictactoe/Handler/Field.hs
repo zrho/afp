@@ -35,7 +35,7 @@ picture' f = mconcat $ fmap (\p -> boxT p $ getField f p) positions where
     # translateX x'
     # translateY y'
     # value [(x, y)] where
-      x' = boxSize * (1 - fromIntegral x) -- (1 - ...) for centering the origin
+      x' = boxSize * (fromIntegral x - 1) -- (... - 1) for centering the origin
       y' = boxSize * (1 - fromIntegral y)
 
   box p = square boxSize # lw 5 <> playerSymbol p
