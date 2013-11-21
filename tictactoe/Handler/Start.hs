@@ -2,7 +2,7 @@
 module Handler.Start (getStartR) where
 
 import Import
-import Handler.Helper
+import Handler.Field
 import GameLogic.TicTacToe
 import GameLogic.Search
 import GameLogic.Interaction
@@ -10,8 +10,7 @@ import Data.Maybe (fromJust)
 
 getStartR :: Handler Html
 getStartR = defaultLayout $ do
-  makeHeader
   $(widgetFile "start")
   makeTicTacToeField True initialField
-  makeFooter where
+  where
     computerStartField = computerMove initialField

@@ -6,20 +6,17 @@ import Data.Maybe (isJust)
 import GameLogic.TicTacToe
 import GameLogic.Interaction
 import Handler.Field
-import Handler.Helper
 
 -------------------------------------------------------------------------------
 -- * GET and POST handler
 
 getGameR :: TicTacToe -> Handler Html
 getGameR f = defaultLayout $ do
-  makeHeader
   [whamlet|
     <p>
       <a href=@{StartR}>Restart game.
   |]
   makeTicTacToeField True f
-  makeFooter
 
 postGameR :: TicTacToe -> Handler Html
 postGameR f = do
