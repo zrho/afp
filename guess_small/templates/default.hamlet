@@ -1,17 +1,7 @@
-$newline never
-\<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
+<div class="container">
+    <div id="main" role="main">
+      <p .header>
+        <h1>Guess The Number
 
-        <title>#{pageTitle pc}
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        ^{pageHead pc}
-    <body>
-        <div class="container">
-            <div id="main" role="main">
-              <p .header>
-                <h1>Guess The Number
-
-              <div .content>
-                ^{pageBody pc}
+      <div .content>
+        ^{w}

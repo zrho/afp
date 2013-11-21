@@ -9,7 +9,6 @@ $case wrong
             $else
                 My number is greater.
 
-<form method=post action=@{PlayR gameExt} enctype=#enctype>
-    <p> Take a guess!
-    <input type=text name=guess>
+<form method=post action=@{PlayR gameExt} enctype=#enc>
+    ^{form}
     <button>Submit

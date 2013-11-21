@@ -3,6 +3,7 @@ module Main where
 
 import           Yesod
 import           Text.Hamlet (hamletFile)
+import           Text.Cassius (cassiusFile)
 import           GameState
 import           Util
 import           Control.Applicative
@@ -20,10 +21,8 @@ data GuessTheNumber = GuessTheNumber
 
 instance Yesod GuessTheNumber where
   defaultLayout w = do
-    pc <- widgetToPageContent $ do
-      $(widget "bootstrap")
-      w
-    giveUrlRenderer $(hamletFile "templates/default.hamlet")
+    pc <- widgetToPageContent $(widget "default")
+    giveUrlRenderer $(hamletFile "templates/default-wrapper.hamlet")
 
 instance RenderMessage GuessTheNumber FormMessage where
     renderMessage _ _ = defaultFormMessage
@@ -40,7 +39,7 @@ beginForm = (,)
   <$> ireq intField "lower"
   <*> ireq intField "upper"
 
-playForm = ireq intField "guess"
+playForm = renderDivs $ areq intField "Your guess" Nothing
 
 getHomeR :: Handler Html
 getHomeR = defaultLayout $(widget "home")
@@ -65,14 +64,20 @@ getPlayR gameExt = impGame gameExt >>= maybe (redirect HomeR) (play Nothing)
 
 postPlayR :: ExtGameState -> Handler Html
 postPlayR gameExt = do
-  game <- impGame gameExt
-  num  <- runInputPost playForm
-  maybe (redirect HomeR) (play $ Just num) game
+  game        <- impGame gameExt
+  ((r, _), _) <- runFormPost playForm
+  liftIO $ print r
+  let
+    num = case r of
+      FormSuccess n -> Just n
+      _             -> Nothing
+  maybe (redirect HomeR) (play num) game
 
 play :: Maybe Int -> GameState -> Handler Html
 play (Just n) g | gameAnswer g == n = defaultLayout $(widget "win")
 play wrong g = do
-  gameExt <- expGame g
+  gameExt     <- expGame g
+  (form, enc) <- generateFormPost playForm
   let (ub, lb) = gameRange g
   let answer   = gameAnswer g
   defaultLayout $(widget "play")

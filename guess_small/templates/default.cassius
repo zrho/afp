@@ -1,0 +1,19 @@
+body
+  background: #E6E6E6
+  color: #444
+  text-shadow: 1px 1px 1px #ffffff
+  font-family: gergia, serif
+
+h1
+  color: #900
+
+label
+  margin-right: 10px
+
+label:after
+  content: ": "
+
+.container
+  margin-left: auto
+  margin-right: auto
+  width: 800px
