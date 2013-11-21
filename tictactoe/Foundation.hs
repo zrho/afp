@@ -46,16 +46,7 @@ instance Yesod App where
 
     -- REPLACE whole right-hand side by "return Nothing" if no cookies needed;
     -- (avoids some potential complications, and makes things more efficient)
-    makeSessionBackend _ =
-      fmap (Just . if development
-                   then id
-                   else customizeSessionCookies $
-                        \cookie -> cookie { setCookiePath = Just "/team2/tictactoe" })
-        $ defaultClientSessionBackend
-          (120 * 60) -- session idle timeout is 120 minutes
-          (if development
-           then "config/client_session_key.aes"
-           else "/srv/www/vhosts/www-pg-data/team2/tictactoe/client_session_key.aes")
+    makeSessionBackend _ = return Nothing
 
     defaultLayout widget = do
         master <- getYesod
