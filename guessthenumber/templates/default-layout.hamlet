@@ -1,7 +1,7 @@
-<h1>_{MsgTitle}
+<div class="container">
+    <div id="main" role="main">
+      <p .header>
+        <h1>Guess The Number
 
-<h2>_{MsgTeamInfo}
-
-$maybe msg <- mmsg
-  <div #message>#{msg}
-^{widget}
+      <div .content>
+        ^{widget}

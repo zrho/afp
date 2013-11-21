@@ -9,6 +9,7 @@ import Settings.Development (development)
 import Text.Hamlet (hamletFile)
 import System.Log.FastLogger (Logger)
 import Web.Cookie (setCookiePath)
+import Logic.GameState
 
 data App = App
     { settings :: AppConfig DefaultEnv ()
@@ -27,7 +28,7 @@ instance Yesod App where
 
     -- REPLACE whole right-hand side by "return Nothing" if no cookies needed;
     -- (avoids some potential complications, and makes things more efficient)
-    makeSessionBackend _ =
+    makeSessionBackend _ = return Nothing {-
       fmap (Just . if development
                    then id
                    else customizeSessionCookies $
@@ -36,7 +37,7 @@ instance Yesod App where
           (120 * 60) -- session idle timeout is 120 minutes
           (if development
            then "config/client_session_key.aes"
-           else "/srv/www/vhosts/www-pg-data/team2/guessthenumber/client_session_key.aes")
+           else "/srv/www/vhosts/www-pg-data/team2/guessthenumber/client_session_key.aes")-}
 
     defaultLayout widget = do
         master <- getYesod

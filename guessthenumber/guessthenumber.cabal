@@ -28,6 +28,9 @@ library
                      Settings
                      Settings.Development
                      Handler.Home
+                     Handler.Play
+                     Handler.Helper
+                     Logic.GameState
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -86,6 +89,10 @@ library
                  , diagrams-lib
                  , cookie
                  , colour
+                 , base64-bytestring
+                 , cereal
+                 , transformers
+                 , SimpleAES
 
 executable         main.cgi
     if flag(library-only)

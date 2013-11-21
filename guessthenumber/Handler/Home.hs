@@ -3,45 +3,25 @@ module Handler.Home (getHomeR, postHomeR) where
 
 import Import
 import Data.Text
-
-newtype Guess = Guess { get :: Int }
-
-type Range = (Int, Int)
-
-guessAForm :: Range -> AForm Handler Guess
-guessAForm (low, high) = Guess <$> areq guessField "Your guess" Nothing where
-  guessField = checkBool (\n -> low <= n && n <= high) errorMessage intField
-  errorMessage = pack $ "Your number must be in the range from "
-                 ++ show low ++ " to " ++ show high ++ "!"
-
-guessForm :: Html -> MForm Handler (FormResult Guess, Widget)
-guessForm = renderDivs $ guessAForm (0, 100)
+import Logic.GameState
+import Handler.Helper
+import System.Random (getStdRandom, randomR)
 
 getHomeR :: Handler Html
-getHomeR = do
-  (formWidget, enctype) <- generateFormPost guessForm
-  defaultLayout $ do
-    setTitle "Guess the number!"
-    [whamlet|
-      <form method=post action=@{HomeR} enctype=#{enctype}>
-        ^{formWidget}
-        <button>_{MsgGuessButton}
-    |]
+getHomeR = defaultLayout $(widgetFile "home")
 
 postHomeR :: Handler Html
 postHomeR = do
-  ((result, _), _) <- runFormPost guessForm
-  defaultLayout $ do
-    setTitle "Guess the number!"
-    case result of
-      FormSuccess (Guess userGuess) ->
-        [whamlet|
-          <p>
-            Your input: #{show userGuess}
-        |]
-      FormFailure msgs ->
-        [whamlet|
-          <p>
-            _{MsgInputError}#{toHtml $ mconcat msgs}
-        |]
+  (lb, ub) <- runInputPost beginForm
+  -- validate
+  if lb > ub
+    then redirect HomeR
+    else startGame lb ub
+
+startGame :: Int -> Int -> Handler Html
+startGame lb ub = do
+  num <- liftIO $ getStdRandom $ randomR (lb, ub)
+  let state = GameState (lb, ub) num []
+  state' <- expGame state
+  redirect $ PlayR state'
              

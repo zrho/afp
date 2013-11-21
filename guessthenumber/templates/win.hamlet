@@ -1,0 +1,3 @@
+<h1>You have won!
+
+<p> Want to <a href="@{HomeR}">play again</a>?
