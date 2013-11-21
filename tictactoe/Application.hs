@@ -21,7 +21,6 @@ import Handler.Field
 import Handler.Over
 import Handler.Smiley
 import Handler.Start
-import Handler.Helper
 
 mkYesodDispatch "App" resourcesApp
 

@@ -1,5 +1,5 @@
 $newline always
-\<!doctype html>
+<!doctype html>
 <html class="no-js" lang="en">
     <head>
         <meta charset="UTF-8">
@@ -15,6 +15,7 @@ $newline always
         <script>
           document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
     <body>
+      <h1> TicTacToe - α-β-Pruning Edition
         <div class="container">
             <header>
             <div id="main" role="main">

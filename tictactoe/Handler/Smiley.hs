@@ -6,8 +6,6 @@ import Diagrams.Prelude hiding ((<>))
 import Diagrams.Backend.SVG
 import Diagrams.Coordinates ((&))
 
-
-
 getSmileyR :: Handler TypedContent
 getSmileyR = 
     return
