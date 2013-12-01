@@ -7,27 +7,17 @@ import GameLogic.TicTacToe
 import GameLogic.Search
 import GameLogic.Interaction
 import Data.Maybe (fromJust)
+import Handler.Helper
 
 getStartR :: Handler Html
 getStartR = do
   (formWidget, enctype) <- generateFormPost fieldNumberForm
   defaultLayout $ do
+    setDefaultTitle
     $(widgetFile "start")
-    makeTicTacToeField True initialField
-    [whamlet|
-      <noscript>
-        <form method=post action=@{GameR initialField} enctype=#{enctype}>
-          ^{formWidget}
-          <button>Submit
-    |]
+    let interactive = True
+    let f = initialField
+    $(widgetFile "field")
+    $(widgetFile "noscript")
     where
       computerStartField = computerMove initialField
-
-fieldNumberForm :: Html -> MForm Handler (FormResult Int, Widget)
-fieldNumberForm = renderDivs $ fieldNumberAForm
-
-fieldNumberAForm :: AForm Handler Int
-fieldNumberAForm = areq (checkBool validate errorMsg intField) "Field number (1 to 9): " Nothing where
-    errorMsg :: Text
-    errorMsg = "Number must be in range from 1 to 9!"
-    validate n = n >= 1 && n <= 9

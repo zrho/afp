@@ -1,3 +1,5 @@
+<h1> _{MsgTTT}
+<h2> _{MsgTeam2}
 $maybe msg <- mmsg
     <div #message>#{msg}
 ^{widget}

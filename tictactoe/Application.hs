@@ -21,6 +21,7 @@ import Handler.Field
 import Handler.Over
 import Handler.Smiley
 import Handler.Start
+import Handler.NoScriptPost
 
 mkYesodDispatch "App" resourcesApp
 

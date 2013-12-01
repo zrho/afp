@@ -9,11 +9,6 @@ import Settings.Development (development)
 import Text.Hamlet (hamletFile)
 import System.Log.FastLogger (Logger)
 import Web.Cookie (setCookiePath)
-
---------------------------------------------------------------------------------
--- I added the following here because I wasn't sure where to put it - Fabian
--- TODO: find good location
-
 import GameLogic.TicTacToe
 import qualified Data.Text as T
 
@@ -24,8 +19,7 @@ instance PathPiece TicTacToe where
   toPathPiece (TicTacToe fx fo) = T.pack $ show (fx, fo)
   fromPathPiece s =
     case reads $ T.unpack s of
-      -- TODO: validate
-      ((fx, fo), "") : _ -> Just $ TicTacToe fx fo
+      ((fx, fo), "") : _ -> makeField fx fo
       _                  -> Nothing
 --------------------------------------------------------------------------------
 
@@ -44,8 +38,6 @@ type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 instance Yesod App where
     approot = ApprootMaster $ appRoot . settings
 
-    -- REPLACE whole right-hand side by "return Nothing" if no cookies needed;
-    -- (avoids some potential complications, and makes things more efficient)
     makeSessionBackend _ = return Nothing
 
     defaultLayout widget = do

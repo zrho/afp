@@ -1,0 +1,2 @@
+<p>
+  <embed src="@{FieldR f}" type="image/svg+xml" :interactive:onload="t3init(this);" />

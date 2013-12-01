@@ -1,2 +1,2 @@
 <p>
-  <a href=@{GameR computerStartField}>Computer, you start!
+  <a href=@{GameR computerStartField}>_{MsgComputerStart}

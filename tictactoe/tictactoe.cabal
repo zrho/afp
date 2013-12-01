@@ -32,6 +32,8 @@ library
                      Handler.Over
                      Handler.Smiley
                      Handler.Start
+                     Handler.Helper
+                     Handler.NoScriptPost
                      GameLogic.TicTacToe
                      GameLogic.Search
                      GameLogic.Interaction

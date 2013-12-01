@@ -12,10 +12,7 @@ $newline always
 
         ^{pageHead pc}
 
-        <script>
-          document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
     <body>
-      <h1> TicTacToe - α-β-Pruning Edition
       <div class="container">
           <header>
           <div id="main" role="main">

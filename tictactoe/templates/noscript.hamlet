@@ -1,0 +1,4 @@
+<noscript>
+  <form method=post action=@{NoScriptPostR f} enctype=#{enctype}>
+    ^{formWidget}
+    <button>Submit

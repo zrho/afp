@@ -4,4 +4,5 @@
 /team2/tictactoe/game/#TicTacToe GameR GET POST
 /team2/tictactoe/field/#TicTacToe FieldR GET
 /team2/tictactoe/over/#TicTacToe OverR GET
+/team2/tictactoe/noscriptpost/#TicTacToe NoScriptPostR POST
 /team2/tictactoe/smiley SmileyR GET

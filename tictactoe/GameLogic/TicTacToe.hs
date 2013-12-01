@@ -10,6 +10,7 @@ module GameLogic.TicTacToe
   , player
   , positions
   , freePositions
+  , makeField
   ) where
 
 import Data.Bits hiding (Bits)
@@ -93,6 +94,14 @@ winner (TicTacToe x o)
 -- | All positions on the field.
 positions :: [Pos]
 positions = [(x, y) | y <- [0..2], x <- [0..2]]
+
+-- | create field but check for validity
+makeField :: Bits -> Bits -> Maybe TicTacToe
+makeField fx fo = (if (fx .&. fo == 0) && (diff `elem` [0,1])
+                  then Just
+                  else const Nothing) $ TicTacToe fx fo where
+  diff = countOnes fx - countOnes fo
+
 
 --------------------------------------------------------------------------------
 -- ** Internal operations

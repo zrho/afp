@@ -1,7 +1,7 @@
 <p>
   $if won f
-    Computer won.
+    _{MsgComputerWon}
   $elseif draw f
-    It's a draw.
+    _{MsgDraw}
 <p>
-  <a href=@{StartR}>Restart game.
+  <a href=@{StartR}>_{MsgRestart}
