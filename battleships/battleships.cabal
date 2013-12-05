@@ -28,6 +28,7 @@ library
                      Settings
                      Settings.Development
                      Handler.Home
+                     Handler.Favicon
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

@@ -5,6 +5,7 @@ $newline never
         <meta charset="UTF-8">
 
         <title>#{pageTitle pc}
+        <link rel="shortcut icon" href="@{FaviconR}" type="image/x-icon" />
         <meta name="description" content="">
         <meta name="author" content="">
 

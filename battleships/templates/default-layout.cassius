@@ -1,0 +1,127 @@
+h1, h2, h3
+  text-align: center
+  width: 800px
+  margin: 0px auto
+
+h1
+  margin-top: 20px
+  margin-bottom: 20px
+  color: #900
+  font-size: 80px
+  font-weight: normal
+
+h2
+  color: #888
+  margin-bottom: 20px
+
+h3
+  font-weight: normal
+  color: #888
+  padding-bottom: 20px
+
+a, input
+  font-family: sans-serif
+
+body
+  font-family: sans-serif
+  margin: 0px
+  padding: 0px
+  overflow-x: hidden;
+
+fieldset
+  text-align: center
+  margin: 10px auto
+  width: 800px
+  padding: 5px
+  border: solid 1px #20538D
+  -webkit-border-radius: 4px
+  -moz-border-radius: 4px
+  border-radius: 4px
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
+
+div.content
+  text-align: center
+  padding: 20px
+  background: rgba(0, 0, 0, 0.1)
+  box-shadow: #999 0px 0px 10px 0px inset
+  margin: 10px -20px
+  min-height: 200px
+
+.controlBox
+  text-align: center
+  margin-bottom: 30px
+  margin-top: 20px
+
+.error
+  color: #700
+  padding: 5px
+  font-weight: bold
+  border: solid 1px #8d2320
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
+  -webkit-border-radius: 4px
+  -moz-border-radius: 4px
+  border-radius: 4px
+  margin: 10px auto
+  width: 800px
+
+.linkButton
+  padding: 10px 15px
+  color: #FFF
+  text-decoration: none
+  -webkit-border-radius: 4px
+  -moz-border-radius: 4px
+  border-radius: 4px
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.4)
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
+  -webkit-transition-duration: 0.2s
+  -moz-transition-duration: 0.2s
+  transition-duration: 0.2s
+  -webkit-user-select:none
+  -moz-user-select:none
+  -ms-user-select:none
+  user-select:none
+
+.linkButton:hover, .linkButton:focus
+  text-decoration: none
+
+.linkButton:active
+  -webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6)
+  -moz-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6)
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6)
+
+.blueButton
+  background: #4479BA
+  border: solid 1px #20538D
+
+.blueButton:hover, .blueButton:focus
+  background: #356094
+  border: solid 1px #2A4E77
+
+.blueButton:active
+  background: #2E5481
+  border: solid 1px #203E5F
+
+.redButton
+  background: #900
+  border: solid 1px #8d2320
+
+.redButton:hover, .redButton:focus
+  background: #800
+  border: solid 1px #772c2a
+
+.redButton:active
+  background: #700
+  border: solid 1px #5f2220
+
+.footer
+  position: absolute
+  bottom: 50px
+  margin: 0px auto
+  width: 100%
+  text-align: center
