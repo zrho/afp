@@ -1,2 +1,3 @@
 /battleships/                 HomeR  GET
 /battleships/favicon.ico      FaviconR GET
+/battleships/tracking.svg     TrackingGridR GET

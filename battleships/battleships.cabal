@@ -29,6 +29,9 @@ library
                      Settings.Development
                      Handler.Home
                      Handler.Favicon
+                     Handler.TrackingGrid
+                     Logic.Rendering
+                     Logic.Types
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
