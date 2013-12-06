@@ -6,7 +6,8 @@ import Diagrams.Prelude
 import Diagrams.Backend.SVG
 import Data.Colour.SRGB
 
-import Logic.Types
+import Logic.GameFramework
+
 
 type BattleDia = QDiagram SVG R2 [Pos]
 
