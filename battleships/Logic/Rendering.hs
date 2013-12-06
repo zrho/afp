@@ -1,6 +1,7 @@
 module Logic.Rendering where
 
 import Prelude
+import Data.Array
 
 import Diagrams.Prelude
 import Diagrams.Backend.SVG
@@ -13,18 +14,38 @@ type BattleDia = QDiagram SVG R2 [Pos]
 
 
 referenceField :: Int -> Int -> BattleDia
-referenceField nx ny = grid nx ny <> cells nx ny
+referenceField nx ny = renderGrid nx ny <> cells nx ny (const Nothing)
 
-cells :: Int -> Int -> BattleDia
-cells nx ny = vcat [xnums, hcat [ynums, field, ynums], xnums] # alignTL where
+renderTrackingGrid :: TrackingGrid -> BattleDia
+renderTrackingGrid grid = renderGrid nx ny <> cells nx ny renderCellState where
+  ((x1,y1),(x2,y2)) = bounds grid
+  (nx,ny)           = (x2 - x1 + 1, y2 - y1 + 1)
+  renderCellState p = fmap selectDia (grid ! p)
+  markerRadius      = cellSize / 2 - 3
+  selectDia Water   = (waterSquare) # value []
+  selectDia Hit     = (marker # lc (sRGB 1.0 0.5 0.0) # lw 3
+                       <> shipSquare <> waterSquare)
+                      # value []
+  selectDia Sunk    = (marker # lc (sRGB 1.0 0.0 0.0) # lw 3
+                       <> shipSquare <> waterSquare)
+                      # value []
+  diaX size         = p2 (-0.5 * size, -0.5 * size) ~~ p2 (0.5 * size, 0.5 * size)
+                    <> p2 (-0.5 * size, 0.5 * size) ~~ p2 (0.5 * size, -0.5 * size)
+  marker            = diaX (markerRadius * sqrt 2) <> circle markerRadius
+  waterSquare       = square cellSize # fc (sRGB24 0x99 0xCC 0xFF)
+  shipSquare        = roundedRect cellSize cellSize 0 # fc gray
+
+cells :: Int -> Int -> ((Int,Int) -> Maybe BattleDia) -> BattleDia
+cells nx ny drawContents = vcat [xnums, hcat [ynums, field, ynums], xnums] # alignTL where
   xnums     = colNumbers nx # translate (r2 (cellSize, 0))
   ynums     = rowNumbers ny
   field     = vcat [cellRow y | y <- [0..nx-1]]
   cellRow y = hcat [cell (x,y) | x <- [0..ny-1]]
-  cell pos  = square 40 # value [pos] # cellStyle pos
-  cellStyle (x,y)
-    | (x + y) `mod` 2 == 0 = fc (sRGB24 0x00 0x99 0xFF)
-    | otherwise            = fc (sRGB24 0x99 0xCC 0xFF)
+  cell pos  = case drawContents pos of
+    Nothing -> cellBg pos
+    Just c  -> c <> cellBg pos
+  cellBg p  = square 40 # value [p] # fc (sRGB 0.7 0.7 0.7)
+
 
 rowNumbers :: Int -> BattleDia
 rowNumbers n = vcat [num i | i <- [1..n]] # value [] where
@@ -37,8 +58,8 @@ colNumbers n = hcat [num i | i <- [0..n-1]] # value [] where
   strNum i = [toEnum $ fromEnum 'A' + i]
 
 -- * this is just for the grid lines
-grid :: Int -> Int -> BattleDia
-grid nx ny = (innerLines <> outerLines) # alignTL where
+renderGrid :: Int -> Int -> BattleDia
+renderGrid nx ny = (innerLines <> outerLines) # alignTL where
   w = (fromIntegral nx + 2) * cellSize
   h = (fromIntegral ny + 2) * cellSize
   outerOffsets n = [cellSize, (fromIntegral n + 1) * cellSize]
