@@ -2,7 +2,7 @@
 module Handler.Home (getHomeR) where
 
 import Import
-import Data.Text
+import Data.Text ()
 
 getHomeR :: Handler Html
 getHomeR = defaultLayout $ do

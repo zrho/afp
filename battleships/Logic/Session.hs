@@ -6,7 +6,6 @@ module Logic.Session
 import Prelude
 import Import
 
-import Data.Text
 import Data.Serialize as Bin
 
 -- | Allows to store arbitrary serializable data in sessions

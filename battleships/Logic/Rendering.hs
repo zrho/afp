@@ -41,8 +41,8 @@ renderPlayerGrid fleet grid = renderGrid nx ny <> cells nx ny renderCell where
   renderCell pos   = value [] $ case (grid ! pos, shipAt fleet pos) of
     (False, Nothing) -> waterSquare
     (True, Nothing)  -> marker # lc markerWaterColor <> waterSquare
-    (False, Just s)  -> shipSquare
-    (True, Just s)   -> square cellSize # fc burningShipColor
+    (False, Just _)  -> shipSquare
+    (True, Just _)   -> square cellSize # fc burningShipColor
 
 
 
@@ -77,8 +77,8 @@ marker, waterSquare, shipSquare
   :: (TrailLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 marker      = drawX (markerRadius * sqrt 2) <> circle markerRadius where
-  drawX size = p2 (-0.5 * size, -0.5 * size) ~~ p2 (0.5 * size, 0.5 * size)
-             <> p2 (-0.5 * size, 0.5 * size) ~~ p2 (0.5 * size, -0.5 * size)
+  drawX s   = p2 (-0.5 * s, -0.5 * s) ~~ p2 (0.5 * s, 0.5 * s)
+            <> p2 (-0.5 * s, 0.5 * s) ~~ p2 (0.5 * s, -0.5 * s)
 waterSquare = square cellSize # fc waterColor
 shipSquare  = roundedRect cellSize cellSize 0 # fc shipColor
 
