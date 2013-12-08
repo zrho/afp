@@ -29,6 +29,7 @@ library
                      Settings.Development
                      Handler.Home
                      Handler.Favicon
+                     Handler.PlayerGrid
                      Handler.TrackingGrid
                      Logic.GameFramework
                      Logic.StupidAI

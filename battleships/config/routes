@@ -1,3 +1,4 @@
-/battleships/                 HomeR  GET
-/battleships/favicon.ico      FaviconR GET
-/battleships/tracking.svg     TrackingGridR GET
+/battleships/                 HomeR              GET
+/battleships/favicon.ico      FaviconR           GET
+/battleships/tracking.svg     TrackingGridR      GET
+/battleships/player.svg       PlayerGridR        GET
