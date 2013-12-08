@@ -1,6 +1,6 @@
 <p> I know a number between #{ub} and #{lb}.
 
-$case wrong
+$case guess
     $of Nothing
     $of Just num
         <p> You guessed #{num}.&nbsp;
@@ -12,3 +12,11 @@ $case wrong
 <form method=post action=@{PlayR gameExt} enctype=#enc>
     ^{form}
     <button>Submit
+
+$if not $ Data.List.null history
+  <p>Already guessed: 
+    $forall guess <- history
+      <b>#{guess}</b> 
+
+<p>
+  <a href=@{HomeR}>Start over.

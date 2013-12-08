@@ -1,3 +1,7 @@
 <h1>You have won!
 
+<p>It took you #{Data.List.length history} guesses: 
+  $forall guess <- history
+    <b>#{guess}</b> 
+
 <p> Want to <a href="@{HomeR}">play again</a>?

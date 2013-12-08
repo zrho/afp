@@ -2,22 +2,11 @@
 module Handler.Helper where
 
 import Import
-import Data.Text
-import Logic.GameState
 
+beginForm :: FormInput Handler (Int, Int)
 beginForm = (,)
   <$> ireq intField "lower"
   <*> ireq intField "upper"
 
+playForm :: Html -> MForm Handler (FormResult Int, Widget)
 playForm = renderDivs $ areq intField "Your guess" Nothing
-
-
-play :: Maybe Int -> GameState -> Handler Html
-play (Just n) g | gameAnswer g == n = defaultLayout $(widgetFile "win")
-play wrong g = do
-  gameExt     <- expGame g
-  (form, enc) <- generateFormPost playForm
-  let (ub, lb) = gameRange g
-  let answer   = gameAnswer g
-  defaultLayout $(widgetFile "play")
-  

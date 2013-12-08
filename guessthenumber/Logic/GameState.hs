@@ -17,7 +17,7 @@ import qualified Data.Text                   as T
 import qualified Data.Text.Encoding          as TE
 import qualified Data.ByteString             as BS
 import qualified Data.ByteString.Lazy        as BL
-import qualified Data.ByteString.Base64.Lazy as B64
+import qualified Data.ByteString.Base16.Lazy as B16
 
 -------------------------------------------------------------------------
 -- * Game State
@@ -46,14 +46,14 @@ impGame :: MonadIO m => ExtGameState -> m (Maybe GameState)
 impGame game = liftIO $ do
   key <- loadKey
   let enc = fromExtGameState game
-  let dec = BL.toStrict $ decryptMsg CBC key enc
+  let dec = toStrict $ decryptMsg CBC key enc
   return $ eitherToMaybe $ decode dec
 
 -- | Exports a game.
 expGame :: MonadIO m => GameState -> m ExtGameState
 expGame game = liftIO $ do
   key <- loadKey
-  let dec = BL.fromStrict $ encode game
+  let dec = fromStrict $ encode game
   enc <- encryptMsg CBC key dec
   return $ ExtGameState enc
 
@@ -67,21 +67,30 @@ loadKey = BS.readFile "config/key.aes"
 instance PathPiece ExtGameState where
   fromPathPiece
     = fmap ExtGameState
-    . eitherToMaybe
-    . B64.decode
-    . BL.fromStrict
+    . checkValidity
+    . B16.decode
+    . fromStrict
     . TE.encodeUtf8
 
   toPathPiece
     = TE.decodeUtf8
-    . BL.toStrict
-    . B64.encode
+    . toStrict
+    . B16.encode
     . fromExtGameState
 
 -------------------------------------------------------------------------
 -- * Utilities
 
+checkValidity :: (BL.ByteString, BL.ByteString) -> Maybe BL.ByteString
+checkValidity (x,y) = if BL.null y then Just x else Nothing
+
 eitherToMaybe :: Either a b -> Maybe b
 eitherToMaybe e = case e of
   Right x -> Just x
   _       -> Nothing
+
+toStrict :: BL.ByteString -> BS.ByteString
+toStrict = BS.concat . BL.toChunks
+
+fromStrict :: BS.ByteString -> BL.ByteString
+fromStrict s = BL.fromChunks [s]

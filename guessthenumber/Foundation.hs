@@ -8,7 +8,6 @@ import Settings (widgetFile)
 import Settings.Development (development)
 import Text.Hamlet (hamletFile)
 import System.Log.FastLogger (Logger)
-import Web.Cookie (setCookiePath)
 import Logic.GameState
 
 data App = App

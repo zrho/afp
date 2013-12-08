@@ -2,7 +2,6 @@
 module Handler.Home (getHomeR, postHomeR) where
 
 import Import
-import Data.Text
 import Logic.GameState
 import Handler.Helper
 import System.Random (getStdRandom, randomR)

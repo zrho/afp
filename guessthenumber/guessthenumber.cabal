@@ -10,8 +10,6 @@ Extra-Source-Files:
                 config/key.aes
                 templates/*.cassius
                 templates/*.hamlet
-                templates/*.lucius
-                templates/*.julius
                 make
 
 Flag dev
@@ -85,15 +83,12 @@ library
                  , random
                  , QuickCheck
                  , mtl
-                 , blaze-svg
-                 , diagrams-svg
-                 , diagrams-lib
                  , cookie
                  , colour
-                 , base64-bytestring
                  , cereal
                  , transformers
                  , SimpleAES
+                 , base16-bytestring
 
 executable         main.cgi
     if flag(library-only)
