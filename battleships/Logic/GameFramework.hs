@@ -1,32 +1,106 @@
-module Logic.GameFramework where
+module Logic.GameFramework
+  ( AI (..)
+  , Rules (..)
+  , HitResponse (..)
+  , Orientation (..)
+  , Ship (..)
+  , PlayerState (..)
+  , Fleet
+  , Pos
+  , Grid
+  , TrackingGrid
+  , PlayerGrid
+  , gridSize
+  , shipCoordinates
+  , shipAt
+  ) where
 
 import Prelude
 import Data.Array
+import Data.Maybe
 import Control.Monad.Random
 import Control.Monad.Reader
 import Control.Monad.State
 
+-- | Operations an artificial intelligence has to provide for playing this game.
+-- The state is maintained across all calls of `aiPlaceFleet`, `aiFire` and `aiResponse`.
+-- The initial state must be provided by `aiInit`.
 class AI a where
-  aiInit       :: MonadRandom m => Rules -> m a
-  aiPlaceFleet :: (MonadRandom m, MonadState a m) => [Int] -> m Fleet
-  aiFire       :: (MonadRandom m, MonadState a m) => m Pos
-  aiResponse   :: (MonadRandom m, MonadState a m) => (Pos, HitResponse) -> m ()
-
+  aiInit       :: MonadRandom m 
+               => Rules -- ^ game rules
+               -> m a   -- ^ monad for computing initial ai state, 
+                        -- which is in turn feeded to the first call of aiFire
+  -- | AI ship placement
+  aiPlaceFleet :: (MonadRandom m, MonadState a m) 
+               => [Int]   -- ^ available ships (stored as length)
+               -> m Fleet
+  -- | computes the next shot based on the current AI state
+  aiFire       :: (MonadRandom m, MonadState a m) 
+               => m Pos
+  -- | Feedback to `aiFire`
+  aiResponse   :: (MonadRandom m, MonadState a m) 
+               => (Pos, HitResponse) -- ^ the target position and result of the last shot
+               -> m ()
 
 data Rules = Rules { mapSize :: (Int, Int) }
 
-data HitResponse = Water | Hit | Sunk deriving (Show, Eq, Ord, Bounded, Enum)
+-- | Reponse sent to the AI after a shot.
+data HitResponse = Water -- ^ the shot hit the water
+                 | Hit   -- ^ the shot hit a ship
+                 | Sunk  -- ^ the shot hit the last intact part of a ship
+                 deriving (Show, Eq, Ord, Bounded, Enum)
 
 data Orientation = Horizontal | Vertical deriving (Show, Eq, Ord, Bounded, Enum)
 
 data Ship = Ship 
-            { position    :: Pos
-            , size        :: Int
-            , orientation :: Orientation
+            { shipPosition    :: Pos
+            , shipSize        :: Int
+            , shipOrientation :: Orientation
             } deriving (Show, Eq)
 
-newtype Fleet = Fleet [Ship] deriving (Show, Eq)
+-- | Information about a player
+data PlayerState = PlayerState 
+                   { -- | the player's ships
+                     playerFleet :: Fleet
+                     -- | the grid where the impacts on this player's map are marked
+                   , playerGrid  :: PlayerGrid
+                     -- | the grid which contains the player's information about the enemy fleet
+                   , enemyGrid   :: TrackingGrid
+                   }
 
+-- | A fleet is just a list of ships
+type Fleet = [Ship]
+
+-- | A two-dimensional position stored with zero-based indices
 type Pos = (Int,Int)
 
-type TrackingGrid = Array Pos (Maybe HitResponse)
+-- | A grid is an array indexed by positions with zero-based indices.
+type Grid a = Array Pos a
+
+-- | A grid where the results of shots are tracked
+-- Indices must be zero based to guarantee consistency.
+type TrackingGrid = Grid (Maybe HitResponse)
+
+-- | A grid where the impacts of shots are tracked.
+-- True means, the cell was hit.
+type PlayerGrid   = Grid Bool
+
+gridSize :: Grid a -> (Int, Int)
+gridSize grid = let ((x1,y1),(x2,y2)) = bounds grid in (x2 - x1 + 1, y2 - y1 + 1)
+
+
+shipCoordinates :: Ship -> [Pos]
+shipCoordinates ship = 
+  let (x,y) = shipPosition ship
+  in case shipOrientation ship of
+    Horizontal -> [(x + i, y) | i <- [0..shipSize ship - 1]]
+    Vertical   -> [(x, y + i) | i <- [0..shipSize ship - 1]]
+
+
+shipAt :: Fleet -> Pos -> Maybe Ship
+shipAt fleet (px,py) = listToMaybe $ filter (containsP) fleet where
+  containsP ship = 
+    let (sx, sy) = shipPosition ship 
+    in case shipOrientation ship of
+      Horizontal -> px >= sx && px < sx + shipSize ship && py == sy
+      Vertical   -> px == sx && py >= sy && py < sy + shipSize ship
