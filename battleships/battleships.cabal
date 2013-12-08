@@ -110,5 +110,6 @@ executable         main.cgi
     build-depends:     base
                      , battleships
                      , yesod
+                     , wai-extra
 
     ghc-options:       -threaded -O2

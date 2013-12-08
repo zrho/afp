@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 module Logic.GameFramework
   ( AI (..)
   , Rules (..)
@@ -18,9 +19,14 @@ module Logic.GameFramework
 import Prelude
 import Data.Array
 import Data.Maybe
-import Control.Monad.Random
-import Control.Monad.Reader
-import Control.Monad.State
+import Data.Serialize (Serialize(..))
+import Control.Applicative
+import Control.Monad.Random.Class (MonadRandom)
+import Control.Monad.State.Class (MonadState)
+
+-------------------------------------------------------------------------------
+-- * Type-Classes
+-------------------------------------------------------------------------------
 
 -- | Operations an artificial intelligence has to provide for playing this game.
 -- The state is maintained across all calls of `aiPlaceFleet`, `aiFire` and `aiResponse`.
@@ -41,6 +47,10 @@ class AI a where
   aiResponse   :: (MonadRandom m, MonadState a m) 
                => (Pos, HitResponse) -- ^ the target position and result of the last shot
                -> m ()
+
+-------------------------------------------------------------------------------
+-- * Data Types
+-------------------------------------------------------------------------------
 
 data Rules = Rules { mapSize :: (Int, Int) }
 
@@ -68,6 +78,10 @@ data PlayerState = PlayerState
                    , enemyGrid   :: TrackingGrid
                    }
 
+-------------------------------------------------------------------------------
+-- * Type Synonyms
+-------------------------------------------------------------------------------
+
 -- | A fleet is just a list of ships
 type Fleet = [Ship]
 
@@ -85,9 +99,13 @@ type TrackingGrid = Grid (Maybe HitResponse)
 -- True means, the cell was hit.
 type PlayerGrid   = Grid Bool
 
+
+-------------------------------------------------------------------------------
+-- * Helper Functions
+-------------------------------------------------------------------------------
+
 gridSize :: Grid a -> (Int, Int)
 gridSize grid = let ((x1,y1),(x2,y2)) = bounds grid in (x2 - x1 + 1, y2 - y1 + 1)
-
 
 shipCoordinates :: Ship -> [Pos]
 shipCoordinates ship = 
@@ -104,3 +122,32 @@ shipAt fleet (px,py) = listToMaybe $ filter (containsP) fleet where
     in case shipOrientation ship of
       Horizontal -> px >= sx && px < sx + shipSize ship && py == sy
       Vertical   -> px == sx && py >= sy && py < sy + shipSize ship
+
+
+-------------------------------------------------------------------------------
+-- * Serialization
+-------------------------------------------------------------------------------
+
+instance Serialize PlayerState where
+  get = PlayerState <$> get <*> get <*> get
+  put PlayerState {..} =  put playerFleet 
+                       >> put playerGrid
+                       >> put enemyGrid
+
+instance Serialize Rules where
+  get = Rules <$> get
+  put Rules {..} = put mapSize
+
+instance Serialize HitResponse where
+  get = toEnum <$> get
+  put = put . fromEnum
+
+instance Serialize Orientation where
+  get = toEnum <$> get
+  put = put . fromEnum
+
+instance Serialize Ship where
+  get = Ship <$> get <*> get <*> get
+  put Ship{..} =  put shipPosition
+               >> put shipSize
+               >> put shipOrientation
