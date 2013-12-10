@@ -32,6 +32,8 @@ library
                      Handler.PlayerGrid
                      Handler.TrackingGrid
                      Handler.PlaceShips
+                     Handler.ResetShips
+                     Handler.FinishedPlacing
                      Handler.PlaceShipsGrid
                      Handler.PlaceShipsHelper
                      Handler.Play

@@ -1,0 +1,12 @@
+function placeShipsInit(svg) {
+  svg.getSVGDocument().onclick = placeShipsClick;
+}
+
+function placeShipsClick(event) {
+  var form = document.getElementById('placeShipsForm');
+  var hiddenField = document.getElementById(#{toJSON posXId});
+  hiddenField.setAttribute('value',event.clientX);
+  var hiddenField = document.getElementById(#{toJSON posYId});
+  hiddenField.setAttribute('value',-event.clientY);
+  form.submit();
+}

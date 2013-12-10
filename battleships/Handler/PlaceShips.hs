@@ -10,6 +10,7 @@ import Data.ByteString as BS
 import Data.Maybe
 
 import Handler.PlaceShipsHelper
+import Logic.Session
 
 data ShipData = ShipData {
   selectedSize :: Int
@@ -17,7 +18,7 @@ data ShipData = ShipData {
 , selectedOrientation :: Orientation
 } deriving Show
 
-placeShipsForm :: ShipList -> Html -> MForm Handler (FormResult ShipData, Widget)
+placeShipsForm :: ShipSizeList -> Html -> MForm Handler (FormResult ShipData, Widget)
 placeShipsForm toBePlacedYet extra = do
   (sizeRes, sizeView) <- mreq (selectFieldList sizeList) "Size" Nothing
   (posXRes, posXView) <- mreq doubleField posXFieldSettings Nothing
@@ -26,58 +27,43 @@ placeShipsForm toBePlacedYet extra = do
   grid <- renderPlaceShipsGrid
   let posRes = coordinatesToPos <$> posXRes <*> posYRes <*> pure grid
   let shipDataRes = ShipData <$> sizeRes <*> posRes <*> orientationRes
-  let widget = do
-                 toWidget
-                   [julius|
-                      function placeShipsInit(svg) {
-                        svg.getSVGDocument().onclick = placeShipsClick;
-                      }
-
-                      function placeShipsClick(event) {
-                        var form = document.getElementById('placeShipsForm');
-                        var hiddenField = document.getElementById('posX');
-                        hiddenField.setAttribute('value',event.clientX);
-                        var hiddenField = document.getElementById('posY');
-                        hiddenField.setAttribute('value',-event.clientY);
-                        form.submit();
-                      }
-                   |]
-                 [whamlet|
-                     #{extra}
-                       <p>
-                         Insert a ship of size #
-                         ^{fvInput sizeView} with orientation #
-                         ^{fvInput orientationView} at position: (click in the field)
-                       <div style="visibility:hidden">
-                         ^{fvInput posXView}
-                         ^{fvInput posYView}
-                         <input type='submit'>
-                       <p>
-                         <embed src="@{PlaceShipsGridR}" type="image/svg+xml" onload="placeShipsInit(this);" />
-                 |]
-  return (shipDataRes
-         , widget) where
+  let widget = $(widgetFile "placeshipsform")
+  return (shipDataRes, widget) where
     sizeList :: [(Text, Int)]
-    sizeList = L.map (\i -> (T.pack $ show i, i)) . L.nub $ toBePlacedYet
+    sizeList = L.map groupToOption . L.group $ toBePlacedYet where
+      groupToOption :: [Int] -> (Text, Int)
+      groupToOption is = (T.pack text, L.head is) where
+        text = show (L.head is) L.++ " (" L.++ show (L.length is) L.++ " times)"
     orientationList :: [(Text, Orientation)]
     orientationList = [("Horizontal" :: Text, Horizontal), ("Vertical", Vertical)]
-    posXFieldSettings = FieldSettings undefined Nothing (Just "posX") Nothing []
-    posYFieldSettings = FieldSettings undefined Nothing (Just "posY") Nothing []
+    posXId :: Text
+    posXId = "posX"
+    posYId :: Text
+    posYId = "posY"
+    posXFieldSettings = FieldSettings undefined Nothing (Just posXId) Nothing []
+    posYFieldSettings = FieldSettings undefined Nothing (Just posYId) Nothing []
 
 getPlaceShipsR :: Handler Html
 getPlaceShipsR = do
-  (rules, shipList, fleet) <- readSession
-  (formWidget, enctype) <- generateFormPost (placeShipsForm shipList)
+  rules <- readFromSessionDefault rulesKey standardRules
+  shipList <- readFromSessionDefault shipListKey standardShipSizes
+  fleet <- readFromSessionDefault fleetPendingKey []
+
   let toBePlacedYet = shipsToBePlacedYet shipList fleet
-  -- actual output:
+  if L.null toBePlacedYet then redirect FinishedPlacingR else do
+  (formWidget, enctype) <- generateFormPost (placeShipsForm toBePlacedYet)
   defaultLayout $ do
     setTitle "Place your ships! – Battleships"
     $(widgetFile "placeships")
 
 postPlaceShipsR :: Handler Html
 postPlaceShipsR = do
-  (rules, shipList, fleet) <- readSession
-  ((formResult, _), _) <- runFormPost (placeShipsForm shipList)
+  rules <- readFromSessionDefault rulesKey standardRules
+  shipList <- readFromSessionDefault shipListKey standardShipSizes
+  fleet <- readFromSessionDefault fleetPendingKey []
+
+  let toBePlacedYet = shipsToBePlacedYet shipList fleet
+  ((formResult, _), _) <- runFormPost (placeShipsForm toBePlacedYet)
   case formResult of
     FormSuccess shipData -> do
       let maybePos = selectedPos shipData
@@ -87,25 +73,12 @@ postPlaceShipsR = do
                                        , shipPosition = pos
                                        , shipOrientation = selectedOrientation shipData
                                        } in
-          if canBePlaced rules fleet newShip
+          if canShipBePlaced rules fleet newShip
           then do
                  let newFleet = fleet ++ [newShip]
-                 writeSession rules shipList newFleet
+                 writeToSession fleetPendingKey newFleet
           else setMessage "Ship cannot be placed there."
-    FormFailure text     -> setMessage . toHtml . T.concat $ text
-    _                    -> setMessage "Form missing."
+    FormFailure text     -> setMessage . toHtml . T.intercalate " " $ text
+    FormMissing          -> setMessage "Form missing."
   redirect PlaceShipsR
 
-canBePlaced :: Rules -> Fleet -> Ship -> Bool
-canBePlaced rules fleet ship
- = L.and [ L.all (inRange rules) shipCoord
-       , L.all (isNothing . shipAt fleet) shipCoord
-       ]
-   where
-     shipCoord = shipCoordinates ship
-     inRange (Rules { mapSize = (w, h) }) (x, y)
-       = L.and [ 0 <= x, x < w, 0 <= y, y < h]
-
-shipsToBePlacedYet :: ShipList -> Fleet -> ShipList
-shipsToBePlacedYet shipList fleet
- = shipList L.\\ L.map shipSize fleet

@@ -21,6 +21,8 @@ import Handler.Favicon
 import Handler.PlayerGrid
 import Handler.TrackingGrid
 import Handler.PlaceShips
+import Handler.ResetShips
+import Handler.FinishedPlacing
 import Handler.PlaceShipsGrid
 import Handler.Play
 

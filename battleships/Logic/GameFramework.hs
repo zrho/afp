@@ -7,17 +7,24 @@ module Logic.GameFramework
   , Ship (..)
   , PlayerState (..)
   , Fleet
+  , ShipSizeList
   , Pos
   , Grid
   , TrackingGrid
   , PlayerGrid
+  , standardRules
+  , standardShipSizes
   , gridSize
   , shipCoordinates
   , shipAt
+  , canShipBePlaced
+  , shipHull
+  , shipsToBePlacedYet
   ) where
 
 import Prelude
 import Data.Array
+import Data.List as L
 import Data.Maybe
 import Data.Serialize (Serialize(..))
 import Control.Applicative
@@ -38,7 +45,7 @@ class AI a where
                         -- which is in turn feeded to the first call of aiFire
   -- | AI ship placement
   aiPlaceFleet :: (MonadRandom m, MonadState a m) 
-               => [Int]   -- ^ available ships (stored as length)
+               => ShipSizeList -- ^ available ships (stored as length)
                -> m Fleet
   -- | computes the next shot based on the current AI state
   aiFire       :: (MonadRandom m, MonadState a m) 
@@ -52,7 +59,8 @@ class AI a where
 -- * Data Types
 -------------------------------------------------------------------------------
 
-data Rules = Rules { mapSize :: (Int, Int) }
+data Rules = Rules
+ { mapSize :: (Int, Int) }
 
 -- | Reponse sent to the AI after a shot.
 data HitResponse = Water -- ^ the shot hit the water
@@ -85,6 +93,10 @@ data PlayerState = PlayerState
 -- | A fleet is just a list of ships
 type Fleet = [Ship]
 
+-- | A list of available ship sizes
+-- Multiple occurences mean that there are multiple ships of that size
+type ShipSizeList = [Int]
+
 -- | A two-dimensional position stored with zero-based indices
 type Pos = (Int,Int)
 
@@ -98,6 +110,16 @@ type TrackingGrid = Grid (Maybe HitResponse)
 -- | A grid where the impacts of shots are tracked.
 -- True means, the cell was hit.
 type PlayerGrid   = Grid Bool
+
+------------------------------------------------------------------------------
+-- * Default Values
+------------------------------------------------------------------------------
+
+standardRules :: Rules
+standardRules = Rules { mapSize  = (10,10) }
+
+standardShipSizes :: ShipSizeList
+standardShipSizes = [5,4,4,3,3,3,2,2,2,2]
 
 
 -------------------------------------------------------------------------------
@@ -123,6 +145,42 @@ shipAt fleet (px,py) = listToMaybe $ filter (containsP) fleet where
       Horizontal -> px >= sx && px < sx + shipSize ship && py == sy
       Vertical   -> px == sx && py >= sy && py < sy + shipSize ship
 
+-- | checks whether it is valid to add the ship to the fleet
+canShipBePlaced :: Rules
+            -> Fleet -- ^ the fleet built so far
+            -> Ship  -- ^ the new ship to be built
+            -> Bool
+canShipBePlaced rules fleet ship
+ = L.and [ L.all (inRange rules) shipCoord
+         , L.all (isNothing . shipAt fleet) $ shipHull shipCoord
+         ]
+   where
+     shipCoord = shipCoordinates ship
+     inRange (Rules { mapSize = (w, h) }) (x, y)
+       = L.and [ 0 <= x, x < w, 0 <= y, y < h]
+
+-- | computes the "hull" of a ship
+-- The hull is the cells around the ship that cannot be occupied by another ship.
+-- The ship itself is included in the hull.
+shipHull :: [Pos] -> [Pos]
+shipHull ps = L.concatMap hull' ps where
+  hull' (x, y) =
+    [ (x - 1, y - 1)
+    , (x - 1, y    )
+    , (x - 1, y + 1)
+    , (x    , y - 1)
+    , (x    , y    )
+    , (x    , y + 1)
+    , (x + 1, y - 1)
+    , (x + 1, y    )
+    , (x + 1, y + 1)
+    ]
+
+shipsToBePlacedYet :: ShipSizeList -- ^ the list of all ship sizes
+                   -> Fleet         -- ^ the fleet as it is built so far
+                   -> ShipSizeList
+shipsToBePlacedYet fullShipList alreadyBuiltFleet
+ = fullShipList L.\\ L.map shipSize alreadyBuiltFleet
 
 -------------------------------------------------------------------------------
 -- * Serialization
