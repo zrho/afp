@@ -1,0 +1,4 @@
+<h1>_{MsgFireShot}
+
+<form action=@{PlayR} method=post enctype=#{enctype} #fireShotForm>
+  ^{formWidget}

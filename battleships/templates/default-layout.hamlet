@@ -1,9 +1,9 @@
-<p .header>
-  <h1>_{MsgGameName}
-
-  <h2>_{MsgCredits}.
-
-  <h3>_{MsgGameDescription}
+$case requestedRoute
+  $of Just HomeR
+    <p .header>
+      <h1>_{MsgGameName}
+      <h2>_{MsgCredits}
+  $of _
 
 <div .content>
   $maybe msg <- mmsg

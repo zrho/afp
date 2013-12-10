@@ -22,6 +22,7 @@ import Handler.PlayerGrid
 import Handler.TrackingGrid
 import Handler.PlaceShips
 import Handler.PlaceShipsGrid
+import Handler.Play
 
 mkYesodDispatch "App" resourcesApp
 

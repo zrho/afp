@@ -4,3 +4,4 @@
 /battleships/player.svg       PlayerGridR        GET
 /battleships/place            PlaceShipsR        GET POST
 /battleships/plac.svg         PlaceShipsGridR    GET
+/battleships/play             PlayR              GET POST

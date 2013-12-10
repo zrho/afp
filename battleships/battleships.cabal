@@ -34,6 +34,8 @@ library
                      Handler.PlaceShips
                      Handler.PlaceShipsGrid
                      Handler.PlaceShipsHelper
+                     Handler.Play
+                     Handler.PlayHelper
                      Logic.GameFramework
                      Logic.StupidAI
                      Logic.Rendering
