@@ -7,3 +7,4 @@ import Data.Text ()
 getHomeR :: Handler Html
 getHomeR = defaultLayout $ do
              setTitle "Battleships"
+             $(widgetFile "home")

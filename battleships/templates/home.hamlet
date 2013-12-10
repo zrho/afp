@@ -1,0 +1,2 @@
+<p .linkBlock>
+  <a .linkButton .redButton href=@{PlaceShipsR}>_{MsgStartPlacing}
