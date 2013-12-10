@@ -20,6 +20,8 @@ import Handler.Home
 import Handler.Favicon
 import Handler.PlayerGrid
 import Handler.TrackingGrid
+import Handler.PlaceShips
+import Handler.PlaceShipsGrid
 
 mkYesodDispatch "App" resourcesApp
 

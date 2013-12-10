@@ -2,3 +2,5 @@
 /battleships/favicon.ico      FaviconR           GET
 /battleships/tracking.svg     TrackingGridR      GET
 /battleships/player.svg       PlayerGridR        GET
+/battleships/place            PlaceShipsR        GET POST
+/battleships/plac.svg         PlaceShipsGridR    GET

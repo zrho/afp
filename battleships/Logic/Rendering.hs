@@ -38,7 +38,7 @@ renderTrackingGrid grid = renderGrid nx ny <> cells nx ny (drawCell . (!) grid) 
 renderPlayerGrid :: Fleet -> PlayerGrid -> BattleDia
 renderPlayerGrid fleet grid = renderGrid nx ny <> cells nx ny renderCell where
   (nx,ny)          =  gridSize grid
-  renderCell pos   = value [] $ case (grid ! pos, shipAt fleet pos) of
+  renderCell pos   = value [pos] $ case (grid ! pos, shipAt fleet pos) of
     (False, Nothing) -> waterSquare
     (True, Nothing)  -> marker # lc markerWaterColor <> waterSquare
     (False, Just _)  -> shipSquare

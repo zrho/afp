@@ -1,0 +1,12 @@
+<h1>Place your ships!
+
+<p>
+  #{show $ mapSize rules}
+  #{show $ shipList}
+  #{show $ fleet}
+
+<p>
+  #{show toBePlacedYet} to be placed yet.
+
+<form action=@{PlaceShipsR} method=post enctype=#{enctype} #placeShipsForm>
+  ^{formWidget}
