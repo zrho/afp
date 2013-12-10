@@ -1,0 +1,8 @@
+<h1>Finished placing ships!
+
+
+<p>
+  <embed src="@{PlaceShipsGridR}" type="image/svg+xml" />
+
+<form action=@{ResetShipsR} method=post #resetShipsForm>
+  <button type="submit">Reset ships!</button>

@@ -3,4 +3,6 @@
 /battleships/tracking.svg     TrackingGridR      GET
 /battleships/player.svg       PlayerGridR        GET
 /battleships/place            PlaceShipsR        GET POST
+/battleships/place/reset      ResetShipsR        POST
+/battleships/place/finish     FinishedPlacingR GET
 /battleships/plac.svg         PlaceShipsGridR    GET
