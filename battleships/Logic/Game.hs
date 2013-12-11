@@ -78,14 +78,14 @@ type Fleet = [Ship]
 -- | A two-dimensional position stored with zero-based indices
 type Pos = (Int,Int)
 
--- | A grid is an array indexed by positions with zero-based indices.
+-- | A grid is a tuple of an array indexed by positions with zero-based indices, and the position of the last shot.
 type Grid a = Array Pos a
 
 -- | A grid where the results of shots are tracked.
-type TrackingGrid = Grid (Maybe HitResponse)
+type TrackingGrid = (Grid (Maybe HitResponse), Maybe Pos)
 
 -- | A grid where the impacts of shots are tracked..
-type ImpactGrid = Grid Bool
+type ImpactGrid = (Grid Bool, Maybe Pos)
 
 -------------------------------------------------------------------------------
 -- * New Games
@@ -100,8 +100,8 @@ newGame
 
 newGame r pFleet = do 
   (ai, eFleet) <- aiInit r
-  let impacts  = newGrid (rulesSize r) False
-  let tracking = newGrid (rulesSize r) Nothing
+  let impacts  = (newGrid (rulesSize r) False, Nothing)
+  let tracking = (newGrid (rulesSize r) Nothing, Nothing)
   return $ GameState impacts tracking pFleet eFleet ai r
 
 -- | Helper: Creates a grid, filled with one value.
@@ -136,15 +136,15 @@ fireAt fleet impacts pos = case shipAt fleet pos of
   Just s  -> case leftover of
     []    -> Sunk
     _     -> Hit
-    where leftover = filter (\p -> not $ p == pos || impacts ! p) $ shipCoordinates s
+    where leftover = filter (\p -> not $ p == pos || (fst impacts) ! p) $ shipCoordinates s
 
 allSunk :: Fleet -> ImpactGrid -> Bool
 allSunk fleet impacts = foldr (&&) True hit where
-  hit    = fmap (impacts !) points
+  hit    = fmap ((fst impacts) !) points
   points = fleet >>= shipCoordinates
 
 trackToImpact :: TrackingGrid -> ImpactGrid
-trackToImpact = fmap (/= Nothing) 
+trackToImpact t = (fmap (/= Nothing) $ fst t, snd t)
 
 -------------------------------------------------------------------------------
 -- * Turn
@@ -164,7 +164,7 @@ turnEnemy g@(GameState {..}) = do
   -- fire the enemy's shot
   let response = fireAt playerFleet playerImpact pos
   -- update the impact grid
-  let impact   = playerImpact // [(pos, True)]
+  let impact   = ((fst playerImpact) // [(pos, True)], Just pos)
   -- notify the AI
   (_, s') <- runStateT (aiResponse pos response) s
   -- all player ships sunk now?
@@ -177,7 +177,7 @@ turnPlayer g@(GameState {..}) pos = do
   -- fire the player's shot
   let response  = fireAt enemyFleet (trackToImpact playerTrack) pos
   -- update the tracking grid
-  let track     = playerTrack // [(pos, Just response)]
+  let track     = ((fst playerTrack) // [(pos, Just response)], Just pos)
   -- all enemy ships sunk now?
   return $ case allSunk enemyFleet (trackToImpact track) of
     True  -> Won $ g { playerTrack = track }

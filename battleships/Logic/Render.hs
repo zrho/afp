@@ -23,8 +23,8 @@ referenceField :: Int -> Int -> BattleDia
 referenceField nx ny = renderGrid nx ny <> cells nx ny (const mempty)
 
 renderEnemyGrid :: TrackingGrid -> BattleDia
-renderEnemyGrid grid = renderGrid nx ny <> cells nx ny (drawCell . (!) grid) where
-  (nx,ny)               =  gridSize grid
+renderEnemyGrid (grid, _) = renderGrid nx ny <> cells nx ny (drawCell . (!) grid) where
+  (nx,ny)               = gridSize grid
 
   drawCell Nothing      = square cellSize # fc fogColor   # value []
   drawCell (Just Water) = square cellSize # fc waterColor # value []
@@ -38,7 +38,7 @@ renderEnemyGrid grid = renderGrid nx ny <> cells nx ny (drawCell . (!) grid) whe
                           ) # value []
 
 renderPlayerGrid :: Fleet -> ImpactGrid -> BattleDia
-renderPlayerGrid fleet grid = renderGrid nx ny <> cells nx ny renderCell where
+renderPlayerGrid fleet (grid, _) = renderGrid nx ny <> cells nx ny renderCell where
   (nx,ny)          =  gridSize grid
   renderCell pos   = value [] $ case (grid ! pos, shipAt fleet pos) of
     (False, Nothing) -> waterSquare
@@ -47,7 +47,7 @@ renderPlayerGrid fleet grid = renderGrid nx ny <> cells nx ny renderCell where
     (True, Just _)   -> square cellSize # fc burningShipColor
 
 renderPlaceGrid :: Fleet -> (Int, Int) -> BattleDia
-renderPlaceGrid fleet sz = renderPlayerGrid fleet $ newGrid sz False
+renderPlaceGrid fleet gSize = renderPlayerGrid fleet $ (newGrid gSize False, Nothing)
 
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering
