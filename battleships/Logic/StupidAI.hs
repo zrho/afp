@@ -9,8 +9,6 @@ import           Control.Monad.State
 import           Control.Applicative
 import           Data.Serialize (Serialize)
 import qualified Data.Serialize as S
-import           Data.List as L
-import           Data.Maybe
 
 data StupidAI = StupidAI { rules :: Rules }
 
@@ -28,7 +26,7 @@ initShips r = placeRemainingShips (rulesShips r) r (return [])
 
 placeRemainingShips :: MonadRandom m => [Int] -> Rules -> m Fleet -> m Fleet
 placeRemainingShips []     _ f = f
-placeRemainingShips (n:ns) r f = liftM2 (:) (placeShip n r f) (placeRemainingShips ns r f)
+placeRemainingShips (n:ns) r f = placeRemainingShips ns r (liftM2 (:) (placeShip n r f) f)
 
 placeShip :: MonadRandom m => Int -> Rules -> m Fleet -> m Ship
 placeShip n r f = do 
@@ -38,18 +36,19 @@ placeShip n r f = do
 	                  then s 
 	                  else placeShip n r f
 
-shipAdmissible :: Rules -> Fleet -> Ship -> Bool
-shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
-  rangeCheck     = L.all inRange shipCoords
-  freeCheck      = L.all (isNothing . shipAt fleet) shipCoords
-  inRange (x, y) = L.and [ 0 <= x, x < w, 0 <= y, y < h]
-  (w, h)         = rulesSize
-  shipCoords     = shipCoordinates ship
-
 getRandomPos :: MonadRandom m => (Int,Int) -> m (Int,Int)
 getRandomPos (w,h) = (,) `liftM` getRandomR (0,w-1) `ap` getRandomR (0,h-1)
+
+getRandomOrientation :: MonadRandom m => m Orientation
+getRandomOrientation = do
+	                     ori <- getRandomR (0,1)
+	                     let orientation = ori == (0 :: Int)
+	                     if orientation
+	                     	then return Horizontal
+	                     	else return Vertical
 
 getRandomShip :: MonadRandom m => (Int,Int) -> Int -> m Ship
 getRandomShip size n = do
 	                     (x,y) <- getRandomPos size
-	                     return (Ship (x,y) n Horizontal)
+	                     orientation <- getRandomOrientation
+	                     return (Ship (x,y) n orientation)
