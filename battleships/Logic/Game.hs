@@ -78,13 +78,13 @@ type Fleet = [Ship]
 -- | A two-dimensional position stored with zero-based indices
 type Pos = (Int,Int)
 
--- | A grid is a tuple of an array indexed by positions with zero-based indices, and the position of the last shot.
+-- | A grid is an array indexed by positions with zero-based indices
 type Grid a = Array Pos a
 
--- | A grid where the results of shots are tracked.
+-- | A grid where the results of shots and the position of the last shot are tracked.
 type TrackingGrid = (Grid (Maybe HitResponse), Maybe Pos)
 
--- | A grid where the impacts of shots are tracked..
+-- | A grid where the impacts of shots and the position of the last shot are tracked..
 type ImpactGrid = (Grid Bool, Maybe Pos)
 
 -------------------------------------------------------------------------------

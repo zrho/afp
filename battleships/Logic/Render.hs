@@ -19,32 +19,23 @@ type BattleDia = QDiagram SVG R2 [Pos]
 -- * High-Level Rendering
 -------------------------------------------------------------------------------
 
-referenceField :: Int -> Int -> BattleDia
-referenceField nx ny = renderGrid nx ny <> cells nx ny (const mempty)
-
 renderEnemyGrid :: TrackingGrid -> BattleDia
-renderEnemyGrid (grid, _) = renderGrid nx ny <> cells nx ny (drawCell . (!) grid) where
-  (nx,ny)               = gridSize grid
-
-  drawCell Nothing      = square cellSize # fc fogColor   # value []
-  drawCell (Just Water) = square cellSize # fc waterColor # value []
-  drawCell (Just Hit)   = (  marker # lc markerHitColor # lw 3
-                          <> shipSquare 
-                          <> waterSquare
-                          ) # value []
-  drawCell (Just Sunk)  = (  marker # lc markerSunkColor # lw 3
-                          <> shipSquare 
-                          <> waterSquare
-                          ) # value []
+renderEnemyGrid (grid, mLastPos) = renderGrid nx ny <> cells nx ny renderCell where
+  (nx,ny)        = gridSize grid
+  renderCell pos = value [] $ case (grid ! pos, isLastPos pos mLastPos) of
+    (Nothing, l)    -> markedSquare l fogSquare
+    (Just Water, l) -> markedSquare l waterSquare 
+    (Just Hit, l)   -> markedSquare l (marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare) 
+    (Just Sunk, l)  -> markedSquare l (marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare) 
 
 renderPlayerGrid :: Fleet -> ImpactGrid -> BattleDia
-renderPlayerGrid fleet (grid, _) = renderGrid nx ny <> cells nx ny renderCell where
+renderPlayerGrid fleet (grid, mLastPos) = renderGrid nx ny <> cells nx ny renderCell where
   (nx,ny)          =  gridSize grid
-  renderCell pos   = value [] $ case (grid ! pos, shipAt fleet pos) of
-    (False, Nothing) -> waterSquare
-    (True, Nothing)  -> marker # lc markerWaterColor <> waterSquare
-    (False, Just _)  -> shipSquare
-    (True, Just _)   -> square cellSize # fc burningShipColor
+  renderCell pos   = value [] $ case (grid ! pos, shipAt fleet pos, isLastPos pos mLastPos) of
+    (False, Nothing, l) -> markedSquare l waterSquare 
+    (True, Nothing, l)  -> markedSquare l (marker # lc markerWaterColor <> waterSquare) 
+    (False, Just _, l)  -> markedSquare l shipSquare 
+    (True, Just _, l)   -> markedSquare l (square cellSize # fc burningShipColor) 
 
 renderPlaceGrid :: Fleet -> (Int, Int) -> BattleDia
 renderPlaceGrid fleet gSize = renderPlayerGrid fleet $ (newGrid gSize False, Nothing)
@@ -77,14 +68,24 @@ colNumbers n = hcat [num i | i <- [0..n-1]] # value [] where
   strNum :: Int -> String
   strNum i = [toEnum $ fromEnum 'A' + i]
 
-marker, waterSquare, shipSquare 
+marker, waterSquare, shipSquare, fogSquare, lastShotMarker
   :: (TrailLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
-marker      = drawX (markerRadius * sqrt 2) <> circle markerRadius where
-  drawX s   = p2 (-0.5 * s, -0.5 * s) ~~ p2 (0.5 * s, 0.5 * s)
-            <> p2 (-0.5 * s, 0.5 * s) ~~ p2 (0.5 * s, -0.5 * s)
-waterSquare = square cellSize # fc waterColor
-shipSquare  = roundedRect cellSize cellSize 0 # fc shipColor
+marker         = drawX (markerRadius * sqrt 2) <> circle markerRadius where
+  drawX s      = p2 (-0.5 * s, -0.5 * s) ~~ p2 (0.5 * s, 0.5 * s)
+               <> p2 (-0.5 * s, 0.5 * s) ~~ p2 (0.5 * s, -0.5 * s)
+waterSquare    = square cellSize # fc waterColor
+shipSquare     = roundedRect cellSize cellSize 0 # fc shipColor
+fogSquare      = square cellSize # fc fogColor
+lastShotMarker = roundedRect (cellSize - 3) (cellSize - 3) 0 # lc lastShotColor # lw 3
+
+markedSquare :: Bool -> QDiagram SVG R2 Any -> QDiagram SVG R2 Any
+markedSquare True  s = lastShotMarker <> s
+markedSquare False s = s
+
+isLastPos :: Pos -> (Maybe Pos) -> Bool
+isLastPos _    Nothing    = False
+isLastPos pos (Just lPos) = pos == lPos
 
 -------------------------------------------------------------------------------
 -- * Grid Rendering
@@ -121,7 +122,7 @@ numberStyle :: HasStyle c => c -> c
 numberStyle = fontSize 30 . font "Monospace"
 
 fogColor, waterColor, markerHitColor, markerSunkColor,
-  markerWaterColor, shipColor, burningShipColor 
+  markerWaterColor, shipColor, burningShipColor, lastShotColor 
   :: Colour Double
 
 fogColor         = sRGB 0.7 0.7 0.7
@@ -131,3 +132,4 @@ markerSunkColor  = sRGB 1.0 0.0 0.0
 markerWaterColor = sRGB24 0x33 0x99 0xFF
 shipColor        = gray
 burningShipColor = orange
+lastShotColor    = red
