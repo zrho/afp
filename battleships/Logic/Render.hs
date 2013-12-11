@@ -22,20 +22,20 @@ type BattleDia = QDiagram SVG R2 [Pos]
 renderEnemyGrid :: TrackingGrid -> BattleDia
 renderEnemyGrid (grid, mLastPos) = renderGrid nx ny <> cells nx ny renderCell where
   (nx,ny)        = gridSize grid
-  renderCell pos = value [] $ case (grid ! pos, isLastPos pos mLastPos) of
-    (Nothing, l)    -> markedSquare l fogSquare
-    (Just Water, l) -> markedSquare l waterSquare 
-    (Just Hit, l)   -> markedSquare l (marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare) 
-    (Just Sunk, l)  -> markedSquare l (marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare) 
+  renderCell pos = value [] $ markedSquare (isLastPos pos mLastPos) $ case grid ! pos of
+    Nothing    -> fogSquare
+    Just Water -> waterSquare 
+    Just Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
+    Just Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
 
 renderPlayerGrid :: Fleet -> ImpactGrid -> BattleDia
 renderPlayerGrid fleet (grid, mLastPos) = renderGrid nx ny <> cells nx ny renderCell where
   (nx,ny)          =  gridSize grid
-  renderCell pos   = value [] $ case (grid ! pos, shipAt fleet pos, isLastPos pos mLastPos) of
-    (False, Nothing, l) -> markedSquare l waterSquare 
-    (True, Nothing, l)  -> markedSquare l (marker # lc markerWaterColor <> waterSquare) 
-    (False, Just _, l)  -> markedSquare l shipSquare 
-    (True, Just _, l)   -> markedSquare l (square cellSize # fc burningShipColor) 
+  renderCell pos   = value [] $ markedSquare (isLastPos pos mLastPos) $ case (grid ! pos, shipAt fleet pos) of
+    (False, Nothing) -> waterSquare 
+    (True, Nothing)  -> marker # lc markerWaterColor <> waterSquare
+    (False, Just _)  -> shipSquare 
+    (True, Just _)   -> square cellSize # fc burningShipColor
 
 renderPlaceGrid :: Fleet -> (Int, Int) -> BattleDia
 renderPlaceGrid fleet gSize = renderPlayerGrid fleet $ (newGrid gSize False, Nothing)
