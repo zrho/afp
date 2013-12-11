@@ -155,14 +155,6 @@ allSunk fleet impacts = foldr (&&) True hit where
 trackToImpact :: TrackingGrid -> ImpactGrid
 trackToImpact t = (fmap (/= Nothing) $ fst t, snd t)
 
-shipAdmissible :: Rules -> Fleet -> Ship -> Bool
-shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
-  rangeCheck     = L.all inRange shipCoords
-  freeCheck      = L.all (isNothing . shipAt fleet) shipCoords
-  inRange (x, y) = L.and [ 0 <= x, x < w, 0 <= y, y < h]
-  (w, h)         = rulesSize
-  shipCoords     = shipCoordinates ship
-
 -------------------------------------------------------------------------------
 -- * Turn
 -------------------------------------------------------------------------------
