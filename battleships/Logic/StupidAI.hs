@@ -9,7 +9,6 @@ import           Control.Monad.State
 import           Control.Applicative
 import           Data.Serialize (Serialize)
 import qualified Data.Serialize as S
-import           Data.Maybe
 
 data StupidAI = StupidAI { rules :: Rules }
 

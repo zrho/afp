@@ -8,7 +8,6 @@ import Logic.GameExt
 import Logic.Render
 import Logic.StupidAI
 import Handler.Util
-import Data.Maybe
 import Data.List as L
 import Data.Serialize (Serialize)
 
