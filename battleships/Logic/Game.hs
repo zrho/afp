@@ -41,8 +41,9 @@ class AI a where
 -------------------------------------------------------------------------------
 
 data Rules = Rules
-  { rulesSize  :: (Int, Int)
-  , rulesShips :: [Int]
+  { rulesSize         :: (Int, Int)
+  , rulesShips        :: [Int]
+  , rulesSafetyMargin :: Int
   }
 
 -- | Reponse sent to the AI after a shot.
@@ -126,7 +127,7 @@ gridSize grid = let ((x1,y1),(x2,y2)) = bounds grid in (x2 - x1 + 1, y2 - y1 + 1
 shipAdmissible :: Rules -> Fleet -> Ship -> Bool
 shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
   rangeCheck     = L.all (inRange range) shipCoords
-  freeCheck      = L.all (isNothing . shipAt fleet) shipCoords
+  freeCheck      = L.all (isNothing . shipAt fleet) (shipOccupiedPositions ship rulesSafetyMargin)
   shipCoords     = shipCoordinates ship
   (w, h)         = rulesSize
   range          = ((0, 0), (w - 1, h - 1))
@@ -135,6 +136,13 @@ shipCoordinates :: Ship -> [Pos]
 shipCoordinates Ship {..} = case shipOrientation of
   Horizontal -> [(x + i, y) | i <- [0..shipSize - 1]]
   Vertical   -> [(x, y + i) | i <- [0..shipSize - 1]]
+  where (x, y) = shipPosition
+
+-- | Calculates the position occupied by a ship including safety margin.
+shipOccupiedPositions :: Ship -> Int -> [Pos]
+shipOccupiedPositions Ship{..} margin = case shipOrientation of
+  Horizontal -> [(x + i, y + d) | i <- [-margin..shipSize - 1 + margin], d <- [-margin..margin]]
+  Vertical   -> [(x + d, y + i) | i <- [-margin..shipSize - 1 + margin], d <- [-margin..margin]]
   where (x, y) = shipPosition
 
 shipAt :: Fleet -> Pos -> Maybe Ship
@@ -212,8 +220,8 @@ instance Serialize a => Serialize (GameState a) where
     put gameRules
 
 instance Serialize Rules where
-  get = Rules <$> get <*> get
-  put Rules {..} = put rulesSize >> put rulesShips
+  get = Rules <$> get <*> get <*> get
+  put Rules {..} = put rulesSize >> put rulesShips >> put rulesSafetyMargin
 
 instance Serialize HitResponse where
   get = fromByte <$> get

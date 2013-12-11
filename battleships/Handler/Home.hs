@@ -13,4 +13,4 @@ getHomeR = do
   defaultLayout $(widgetFile "home")
 
 rules :: Rules 
-rules = Rules (10, 10) [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ]
+rules = Rules (10, 10) [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ] 1
