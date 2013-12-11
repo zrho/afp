@@ -4,17 +4,12 @@ import Import
 import Data.Array as A
 
 import Diagrams.Prelude
-import Diagrams.Backend.SVG
-import Text.Blaze.Svg.Renderer.Text (renderSvg)
 
 import Logic.GameFramework
 import Logic.Rendering
 import Logic.Session
 
-import Data.Serialize
-import Data.List as L
 import Data.Maybe as M
-import Data.ByteString as BS
 
 renderPlaceShipsGrid :: MonadHandler m => m BattleDia
 renderPlaceShipsGrid = do
