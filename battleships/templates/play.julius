@@ -1,0 +1,26 @@
+function clickableInit(svg, target) {
+    svg.getSVGDocument().onclick = function (event) {
+        clickableEvent(event, target);
+    }
+}
+
+function clickableEvent(event, target) {
+    var form = document.createElement('form');
+    form.setAttribute('method', 'post');
+    form.setAttribute('action', target);
+
+    var hiddenField = document.createElement('input');
+    hiddenField.setAttribute('type','hidden');
+    hiddenField.setAttribute('name','X');
+    hiddenField.setAttribute('value',event.clientX);
+    form.appendChild(hiddenField);
+
+    hiddenField = document.createElement('input');
+    hiddenField.setAttribute('type','hidden');
+    hiddenField.setAttribute('name','Y');
+    hiddenField.setAttribute('value',-event.clientY);
+    form.appendChild(hiddenField);
+
+    document.body.appendChild(form);
+    form.submit();
+}

@@ -18,10 +18,9 @@ import System.Log.FastLogger (mkLogger)
 -- Don't forget to add new modules to your cabal file!
 import Handler.Home
 import Handler.Favicon
-import Handler.PlayerGrid
-import Handler.TrackingGrid
+import Handler.Grid
+import Handler.Play
 import Handler.PlaceShips
-import Handler.PlaceShipsGrid
 
 mkYesodDispatch "App" resourcesApp
 

@@ -29,12 +29,12 @@ library
                      Settings.Development
                      Handler.Home
                      Handler.Favicon
-                     Handler.PlayerGrid
-                     Handler.TrackingGrid
                      Handler.PlaceShips
-                     Handler.PlaceShipsGrid
-                     Handler.PlaceShipsHelper
+                     Handler.Play
+                     Handler.Util
+                     Handler.Grid
                      Logic.Game
+                     Logic.GameExt
                      Logic.StupidAI
                      Logic.Render
                      Logic.Session
@@ -104,6 +104,8 @@ library
                  , cereal
                  , QuickCheck
                  , transformers
+                 , base64-bytestring
+                 , SimpleAES
 
 executable         main.cgi
     if flag(library-only)

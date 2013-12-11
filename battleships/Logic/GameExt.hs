@@ -1,13 +1,11 @@
-module Logic.Extern where
+module Logic.GameExt where
 
 import           Prelude
-import           Logic.GameFramework
-import           Yesod hiding (Key)
+import           Logic.Game
+import           Yesod (PathPiece (..))
 import           Codec.Crypto.SimpleAES
 import           Control.Monad.IO.Class
-import           Data.Int
 import           Data.Serialize (Serialize, encode, decode)
-import qualified Data.Text                   as T
 import qualified Data.Text.Encoding          as TE
 import qualified Data.ByteString             as BS
 import qualified Data.ByteString.Lazy        as BL

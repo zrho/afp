@@ -1,111 +1,101 @@
-{-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
-module Handler.PlaceShips (getPlaceShipsR, postPlaceShipsR) where
+{-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, RecordWildCards #-}
+module Handler.PlaceShips where
 
 import Import
 import qualified Data.Text  as T
 import Logic.Game
+import Logic.GameExt
+import Logic.Render
+import Logic.StupidAI
+import Handler.Util
 import Data.Maybe
 import Data.List as L
+import Data.Serialize (Serialize)
 
-import Handler.PlaceShipsHelper
+-------------------------------------------------------------------------------
+-- * Handler
+-------------------------------------------------------------------------------
 
-data ShipData = ShipData {
-  selectedSize :: Int
-, selectedPos :: Maybe Pos
-, selectedOrientation :: Orientation
-} deriving Show
+getPlaceShipsR :: GameStateExt -> Handler Html
+getPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
+  let delta = shipsDelta (rulesShips gameRules) playerFleet
+  case delta of
+    [] -> redirect $ PlayR gameE
+    _  -> do
+      let form = placeShipsForm delta game
+      (formWidget, enctype) <- generateFormPost form
+      defaultLayout $ do
+        setTitle "Place your ships! – Battleships"
+        $(widgetFile "placeships")
 
-placeShipsForm :: ShipList -> Html -> MForm Handler (FormResult ShipData, Widget)
-placeShipsForm toBePlacedYet extra = do
-  (sizeRes, sizeView) <- mreq (selectFieldList sizeList) "Size" Nothing
-  (posXRes, posXView) <- mreq doubleField posXFieldSettings Nothing
-  (posYRes, posYView) <- mreq doubleField posYFieldSettings Nothing
-  (orientationRes, orientationView) <- mreq (selectFieldList orientationList) "Orientation" Nothing
-  grid <- renderPlaceShipsGrid
-  let posRes = coordinatesToPos <$> posXRes <*> posYRes <*> pure grid
-  let shipDataRes = ShipData <$> sizeRes <*> posRes <*> orientationRes
-  let widget = do
-                 toWidget
-                   [julius|
-                      function placeShipsInit(svg) {
-                        svg.getSVGDocument().onclick = placeShipsClick;
-                      }
-
-                      function placeShipsClick(event) {
-                        var form = document.getElementById('placeShipsForm');
-                        var hiddenField = document.getElementById('posX');
-                        hiddenField.setAttribute('value',event.clientX);
-                        var hiddenField = document.getElementById('posY');
-                        hiddenField.setAttribute('value',-event.clientY);
-                        form.submit();
-                      }
-                   |]
-                 [whamlet|
-                     #{extra}
-                       <p>
-                         Insert a ship of size #
-                         ^{fvInput sizeView} with orientation #
-                         ^{fvInput orientationView} at position: (click in the field)
-                       <div style="visibility:hidden">
-                         ^{fvInput posXView}
-                         ^{fvInput posYView}
-                         <input type='submit'>
-                       <p>
-                         <embed src="@{PlaceShipsGridR}" type="image/svg+xml" onload="placeShipsInit(this);" />
-                 |]
-  return (shipDataRes
-         , widget) where
-    sizeList :: [(Text, Int)]
-    sizeList = fmap (\i -> (T.pack $ show i, i)) . nub $ toBePlacedYet
-    orientationList :: [(Text, Orientation)]
-    orientationList = [("Horizontal" :: Text, Horizontal), ("Vertical", Vertical)]
-    posXFieldSettings = FieldSettings undefined Nothing (Just "posX") Nothing []
-    posYFieldSettings = FieldSettings undefined Nothing (Just "posY") Nothing []
-
-getPlaceShipsR :: Handler Html
-getPlaceShipsR = do
-  (rules, fleet) <- readSession
-  let shipList = rulesShips rules
-  (formWidget, enctype) <- generateFormPost (placeShipsForm shipList)
-  let toBePlacedYet = shipsToBePlacedYet shipList fleet
-  -- actual output:
-  defaultLayout $ do
-    setTitle "Place your ships! – Battleships"
-    $(widgetFile "placeships")
-
-postPlaceShipsR :: Handler Html
-postPlaceShipsR = do
-  (rules, fleet) <- readSession
-  let shipList = rulesShips rules
-  ((formResult, _), _) <- runFormPost (placeShipsForm shipList)
+postPlaceShipsR :: GameStateExt -> Handler Html
+postPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
+  let delta = shipsDelta (rulesShips gameRules) playerFleet
+  ((formResult, _), _) <- runFormPost $ placeShipsForm delta game
   case formResult of
-    FormSuccess shipData -> do
-      let maybePos = selectedPos shipData
-      case maybePos of
-        Nothing -> setMessage "Please click in a cell."
-        Just pos -> let newShip = Ship { shipSize = selectedSize shipData
-                                       , shipPosition = pos
-                                       , shipOrientation = selectedOrientation shipData
-                                       } in
-          if canBePlaced rules fleet newShip
-          then do
-                 let newFleet = fleet ++ [newShip]
-                 writeSession rules newFleet
-          else setMessage "Ship cannot be placed there."
-    FormFailure text     -> setMessage . toHtml . T.concat $ text
-    _                    -> setMessage "Form missing."
-  redirect PlaceShipsR
+    FormSuccess Nothing  -> setMessage "Please click in a cell."
+    FormSuccess (Just s)
+      | shipAdmissible gameRules playerFleet s -> do
+        let game' = game { playerFleet = s : playerFleet } :: GameState StupidAI
+        expGame game' >>= redirect . PlaceShipsR
+      | otherwise        -> setMessage "Ship cannot be placed there."
+    FormFailure text     -> setMessage . toHtml . T.intercalate " " $ text
+    FormMissing          -> setMessage "Form missing."
+  redirect $ PlaceShipsR gameE
 
-canBePlaced :: Rules -> Fleet -> Ship -> Bool
-canBePlaced rules fleet ship
- = L.and [ L.all (inRange rules) shipCoord
-       , L.all (isNothing . shipAt fleet) shipCoord
-       ]
-   where
-     shipCoord = shipCoordinates ship
-     inRange (Rules { rulesSize = (w, h) }) (x, y)
-       = L.and [ 0 <= x, x < w, 0 <= y, y < h]
+shipAdmissible :: Rules -> Fleet -> Ship -> Bool
+shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
+  rangeCheck     = L.all inRange shipCoords
+  freeCheck      = L.all (isNothing . shipAt fleet) shipCoords
+  inRange (x, y) = L.and [ 0 <= x, x < w, 0 <= y, y < h]
+  (w, h)         = rulesSize
+  shipCoords     = shipCoordinates ship
 
-shipsToBePlacedYet :: ShipList -> Fleet -> ShipList
-shipsToBePlacedYet shipList fleet
- = shipList L.\\ L.map shipSize fleet
+shipsDelta :: ShipList -> Fleet -> ShipList
+shipsDelta shipList fleet = shipList \\ fmap shipSize fleet
+
+-------------------------------------------------------------------------------
+-- * Form
+-------------------------------------------------------------------------------
+
+type ShipList = [Int]
+
+placeShipsForm
+  :: Serialize a
+  => ShipList   -- ^ ships to be placed yet
+  -> GameState a
+  -> Html
+  -> MForm Handler (FormResult (Maybe Ship), Widget)
+
+placeShipsForm ships g@(GameState {..}) extra = do
+  (sizeRes, sizeView) <- mreq (selectFieldList ships') "Size" Nothing
+  (posXRes, posXView) <- mreq doubleField (posSettings posXId) Nothing
+  (posYRes, posYView) <- mreq doubleField (posSettings posYId) Nothing
+  (orRes, orView)     <- mreq (selectFieldList orientationList) "Orientation" Nothing
+  gameE               <- expGame g
+  let shipRes = buildShip <$> posXRes <*> posYRes <*> sizeRes <*> orRes
+  let widget  = $(widgetFile "placeshipsform")
+  return (shipRes, widget) where
+    posSettings n = FieldSettings undefined Nothing (Just n) Nothing []
+    posXId = "posX" :: Text
+    posYId = "posY" :: Text
+    grid   = renderPlaceGrid playerFleet (rulesSize gameRules)
+    ships' = L.map groupToOption $ L.group ships
+    buildShip x y sz ori = fmap (\p -> Ship p sz ori) $ fieldPos' grid (x, y)
+
+groupToOption :: [Int] -> (Text, Int)
+groupToOption is = (T.pack text, L.head is) where
+  text = show (L.head is) L.++ " (" L.++ show (L.length is) L.++ " times)"
+
+orientationList :: [(Text, Orientation)]
+orientationList =
+  [ ("Horizontal", Horizontal)
+  , ("Vertical", Vertical)
+  ]
+
+
+{-
+
+
+
+-}

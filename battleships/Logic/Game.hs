@@ -5,11 +5,11 @@ import Prelude
 import Data.Array
 import Data.Maybe
 import Data.Serialize (Serialize (..))
+import Data.Int
 import Control.Applicative
 import Control.Monad.Random
 import Control.Monad.Trans.State (runStateT)
 import Control.Monad.State.Class (MonadState)
-import Control.Monad.IO.Class
 
 -------------------------------------------------------------------------------
 -- * AI
@@ -39,11 +39,9 @@ class AI a where
 -- * Game State
 -------------------------------------------------------------------------------
 
-type ShipList = [Int]
-
 data Rules = Rules
   { rulesSize  :: (Int, Int)
-  , rulesShips :: ShipList
+  , rulesShips :: [Int]
   }
 
 -- | Reponse sent to the AI after a shot.
@@ -71,6 +69,7 @@ data GameState a = GameState
   , playerFleet  :: Fleet         -- ^ fleet of the player
   , enemyFleet   :: Fleet         -- ^ fleet of the enemy
   , enemyState   :: a             -- ^ state of the enemy
+  , gameRules    :: Rules
   }
 
 -- | A fleet is a list of ships
@@ -103,7 +102,7 @@ newGame r pFleet = do
   (ai, eFleet) <- aiInit r
   let impacts  = newGrid (rulesSize r) False
   let tracking = newGrid (rulesSize r) Nothing
-  return $ GameState impacts tracking pFleet eFleet ai
+  return $ GameState impacts tracking pFleet eFleet ai r
 
 -- | Helper: Creates a grid, filled with one value.
 newGrid :: (Int, Int) -> a -> Grid a
@@ -189,25 +188,26 @@ turnPlayer g@(GameState {..}) pos = do
 -------------------------------------------------------------------------------
 
 instance Serialize a => Serialize (GameState a) where
-  get = GameState <$> get <*> get <*> get <*> get <*> get
+  get = GameState <$> get <*> get <*> get <*> get <*> get <*> get
   put GameState {..} = do
     put playerImpact
     put playerTrack 
     put playerFleet 
-    put enemyFleet  
+    put enemyFleet
     put enemyState
+    put gameRules
 
 instance Serialize Rules where
   get = Rules <$> get <*> get
   put Rules {..} = put rulesSize >> put rulesShips
 
 instance Serialize HitResponse where
-  get = toEnum <$> get
-  put = put . fromEnum
+  get = fromByte <$> get
+  put = put . toByte
 
 instance Serialize Orientation where
-  get = toEnum <$> get
-  put = put . fromEnum
+  get = fromByte <$> get
+  put = put . toByte
 
 instance Serialize Ship where
   get = Ship <$> get <*> get <*> get
@@ -215,3 +215,9 @@ instance Serialize Ship where
     put shipPosition
     put shipSize
     put shipOrientation
+
+toByte :: Enum a => a -> Int8
+toByte = fromIntegral . fromEnum
+
+fromByte :: Enum a => Int8 -> a
+fromByte = toEnum . fromIntegral

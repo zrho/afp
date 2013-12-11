@@ -1,0 +1,10 @@
+#{extra}
+<p>
+ Insert a ship of size #
+ ^{fvInput sizeView} with orientation #
+ ^{fvInput orView} at position: (click in the field)
+<div style="visibility:hidden">
+ ^{fvInput posXView}
+ ^{fvInput posYView}
+<p>
+ <embed src="@{PlayerGridR gameE}" type="image/svg+xml" onload="placeShipsInit(this);" />

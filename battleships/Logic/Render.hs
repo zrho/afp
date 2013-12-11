@@ -2,6 +2,7 @@
 module Logic.Render
   ( renderEnemyGrid
   , renderPlayerGrid
+  , renderPlaceGrid
   , BattleDia
   ) where
 
@@ -44,6 +45,9 @@ renderPlayerGrid fleet grid = renderGrid nx ny <> cells nx ny renderCell where
     (True, Nothing)  -> marker # lc markerWaterColor <> waterSquare
     (False, Just _)  -> shipSquare
     (True, Just _)   -> square cellSize # fc burningShipColor
+
+renderPlaceGrid :: Fleet -> (Int, Int) -> BattleDia
+renderPlaceGrid fleet sz = renderPlayerGrid fleet $ newGrid sz False
 
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering

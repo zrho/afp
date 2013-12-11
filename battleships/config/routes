@@ -1,6 +1,6 @@
-/battleships/                 HomeR              GET
-/battleships/favicon.ico      FaviconR           GET
-/battleships/tracking.svg     TrackingGridR      GET
-/battleships/player.svg       PlayerGridR        GET
-/battleships/place            PlaceShipsR        GET POST
-/battleships/plac.svg         PlaceShipsGridR    GET
+/battleships                               HomeR       GET
+/battleships/favicon.ico                   FaviconR    GET
+/battleships/place/#GameStateExt           PlaceShipsR GET POST
+/battleships/play/#GameStateExt/player.svg PlayerGridR GET
+/battleships/play/#GameStateExt/enemy.svg  EnemyGridR  GET
+/battleships/play/#GameStateExt            PlayR       GET POST

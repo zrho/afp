@@ -1,9 +1,16 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
-module Handler.Home (getHomeR) where
+module Handler.Home where
 
 import Import
-import Data.Text ()
+import Logic.Game
+import Logic.GameExt
+import Logic.StupidAI
 
 getHomeR :: Handler Html
-getHomeR = defaultLayout $ do
-             setTitle "Battleships"
+getHomeR = do
+  game  <- liftIO $ (newGame rules [] :: IO (GameState StupidAI))
+  gameE <- expGame game
+  defaultLayout $(widgetFile "home")
+
+rules :: Rules 
+rules = Rules (10, 10) [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ]
