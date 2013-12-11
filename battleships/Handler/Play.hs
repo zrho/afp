@@ -10,9 +10,9 @@ positionForm :: FormInput Handler (Double, Double)
 positionForm = (,) <$> ireq doubleField "X" <*> ireq doubleField "Y"
 
 getPlayR :: GameStateExt -> Handler Html
-getPlayR gameE = withGame gameE $ \(GameState {..}) -> defaultLayout $ do 
-                                                         setNormalTitle
-                                                         $(widgetFile "play")
+getPlayR gameE = withGame gameE $ \(GameState {..}) -> defaultLayout $ do
+  setNormalTitle
+  $(widgetFile "play")
 
 postPlayR :: GameStateExt -> Handler Html
 postPlayR gameE = withGame gameE $ \game -> do

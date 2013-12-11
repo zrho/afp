@@ -6,6 +6,7 @@ import Data.Array
 import Data.Maybe
 import Data.Serialize (Serialize (..))
 import Data.Int
+import Data.List as L
 import Control.Applicative
 import Control.Monad.Random
 import Control.Monad.Trans.State (runStateT)
@@ -117,6 +118,14 @@ newGrid (w, h) a
 gridSize :: Grid a -> (Int, Int)
 gridSize grid = let ((x1,y1),(x2,y2)) = bounds grid in (x2 - x1 + 1, y2 - y1 + 1)
 
+shipAdmissible :: Rules -> Fleet -> Ship -> Bool
+shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
+  rangeCheck     = L.all (inRange range) shipCoords
+  freeCheck      = L.all (isNothing . shipAt fleet) shipCoords
+  shipCoords     = shipCoordinates ship
+  (w, h)         = rulesSize
+  range          = ((0, 0), (w - 1, h - 1))
+
 shipCoordinates :: Ship -> [Pos]
 shipCoordinates Ship {..} = case shipOrientation of
   Horizontal -> [(x + i, y) | i <- [0..shipSize - 1]]
@@ -154,7 +163,7 @@ data Turn a = Won (GameState a) | Lost (GameState a) | Next (GameState a)
 
 turn :: (MonadRandom m, AI a) => GameState a -> Pos -> m (Turn a)
 turn game pos = turnPlayer game pos >>= \t -> case t of
-  Next game' -> turnEnemy game'
+  Next game' -> return $ Next game' -- turnEnemy game'
   _          -> return t
 
 turnEnemy :: (MonadRandom m, AI a) => GameState a -> m (Turn a)

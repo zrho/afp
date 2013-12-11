@@ -43,14 +43,6 @@ postPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
     FormMissing          -> translateMessage MsgNoForm >>= setMessage . toHtml
   redirect $ PlaceShipsR gameE
 
-shipAdmissible :: Rules -> Fleet -> Ship -> Bool
-shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
-  rangeCheck     = L.all inRange shipCoords
-  freeCheck      = L.all (isNothing . shipAt fleet) shipCoords
-  inRange (x, y) = L.and [ 0 <= x, x < w, 0 <= y, y < h]
-  (w, h)         = rulesSize
-  shipCoords     = shipCoordinates ship
-
 shipsDelta :: ShipList -> Fleet -> ShipList
 shipsDelta shipList fleet = shipList \\ fmap shipSize fleet
 
