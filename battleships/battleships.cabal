@@ -34,9 +34,9 @@ library
                      Handler.PlaceShips
                      Handler.PlaceShipsGrid
                      Handler.PlaceShipsHelper
-                     Logic.GameFramework
+                     Logic.Game
                      Logic.StupidAI
-                     Logic.Rendering
+                     Logic.Render
                      Logic.Session
 
     if flag(dev) || flag(library-only)
@@ -103,6 +103,7 @@ library
                  , random
                  , cereal
                  , QuickCheck
+                 , transformers
 
 executable         main.cgi
     if flag(library-only)

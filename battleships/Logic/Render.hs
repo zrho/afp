@@ -1,27 +1,28 @@
-{-# LANGUAGE RecordWildCards #-}
-module Logic.Rendering where
+{-# LANGUAGE RecordWildCards, TypeFamilies #-}
+module Logic.Render
+  ( renderEnemyGrid
+  , renderPlayerGrid
+  , BattleDia
+  ) where
 
 import Prelude
+import Logic.Game
 import Data.Array
-
 import Diagrams.Prelude
 import Diagrams.Backend.SVG
 import Data.Colour.SRGB
 
-import Logic.GameFramework
-
-
 type BattleDia = QDiagram SVG R2 [Pos]
 
 -------------------------------------------------------------------------------
--- HIGH-LEVEL RENDERING
+-- * High-Level Rendering
 -------------------------------------------------------------------------------
 
 referenceField :: Int -> Int -> BattleDia
 referenceField nx ny = renderGrid nx ny <> cells nx ny (const mempty)
 
-renderTrackingGrid :: TrackingGrid -> BattleDia
-renderTrackingGrid grid = renderGrid nx ny <> cells nx ny (drawCell . (!) grid) where
+renderEnemyGrid :: TrackingGrid -> BattleDia
+renderEnemyGrid grid = renderGrid nx ny <> cells nx ny (drawCell . (!) grid) where
   (nx,ny)               =  gridSize grid
 
   drawCell Nothing      = square cellSize # fc fogColor   # value []
@@ -35,26 +36,25 @@ renderTrackingGrid grid = renderGrid nx ny <> cells nx ny (drawCell . (!) grid) 
                           <> waterSquare
                           ) # value []
 
-renderPlayerGrid :: Fleet -> PlayerGrid -> BattleDia
+renderPlayerGrid :: Fleet -> ImpactGrid -> BattleDia
 renderPlayerGrid fleet grid = renderGrid nx ny <> cells nx ny renderCell where
   (nx,ny)          =  gridSize grid
-  renderCell pos   = value [pos] $ case (grid ! pos, shipAt fleet pos) of
+  renderCell pos   = value [] $ case (grid ! pos, shipAt fleet pos) of
     (False, Nothing) -> waterSquare
     (True, Nothing)  -> marker # lc markerWaterColor <> waterSquare
     (False, Just _)  -> shipSquare
     (True, Just _)   -> square cellSize # fc burningShipColor
 
-
-
 -------------------------------------------------------------------------------
--- LOW-LEVEL RENDERING
+-- * Low-Level Rendering
 -------------------------------------------------------------------------------
 
--- | draws the cells of the field
+-- | Draws the cells of the field.
 cells :: Int                      -- ^ field width
       -> Int                      -- ^ field height
       -> ((Int,Int) -> BattleDia) -- ^ function for rendering the cells contents
       -> BattleDia
+
 cells nx ny drawContents = vcat [xnums, hcat [ynums, field, ynums], xnums] # alignTL where
   xnums     = colNumbers nx # translate (r2 (cellSize, 0))
   ynums     = rowNumbers ny
@@ -83,8 +83,9 @@ waterSquare = square cellSize # fc waterColor
 shipSquare  = roundedRect cellSize cellSize 0 # fc shipColor
 
 -------------------------------------------------------------------------------
--- GRID RENDERING
+-- * Grid Rendering
 -------------------------------------------------------------------------------
+
 renderGrid :: Int -> Int -> BattleDia
 renderGrid nx ny = (innerLines <> outerLines) # alignTL where
   w = (fromIntegral nx + 2) * cellSize
@@ -101,7 +102,7 @@ xticks h xs = mconcat [fromVertices [p2 (x, 0), p2 (x, h) ] | x <- xs]
 yticks w ys = mconcat [fromVertices [p2 (0, y), p2 (w, y) ] | y <- ys]
 
 -------------------------------------------------------------------------------
--- STYLE CONSTANTS
+-- * Style Constants
 -------------------------------------------------------------------------------
 
 cellSize, markerRadius :: Double
@@ -118,6 +119,7 @@ numberStyle = fontSize 30 . font "Monospace"
 fogColor, waterColor, markerHitColor, markerSunkColor,
   markerWaterColor, shipColor, burningShipColor 
   :: Colour Double
+
 fogColor         = sRGB 0.7 0.7 0.7
 waterColor       = sRGB24 0x99 0xCC 0xFF
 markerHitColor   = sRGB 1.0 0.5 0.0

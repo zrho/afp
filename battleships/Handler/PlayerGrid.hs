@@ -8,8 +8,8 @@ import Diagrams.Prelude
 import Diagrams.Backend.SVG
 import Text.Blaze.Svg.Renderer.Text (renderSvg)
 
-import Logic.GameFramework
-import Logic.Rendering
+import Logic.Game
+import Logic.Render
 
 getPlayerGridR :: Handler TypedContent
 getPlayerGridR = do

@@ -3,11 +3,9 @@ module Handler.PlaceShips (getPlaceShipsR, postPlaceShipsR) where
 
 import Import
 import qualified Data.Text  as T
-import Data.Serialize
-import Logic.GameFramework
-import Data.List as L
-import Data.ByteString as BS
+import Logic.Game
 import Data.Maybe
+import Data.List as L
 
 import Handler.PlaceShipsHelper
 
@@ -58,7 +56,7 @@ placeShipsForm toBePlacedYet extra = do
   return (shipDataRes
          , widget) where
     sizeList :: [(Text, Int)]
-    sizeList = L.map (\i -> (T.pack $ show i, i)) . L.nub $ toBePlacedYet
+    sizeList = fmap (\i -> (T.pack $ show i, i)) . nub $ toBePlacedYet
     orientationList :: [(Text, Orientation)]
     orientationList = [("Horizontal" :: Text, Horizontal), ("Vertical", Vertical)]
     posXFieldSettings = FieldSettings undefined Nothing (Just "posX") Nothing []
@@ -66,7 +64,8 @@ placeShipsForm toBePlacedYet extra = do
 
 getPlaceShipsR :: Handler Html
 getPlaceShipsR = do
-  (rules, shipList, fleet) <- readSession
+  (rules, fleet) <- readSession
+  let shipList = rulesShips rules
   (formWidget, enctype) <- generateFormPost (placeShipsForm shipList)
   let toBePlacedYet = shipsToBePlacedYet shipList fleet
   -- actual output:
@@ -76,7 +75,8 @@ getPlaceShipsR = do
 
 postPlaceShipsR :: Handler Html
 postPlaceShipsR = do
-  (rules, shipList, fleet) <- readSession
+  (rules, fleet) <- readSession
+  let shipList = rulesShips rules
   ((formResult, _), _) <- runFormPost (placeShipsForm shipList)
   case formResult of
     FormSuccess shipData -> do
@@ -90,7 +90,7 @@ postPlaceShipsR = do
           if canBePlaced rules fleet newShip
           then do
                  let newFleet = fleet ++ [newShip]
-                 writeSession rules shipList newFleet
+                 writeSession rules newFleet
           else setMessage "Ship cannot be placed there."
     FormFailure text     -> setMessage . toHtml . T.concat $ text
     _                    -> setMessage "Form missing."
@@ -103,7 +103,7 @@ canBePlaced rules fleet ship
        ]
    where
      shipCoord = shipCoordinates ship
-     inRange (Rules { mapSize = (w, h) }) (x, y)
+     inRange (Rules { rulesSize = (w, h) }) (x, y)
        = L.and [ 0 <= x, x < w, 0 <= y, y < h]
 
 shipsToBePlacedYet :: ShipList -> Fleet -> ShipList
