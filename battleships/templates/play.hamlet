@@ -1,7 +1,8 @@
 <h1>_{MsgFireShot}
 
-<embed src="@{PlayerGridR gameE}" type="image/svg+xml" />
-<embed
-    src="@{EnemyGridR gameE}"
-    type="image/svg+xml"
-    onload="clickableInit(this, '@{PlayR gameE}');" />
+<div .content>
+  <embed src="@{PlayerGridR gameE}" type="image/svg+xml" />
+  <embed
+      src="@{EnemyGridR gameE}"
+      type="image/svg+xml"
+      onload="clickableInit(this, '@{PlayR gameE}');" />

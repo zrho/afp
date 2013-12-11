@@ -26,7 +26,8 @@ body
   font-family: sans-serif
   margin: 0px
   padding: 0px
-  overflow-x: hidden;
+  overflow-x: hidden
+  text-align: center
 
 fieldset
   text-align: center

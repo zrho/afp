@@ -6,3 +6,10 @@ StartPlacing: Schiffe platzieren
 FireShot: Schuss abfeuern!
 Won: Du hast gewonnen!
 Lost: Du hast verloren.
+InsertShip: Platziere ein Schiff der Größe 
+WithOrientation: mit der Orientierung
+AtPosition: an der Position (bitte ein Feld anklicken)
+Reset: Schiffe zurücksetzen!
+InvalidPlacement: Hier kannst du kein Schiff platzieren!
+NoForm: Das Eingabeformular fehlt.
+NoCell: Bitte klick ein Feld an.

@@ -3,14 +3,13 @@ $case requestedRoute
     <p .header>
       <h1>_{MsgGameName}
       <h2>_{MsgCredits}
+      <div .content>
+        $maybe msg <- mmsg
+           <div #message>#{msg}
+        ^{widget}
   $of _
-
-<div .content>
-  $maybe msg <- mmsg
-      <div #message>#{msg}
-  ^{widget}
-$case requestedRoute
-  $of Just HomeR
-  $of _
+    $maybe msg <- mmsg
+       <div #message>#{msg}
+    ^{widget}
     <div .controlBox>
       <a .linkButton .blueButton href="@{HomeR}">_{MsgLinkHome}

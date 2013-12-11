@@ -3,5 +3,6 @@ $if hasWon outcome
 $else
    <h1>_{MsgLost}
 
-<embed src="@{PlayerGridR gameE}" type="image/svg+xml" />
-<embed src="@{EnemyGridR gameE}" type="image/svg+xml" />
+<div .content>
+  <embed src="@{PlayerGridR gameE}" type="image/svg+xml" />
+  <embed src="@{EnemyGridR gameE}" type="image/svg+xml" />

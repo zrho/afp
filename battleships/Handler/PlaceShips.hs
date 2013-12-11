@@ -25,7 +25,7 @@ getPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
       let form = placeShipsForm delta game
       (formWidget, enctype) <- generateFormPost form
       defaultLayout $ do
-        setTitle "Place your ships! – Battleships"
+        setNormalTitle
         $(widgetFile "placeships")
 
 postPlaceShipsR :: GameStateExt -> Handler Html
@@ -33,14 +33,14 @@ postPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
   let delta = shipsDelta (rulesShips gameRules) playerFleet
   ((formResult, _), _) <- runFormPost $ placeShipsForm delta game
   case formResult of
-    FormSuccess Nothing  -> setMessage "Please click in a cell."
+    FormSuccess Nothing  -> translateMessage MsgNoCell >>= setMessage . toHtml
     FormSuccess (Just s)
       | shipAdmissible gameRules playerFleet s -> do
         let game' = game { playerFleet = s : playerFleet } :: GameState StupidAI
         expGame game' >>= redirect . PlaceShipsR
-      | otherwise        -> setMessage "Ship cannot be placed there."
+      | otherwise        -> translateMessage MsgInvalidPlacement >>= setMessage . toHtml
     FormFailure text     -> setMessage . toHtml . T.intercalate " " $ text
-    FormMissing          -> setMessage "Form missing."
+    FormMissing          -> translateMessage MsgNoForm >>= setMessage . toHtml
   redirect $ PlaceShipsR gameE
 
 shipAdmissible :: Rules -> Fleet -> Ship -> Bool
@@ -92,10 +92,3 @@ orientationList =
   [ ("Horizontal", Horizontal)
   , ("Vertical", Vertical)
   ]
-
-
-{-
-
-
-
--}
