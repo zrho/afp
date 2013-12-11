@@ -21,6 +21,7 @@ import Handler.Favicon
 import Handler.Grid
 import Handler.Play
 import Handler.PlaceShips
+import Handler.GameEnded
 
 mkYesodDispatch "App" resourcesApp
 

@@ -1,0 +1,7 @@
+$if hasWon outcome
+   <h1>_{MsgWon}
+$else
+   <h1>_{MsgLost}
+
+<embed src="@{PlayerGridR gameE}" type="image/svg+xml" />
+<embed src="@{EnemyGridR gameE}" type="image/svg+xml" />

@@ -150,7 +150,7 @@ trackToImpact = fmap (/= Nothing)
 -- * Turn
 -------------------------------------------------------------------------------
 
-data Turn a = Won | Lost | Next (GameState a)
+data Turn a = Won (GameState a) | Lost (GameState a) | Next (GameState a)
 
 turn :: (MonadRandom m, AI a) => GameState a -> Pos -> m (Turn a)
 turn game pos = turnPlayer game pos >>= \t -> case t of
@@ -169,7 +169,7 @@ turnEnemy g@(GameState {..}) = do
   (_, s') <- runStateT (aiResponse pos response) s
   -- all player ships sunk now?
   return $ case allSunk playerFleet impact of
-    True  -> Lost
+    True  -> Lost $ g { playerImpact = impact, enemyState = s' }
     False -> Next $ g { playerImpact = impact, enemyState = s' }
 
 turnPlayer :: Monad m => GameState a -> Pos -> m (Turn a)
@@ -180,7 +180,7 @@ turnPlayer g@(GameState {..}) pos = do
   let track     = playerTrack // [(pos, Just response)]
   -- all enemy ships sunk now?
   return $ case allSunk enemyFleet (trackToImpact track) of
-    True  -> Won
+    True  -> Won $ g { playerTrack = track }
     False -> Next $ g { playerTrack = track }
 
 -------------------------------------------------------------------------------

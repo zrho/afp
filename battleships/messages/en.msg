@@ -4,3 +4,5 @@ GameDescription:
 LinkHome: Go home
 StartPlacing: Start placing your fleet
 FireShot: Fire a shot!
+Won: You Won!
+Lost: You Lost.

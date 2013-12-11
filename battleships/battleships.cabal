@@ -33,6 +33,7 @@ library
                      Handler.Play
                      Handler.Util
                      Handler.Grid
+                     Handler.GameEnded
                      Logic.Game
                      Logic.GameExt
                      Logic.StupidAI
