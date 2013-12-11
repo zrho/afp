@@ -168,7 +168,7 @@ data Turn a = Won (GameState a) | Lost (GameState a) | Next (GameState a)
 
 turn :: (MonadRandom m, AI a) => GameState a -> Pos -> m (Turn a)
 turn game pos = turnPlayer game pos >>= \t -> case t of
-  Next game' -> return $ Next game' -- turnEnemy game'
+  Next game' -> turnEnemy game'
   _          -> return t
 
 turnEnemy :: (MonadRandom m, AI a) => GameState a -> m (Turn a)
