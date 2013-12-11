@@ -43,18 +43,10 @@ deserializeFromSession key = do
     Just str -> return (decode str)
 
 readFromSession :: (MonadHandler m, Serialize a) => Text -> m (Maybe a)
-readFromSession objectKey = do
-  serializedObject <- lookupSessionBS objectKey
-  return $ case serializedObject of
-    Nothing -> Nothing
-    Just s -> either (const Nothing) Just $ decode s
+readFromSession objectKey = either (const Nothing) Just <$> deserializeFromSession objectKey
 
 readFromSessionDefault :: (MonadHandler m, Serialize a) => Text -> a -> m a
-readFromSessionDefault objectKey defaultObject = do
-  serializedObject <- lookupSessionBS objectKey
-  return $ case serializedObject of
-    Nothing -> defaultObject
-    Just s -> either (const defaultObject) id $ decode s
+readFromSessionDefault objectKey defaultObject = either (const defaultObject) id <$> deserializeFromSession objectKey
     
 
 writeToSession :: (MonadHandler m, Serialize a) => Text -> a -> m ()
