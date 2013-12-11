@@ -126,21 +126,16 @@ gridSize grid = let ((x1,y1),(x2,y2)) = bounds grid in (x2 - x1 + 1, y2 - y1 + 1
 
 shipAdmissible :: Rules -> Fleet -> Ship -> Bool
 shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
-  rangeCheck     = L.all (inRange range) shipCoords
-  freeCheck      = L.all (isNothing . shipAt fleet) (shipOccupiedPositions ship rulesSafetyMargin)
-  shipCoords     = shipCoordinates ship
+  rangeCheck     = L.all (inRange range)
+                 $ shipCoordinates 0 ship
+  freeCheck      = L.all (isNothing . shipAt fleet)
+                 $ shipCoordinates rulesSafetyMargin ship
   (w, h)         = rulesSize
   range          = ((0, 0), (w - 1, h - 1))
 
-shipCoordinates :: Ship -> [Pos]
-shipCoordinates Ship {..} = case shipOrientation of
-  Horizontal -> [(x + i, y) | i <- [0..shipSize - 1]]
-  Vertical   -> [(x, y + i) | i <- [0..shipSize - 1]]
-  where (x, y) = shipPosition
-
 -- | Calculates the position occupied by a ship including safety margin.
-shipOccupiedPositions :: Ship -> Int -> [Pos]
-shipOccupiedPositions Ship{..} margin = case shipOrientation of
+shipCoordinates :: Int -> Ship -> [Pos]
+shipCoordinates margin Ship{..} = case shipOrientation of
   Horizontal -> [(x + i, y + d) | i <- [-margin..shipSize - 1 + margin], d <- [-margin..margin]]
   Vertical   -> [(x + d, y + i) | i <- [-margin..shipSize - 1 + margin], d <- [-margin..margin]]
   where (x, y) = shipPosition
@@ -158,12 +153,12 @@ fireAt fleet impacts pos = case shipAt fleet pos of
   Just s  -> case leftover of
     []    -> Sunk
     _     -> Hit
-    where leftover = filter (\p -> not $ p == pos || (fst impacts) ! p) $ shipCoordinates s
+    where leftover = filter (\p -> not $ p == pos || (fst impacts) ! p) $ shipCoordinates 0 s
 
 allSunk :: Fleet -> ImpactGrid -> Bool
 allSunk fleet impacts = foldr (&&) True hit where
   hit    = fmap ((fst impacts) !) points
-  points = fleet >>= shipCoordinates
+  points = fleet >>= shipCoordinates 0
 
 trackToImpact :: TrackingGrid -> ImpactGrid
 trackToImpact t = (fmap (/= Nothing) $ fst t, snd t)
