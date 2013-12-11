@@ -88,6 +88,11 @@ type TrackingGrid = (Grid (Maybe HitResponse), Maybe Pos)
 -- | A grid where the impacts of shots and the position of the last shot are tracked..
 type ImpactGrid = (Grid Bool, Maybe Pos)
 
+instance Random Orientation where
+  randomR (a, b) g = (toEnum r, g') where
+    (r, g')        = randomR (fromEnum a, fromEnum b) g
+  random g         = randomR (Horizontal, Vertical) g
+
 -------------------------------------------------------------------------------
 -- * New Games
 -------------------------------------------------------------------------------

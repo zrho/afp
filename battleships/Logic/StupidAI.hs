@@ -36,4 +36,4 @@ getRandomPos :: MonadRandom m => (Int, Int) -> m (Int,Int)
 getRandomPos (w,h) = liftM2 (,) (getRandomR (0, w - 1)) (getRandomR (0, h - 1))
 
 getRandomShip :: MonadRandom m => (Int, Int) -> Int -> m Ship
-getRandomShip size len = liftM (\p -> Ship p len Horizontal) $ getRandomPos size
+getRandomShip size len = liftM3 Ship (getRandomPos size) (return len) getRandom
