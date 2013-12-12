@@ -26,9 +26,14 @@ getPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
     _  -> do
       let form = placeShipsForm delta game
       (formWidget, enctype) <- generateFormPost form
+      newGameE <- exportNewGame gameRules -- needed for resetting
       defaultLayout $ do
         setNormalTitle
         $(widgetFile "placeships")
+
+exportNewGame :: MonadHandler m => Rules -> m GameStateExt
+exportNewGame rules
+ = expGame =<< (liftIO $ (newGame rules [] :: IO (GameState StupidAI)))
 
 postPlaceShipsR :: GameStateExt -> Handler Html
 postPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
