@@ -5,11 +5,13 @@ $case requestedRoute
       <h2>_{MsgCredits}
       <div .content>
         $maybe msg <- mmsg
-           <div #message>#{msg}
+           <script>
+             alert("#{msg}");
         ^{widget}
   $of _
     $maybe msg <- mmsg
-       <div #message>#{msg}
+       <script>
+         alert("#{msg}");
     ^{widget}
     <div .controlBox>
       <a .linkButton .blueButton href="@{HomeR}">_{MsgLinkHome}
