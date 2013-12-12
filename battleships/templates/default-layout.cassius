@@ -126,3 +126,6 @@ div.content
   margin: 0px auto
   width: 100%
   text-align: center
+
+.opaque
+  opacity: 0.3
