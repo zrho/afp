@@ -16,3 +16,7 @@ NoCell: Bitte klick ein Feld an.
 ShipOption size@Int remaining@Int: #{show size} (#{show remaining} übrig)
 Horizontal: Horizontal
 Vertical: Vertikal
+InputFieldSize: Spielfeldgröße
+AdjustRules: Die Regeln anpassen
+Rules: Regeln
+InvalidFieldSize: Die Spielfeldgröße muss mindestens 10 sein.

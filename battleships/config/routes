@@ -5,3 +5,4 @@
 /battleships/play/#GameStateExt/enemy.svg  EnemyGridR  GET
 /battleships/play/#GameStateExt            PlayR       GET POST
 /battleships/gameEnded/#GameStateExt       GameEndedR  GET
+/battleships/rules                         RulesR      GET POST

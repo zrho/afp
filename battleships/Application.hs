@@ -22,6 +22,7 @@ import Handler.Grid
 import Handler.Play
 import Handler.PlaceShips
 import Handler.GameEnded
+import Handler.Rules
 
 mkYesodDispatch "App" resourcesApp
 

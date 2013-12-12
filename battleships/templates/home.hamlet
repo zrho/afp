@@ -1,2 +1,3 @@
 <p .linkBlock>
+  <a .linkButton .blueButton href=@{RulesR}> _{MsgAdjustRules}
   <a .linkButton .redButton href=@{PlaceShipsR gameE}>_{MsgStartPlacing}

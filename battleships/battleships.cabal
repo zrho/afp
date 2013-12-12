@@ -34,6 +34,7 @@ library
                      Handler.Util
                      Handler.Grid
                      Handler.GameEnded
+                     Handler.Rules
                      Logic.Game
                      Logic.GameExt
                      Logic.StupidAI

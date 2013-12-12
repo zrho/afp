@@ -16,3 +16,7 @@ NoCell: Please click in a cell.
 ShipOption size@Int remaining@Int: #{show size} (#{show remaining} remaining)
 Horizontal: Horizontal
 Vertical: Vertical
+InputFieldSize: Desired field size
+AdjustRules: Adjust the rules
+Rules: Rules
+InvalidFieldSize: You have to enter a number of at least 10.
