@@ -1,4 +1,4 @@
-GameName: Schiffeversenken
+GameName: Schiffe versenken
 Credits: Präsentiert von Projektgruppe AFP
 GameDescription: 
 LinkHome: Zurück zur Startseite
@@ -13,3 +13,6 @@ Reset: Schiffe zurücksetzen!
 InvalidPlacement: Hier kannst du kein Schiff platzieren!
 NoForm: Das Eingabeformular fehlt.
 NoCell: Bitte klick ein Feld an.
+ShipOption size@Int remaining@Int: #{show size} (#{show remaining} übrig)
+Horizontal: Horizontal
+Vertical: Vertikal

@@ -31,4 +31,4 @@ translateMessage msg = do
 
 -- | Set a default html title.
 setNormalTitle :: Widget 
-setNormalTitle = translateMessage MsgGameName >>= setTitle . toHtml
+setNormalTitle = setTitleI MsgGameName

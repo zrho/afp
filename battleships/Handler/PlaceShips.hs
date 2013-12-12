@@ -1,5 +1,8 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, RecordWildCards #-}
-module Handler.PlaceShips where
+module Handler.PlaceShips
+( getPlaceShipsR
+, postPlaceShipsR
+) where
 
 import Import
 import qualified Data.Text  as T
@@ -74,12 +77,13 @@ placeShipsForm ships g@(GameState {..}) extra = do
     ships' = L.map groupToOption $ L.group ships
     buildShip x y sz ori = fmap (\p -> Ship p sz ori) $ fieldPos' grid (x, y)
 
-groupToOption :: [Int] -> (Text, Int)
-groupToOption is = (T.pack text, L.head is) where
-  text = show (L.head is) L.++ " (" L.++ show (L.length is) L.++ " times)"
+groupToOption :: [Int] -> (AppMessage, Int)
+groupToOption is = (text, size) where
+  text = MsgShipOption size (L.length is)
+  size = L.head is
 
-orientationList :: [(Text, Orientation)]
+orientationList :: [(AppMessage, Orientation)]
 orientationList =
-  [ ("Horizontal", Horizontal)
-  , ("Vertical", Vertical)
+  [ (MsgHorizontal, Horizontal)
+  , (MsgVertical, Vertical)
   ]

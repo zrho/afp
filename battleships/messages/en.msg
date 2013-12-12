@@ -13,3 +13,6 @@ Reset: Reset ships!
 InvalidPlacement: Ship cannot be placed there.
 NoForm: Form missing.
 NoCell: Please click in a cell.
+ShipOption size@Int remaining@Int: #{show size} (#{show remaining} remaining)
+Horizontal: Horizontal
+Vertical: Vertical
