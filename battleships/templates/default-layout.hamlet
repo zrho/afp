@@ -6,12 +6,12 @@ $case requestedRoute
       <div .content>
         $maybe msg <- mmsg
            <script>
-             alert("#{msg}");
+             setTimeout(function() {alert("#{msg}")}, 200);
         ^{widget}
   $of _
     $maybe msg <- mmsg
        <script>
-         alert("#{msg}");
+         setTimeout(function() {alert("#{msg}")}, 200);
     ^{widget}
     <div .controlBox>
       <a .linkButton .blueButton href="@{HomeR}">_{MsgLinkHome}
