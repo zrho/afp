@@ -1,7 +1,12 @@
 $if hasWon outcome
-   <h1>_{MsgWon}
+   <!-- This is only for proper positioning of the game area -->
+   <h1 style="opacity: 0">_{MsgWon}
+   <div .banner>
+     <h1> _{MsgWon}
 $else
-   <h1>_{MsgLost}
+   <h1 style="opacity: 0">_{MsgLost}
+   <div .banner>
+     <h1> _{MsgLost}
 
 <div .content .opaque>
   <embed src="@{PlayerGridR gameE}" type="image/svg+xml" />

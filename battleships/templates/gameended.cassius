@@ -1,0 +1,10 @@
+body
+  text-align: left
+
+.banner
+  position: fixed
+  top: 40%
+  width:100%
+  z-index: 1000
+  background-color: white
+  border: 1px solid black
