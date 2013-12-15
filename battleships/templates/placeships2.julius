@@ -1,28 +1,22 @@
 var cellSize = 40;
 var nx = #{toJSON $ fst $ rulesSize gameRules}, ny = #{toJSON $ snd $ rulesSize gameRules};
-var mapW = nx * cellSize, mapH = ny * cellSize;
+var map;
 var safetyMargin = 1;
 
 var shipDef = ShipDef.fromList(#{toJSON $ rulesShips gameRules});
 var shipLenTD = {};
-var ships = [];
 
 $(window).load(function() {
 	// setup canvas
 	var mapElem = document.getElementById("map");
 
-	var map = new Map(mapElem, nx, ny, cellSize, shipDef);
+	map = new Map(mapElem, nx, ny, cellSize, shipDef);
 	map.safetyMargin = 1;
 	map.shipDef.onChanged.add(shipDefChanged);
 
 	// setup buttons
 	$("#btnReset").click(function() {
-		for (var i = ships.length - 1; i >= 0; i--) {
-			shipDef[ships[i].Size] += 1;
-		};
-		ships.splice(0, ships.length);
-		shipDefChanged();
-		renderMap(getMapContext());
+		map.reset();
 	});
 	// setup table
 	for (var i = 0; i < shipDef.shipTypes.length; i++) {
@@ -48,7 +42,7 @@ function shipDefChanged() {
 	var total = shipDef.total();
 	$("#tdTotalShips").text(total);
 	if(total == 0) {
-		var jsonShips = JSON.stringify(ships);
+		var jsonShips = JSON.stringify(map.ships);
 		$("#fleetData").val(jsonShips);
 		$("#btnSubmit").attr('disabled' , false);
 	} else {

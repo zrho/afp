@@ -5,7 +5,10 @@ module Handler.PlaceShips2
   ) where
 
 import Import
+import Data.Aeson (decode)
 import qualified Data.Text  as T
+import qualified Data.Text.Encoding as TE
+import qualified Data.ByteString.Lazy as BL
 import Logic.Game
 import Logic.GameExt
 import Logic.Render
@@ -13,6 +16,7 @@ import Logic.StupidAI
 import Handler.Util
 import Data.List as L
 import Data.Serialize (Serialize)
+import Debug.Trace
 
 -------------------------------------------------------------------------------
 -- * Handler
@@ -29,6 +33,14 @@ getPlaceShips2R gameE = withGame gameE $ \game@(GameState {..}) -> do
 
 postPlaceShips2R :: GameStateExt -> Handler Html
 postPlaceShips2R gameE = withGame gameE $ \game@(GameState {..}) -> do
-  redirect $ PlaceShips2R gameE
+  jsonStr <- runInputPost $ ireq textField "fleetData"
+  let ships = decode (BL.fromChunks $ [TE.encodeUtf8 jsonStr]) :: (Maybe [Ship])
+  traceShow ships (return ())
+  case ships of
+    Nothing -> redirect $ PlaceShips2R gameE
+    Just fleet -> do
+      g <- expGame game { playerFleet = fleet }
+      redirect $ PlayR g
+  
 
   

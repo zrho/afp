@@ -52,8 +52,8 @@ function Map(canvas, numX, numY, cellSize, shipDef) {
 		curShipY = toG(evt.pos.y);
 		var ship = Ship.fromLine(shipOX, shipOY, curShipX, curShipY);
 		if(that.shipAdmissible(ship)) {
-			that.shipDef.takeShip(ship.Size);
 			that.ships.push(ship);
+			that.shipDef.takeShip(ship.Size);
 		}
 		that.redraw();
 	});
@@ -65,8 +65,8 @@ function Map(canvas, numX, numY, cellSize, shipDef) {
 		shipOY = toG(evt.pos.y);
 		for (var i = that.ships.length - 1; i >= 0; i--) {
 			if(that.ships[i].contains(shipOX, shipOY, 0)) {
-				that.shipDef.returnShip(that.ships[i].Size);
 				that.ships.splice(i, 1);
+				that.shipDef.returnShip(that.ships[i].Size);
 			}
 		};
 		that.redraw();
@@ -219,13 +219,13 @@ function Render(canvas, numX, numY, cellSize) {
 		c2d.beginPath();
 		c2d.strokeStyle = this.gridStyle.color;
 		c2d.lineWidth = this.gridStyle.thickness;
-		for(var x = 0; x <= mapW; x += cellSize) {
+		for(var x = 0; x <= width; x += cellSize) {
 			c2d.moveTo(x, 0);
-			c2d.lineTo(x, mapH);
+			c2d.lineTo(x, height);
 		}
-		for(var y = 0; y <= mapH; y += cellSize) {
+		for(var y = 0; y <= height; y += cellSize) {
 			c2d.moveTo(0, y);
-			c2d.lineTo(mapW, y);
+			c2d.lineTo(width, y);
 		}
 		c2d.stroke();
 		c2d.restore();

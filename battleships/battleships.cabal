@@ -111,6 +111,7 @@ library
                  , transformers
                  , base64-bytestring
                  , SimpleAES
+                 , attoparsec
 
 executable         main.cgi
     if flag(library-only)

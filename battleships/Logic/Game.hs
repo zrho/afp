@@ -1,9 +1,13 @@
-{-# LANGUAGE RecordWildCards, TupleSections #-}
+{-# LANGUAGE RecordWildCards, TupleSections, OverloadedStrings #-}
 module Logic.Game where
 
 import Prelude
 import Data.Array
+import Data.Aeson hiding (Array)
+import qualified Data.Aeson as Aeson
+import Data.Attoparsec.Number
 import Data.Maybe
+import Control.Monad
 import Data.Serialize (Serialize (..))
 import Data.Int
 import Data.List as L
@@ -238,3 +242,20 @@ toByte = fromIntegral . fromEnum
 
 fromByte :: Enum a => Int8 -> a
 fromByte = toEnum . fromIntegral
+
+
+-------------------------------------------------------------------------------
+-- * JSON
+-------------------------------------------------------------------------------
+instance FromJSON Ship where
+   parseJSON (Object v) = curry Ship <$>
+                          v .: "X" <*>
+                          v .: "Y" <*>
+                          v .: "Size" <*>
+                          v .: "Orientation"
+   -- A non-Object value is of the wrong type, so fail.
+   parseJSON _          = mzero
+instance FromJSON Orientation where
+  parseJSON (Number (I i)) = return $ toEnum $ fromIntegral i
+  parseJSON (Number (D d)) = return $ toEnum $ floor d
+  parseJSON _              = mzero
