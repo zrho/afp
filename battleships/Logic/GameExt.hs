@@ -23,14 +23,14 @@ impGame :: (MonadIO m, Serialize a) => GameStateExt -> m (Maybe (GameState a))
 impGame game = liftIO $ do
   key <- loadKey
   let enc = fromStateExt game
-  let dec = BL.toStrict $ decryptMsg CBC key enc
+  let dec = toStrict $ decryptMsg CBC key enc
   return $ eitherToMaybe $ decode dec
 
 -- | Exports a game.
 expGame :: (MonadIO m, Serialize a) => GameState a -> m GameStateExt
 expGame game = liftIO $ do
   key <- loadKey
-  let dec = BL.fromStrict $ encode game
+  let dec = fromStrict $ encode game
   enc <- encryptMsg CBC key dec
   return $ GameStateExt enc
 
@@ -47,12 +47,12 @@ instance PathPiece GameStateExt where
     = fmap GameStateExt
     . eitherToMaybe
     . B64.decode
-    . BL.fromStrict
+    . fromStrict
     . TE.encodeUtf8
 
   toPathPiece
     = TE.decodeUtf8
-    . BL.toStrict
+    . toStrict
     . B64.encode
     . fromStateExt
 
@@ -60,3 +60,6 @@ eitherToMaybe :: Either a b -> Maybe b
 eitherToMaybe e = case e of
   Right x -> Just x
   _       -> Nothing
+
+toStrict = BS.concat . BL.toChunks
+fromStrict = BL.fromChunks . return

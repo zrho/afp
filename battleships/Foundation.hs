@@ -1,19 +1,26 @@
-{-# LANGUAGE OverloadedStrings, TemplateHaskell, MultiParamTypeClasses, TypeFamilies #-}
+{-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, MultiParamTypeClasses, TypeFamilies #-}
 module Foundation where
 
 import Prelude
-import Control.Monad
 import Yesod
+import Yesod.Static
 import Yesod.Default.Config
-import Settings (widgetFile)
+import Yesod.Default.Util (addStaticContentExternal)
+import Network.HTTP.Conduit (Manager)
+import qualified Settings
 import Settings.Development (development)
+import Settings.StaticFiles
+import Settings (widgetFile)
+import Text.Jasmine (minifym)
 import Text.Hamlet (hamletFile)
 import System.Log.FastLogger (Logger)
+import Control.Monad
 import Web.Cookie (setCookiePath)
 import Logic.GameExt
 
 data App = App
     { settings :: AppConfig DefaultEnv ()
+    , getStatic :: Static -- ^ Settings for static file serving.
     , appLogger :: Logger
     }
 
@@ -66,6 +73,24 @@ instance Yesod App where
         development || level == LevelWarn || level == LevelError
 
     makeLogger = return . appLogger
+
+    -- This is done to provide an optimization for serving static files from
+    -- a separate domain. Please see the staticRoot setting in Settings.hs
+    urlRenderOverride y (StaticR s) =
+        Just $ uncurry (joinPath y (Settings.staticRoot $ settings y)) $ renderRoute s
+    urlRenderOverride _ _ = Nothing
+
+    -- This function creates static content files in the static folder
+    -- and names them based on a hash of their content. This allows
+    -- expiration dates to be set far in the future without worry of
+    -- users receiving stale content.
+    --addStaticContent =
+    --    addStaticContentExternal minifym genFileName Settings.staticDir (StaticR . flip StaticRoute [])
+    --  where
+    --    -- Generate a unique filename based on the content itself
+    --    genFileName lbs
+    --        | development = "autogen-" ++ base64md5 lbs
+    --        | otherwise   = base64md5 lbs
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.

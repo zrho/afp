@@ -24,4 +24,4 @@ renderField
   = TypedContent typeSvg
   . toContent
   . renderSvg
-  . renderDia SVG (SVGOptions Absolute Nothing)
+  . renderDia SVG (SVGOptions Absolute)
