@@ -8,6 +8,6 @@ $else
    <div .banner>
      <h1> _{MsgLost}
 
-<div .content .opaque>
+<div .content .halftransparent>
   <embed src="@{PlayerGridR gameE}" type="image/svg+xml" />
   <embed src="@{EnemyGridR gameE}" type="image/svg+xml" />

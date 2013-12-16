@@ -127,5 +127,5 @@ div.content
   width: 100%
   text-align: center
 
-.opaque
-  opacity: 0.3
+.halftransparent
+  opacity: 0.6
