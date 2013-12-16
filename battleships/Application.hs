@@ -21,6 +21,7 @@ import Handler.Favicon
 import Handler.Grid
 import Handler.Play
 import Handler.PlaceShips
+import Handler.PlaceShips2
 import Handler.GameEnded
 import Handler.Rules
 
@@ -42,7 +43,8 @@ makeApplication conf = do
 makeFoundation :: AppConfig DefaultEnv () -> IO App
 makeFoundation conf = do
     logger <- mkLogger True stdout
-    let foundation = App conf logger
+    s <- staticSite
+    let foundation = App conf s logger
     return foundation
 
 -- for yesod devel

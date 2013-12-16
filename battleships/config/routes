@@ -1,8 +1,10 @@
-/battleships                               HomeR       GET
-/battleships/favicon.ico                   FaviconR    GET
-/battleships/place/#GameStateExt           PlaceShipsR GET POST
-/battleships/play/#GameStateExt/player.svg PlayerGridR GET
-/battleships/play/#GameStateExt/enemy.svg  EnemyGridR  GET
-/battleships/play/#GameStateExt            PlayR       GET POST
-/battleships/gameEnded/#GameStateExt       GameEndedR  GET
-/battleships/rules                         RulesR      GET POST
+/battleships                                  HomeR          GET
+/battleships/favicon.ico                      FaviconR       GET
+/battleships/place/#GameStateExt              PlaceShipsR    GET POST
+/battleships/place2/#GameStateExt             PlaceShips2R   GET POST
+/battleships/play/#GameStateExt/player.svg    PlayerGridR    GET
+/battleships/play/#GameStateExt/enemy.svg     EnemyGridR     GET
+/battleships/play/#GameStateExt               PlayR          GET POST
+/battleships/gameEnded/#GameStateExt          GameEndedR     GET
+/battleships/rules                            RulesR         GET POST
+/battleships/static                           StaticR        Static getStatic

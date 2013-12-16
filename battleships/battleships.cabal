@@ -11,6 +11,7 @@ Extra-Source-Files:
                 templates/*.hamlet
                 templates/*.lucius
                 templates/*.julius
+                static/js/*.js
                 make
 
 Flag dev
@@ -27,9 +28,11 @@ library
                      Import
                      Settings
                      Settings.Development
+                     Settings.StaticFiles
                      Handler.Home
                      Handler.Favicon
                      Handler.PlaceShips
+                     Handler.PlaceShips2
                      Handler.Play
                      Handler.Util
                      Handler.Grid
@@ -89,12 +92,12 @@ library
                  , text                          >= 0.11       && < 0.12
                  , yaml                          >= 0.8        && < 0.9
                  , aeson
-                 , containers                    >= 0.5
+                 , containers                    
                  , array
                 -- * diagrams
                  , blaze-svg
-                 , diagrams-svg                  == 1.0.*
-                 , diagrams-lib                  == 1.0.*
+                 , diagrams-svg                  >= 0.7       && < 0.8
+                 , diagrams-lib                  >= 0.7       && < 0.8
                  , colour
                 -- * other
                  , template-haskell
@@ -108,6 +111,7 @@ library
                  , transformers
                  , base64-bytestring
                  , SimpleAES
+                 , attoparsec
 
 executable         main.cgi
     if flag(library-only)

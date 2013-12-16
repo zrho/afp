@@ -2,10 +2,7 @@
 module Logic.Session
   ( serializeToSession
   , deserializeFromSession
-  , readFromSession
-  , readFromSessionDefault
-  , writeToSession
-  , deleteFromSession 
+  , deserializeFromSessionDefault
 
   , userFleetKey
   , fleetPendingKey
@@ -42,15 +39,6 @@ deserializeFromSession key = do
     Nothing  -> return (Left "key not found")
     Just str -> return (decode str)
 
-readFromSession :: (MonadHandler m, Serialize a) => Text -> m (Maybe a)
-readFromSession objectKey = either (const Nothing) Just <$> deserializeFromSession objectKey
-
-readFromSessionDefault :: (MonadHandler m, Serialize a) => Text -> a -> m a
-readFromSessionDefault objectKey defaultObject = either (const defaultObject) id <$> deserializeFromSession objectKey
-    
-
-writeToSession :: (MonadHandler m, Serialize a) => Text -> a -> m ()
-writeToSession = serializeToSession
-
-deleteFromSession :: (MonadHandler m) => Text -> m ()
-deleteFromSession objectKey = deleteSession objectKey
+deserializeFromSessionDefault :: (MonadHandler m, Serialize a) => Text -> a -> m a
+deserializeFromSessionDefault objectKey defaultObject = 
+  either (const defaultObject) id <$> deserializeFromSession objectKey
