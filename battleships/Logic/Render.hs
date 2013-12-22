@@ -33,7 +33,7 @@ renderPlayerGrid fleet (grid, mLastPos) = renderGrid nx ny <> cells nx ny render
   (nx,ny)          =  gridSize grid
   renderCell pos   = value [] $ markedSquare (isLastPos pos mLastPos) $ case (grid ! pos, shipAt fleet pos) of
     (False, Nothing) -> waterSquare 
-    (True, Nothing)  -> marker # lc markerWaterColor <> waterSquare
+    (True, Nothing)  -> marker # lc markerWaterColor # lw 3 <> waterSquare
     (False, Just _)  -> shipSquare 
     (True, Just _)   -> square cellSize # fc burningShipColor
 
