@@ -34,7 +34,7 @@ renderPlayerGrid fleet (grid, mLastPos) = renderGrid nx ny <> cells nx ny render
   renderCell pos   = value [] $ markedSquare (isLastPos pos mLastPos) $ case (grid ! pos, shipAt fleet pos) of
     (False, Nothing) -> waterSquare 
     (True, Nothing)  -> marker # lc markerWaterColor # lw 3 <> waterSquare
-    (False, Just _)  -> shipSquare 
+    (False, Just s)  -> if (isSunk (grid, mLastPos) s) then movableSquare else shipSquare
     (True, Just _)   -> square cellSize # fc burningShipColor
 
 renderPlaceGrid :: Fleet -> (Int, Int) -> BattleDia
@@ -76,6 +76,7 @@ marker         = drawX (markerRadius * sqrt 2) <> circle markerRadius where
                <> p2 (-0.5 * s, 0.5 * s) ~~ p2 (0.5 * s, -0.5 * s)
 waterSquare    = square cellSize # fc waterColor
 shipSquare     = roundedRect cellSize cellSize 0 # fc shipColor
+movableSquare  = roundedRect cellSize cellSize 0 # fc movableColor
 fogSquare      = square cellSize # fc fogColor
 lastShotMarker = roundedRect (cellSize - 3) (cellSize - 3) 0 # lc lastShotColor # lw 3
 
@@ -133,3 +134,4 @@ markerWaterColor = sRGB24 0x33 0x99 0xFF
 shipColor        = gray
 burningShipColor = orange
 lastShotColor    = red
+movableColor     = sRGB 0.5 0.7 0.5

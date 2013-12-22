@@ -164,6 +164,12 @@ allSunk fleet impacts = foldr (&&) True hit where
   hit    = fmap ((fst impacts) !) points
   points = fleet >>= shipCoordinates 0
 
+isSunk :: ImpactGrid -> Ship -> Bool
+isSunk impacts ship = case leftover of
+  [] -> True
+  _  -> False
+  where leftover = filter (\p -> (fst impacts) ! p) $ shipCoordinates 0 ship
+
 trackToImpact :: TrackingGrid -> ImpactGrid
 trackToImpact t = (fmap (/= Nothing) $ fst t, snd t)
 
