@@ -120,6 +120,10 @@ div.content
   background: #700
   border: solid 1px #5f2220
 
+.linkButton:disabled
+  background:#aaa
+  border: solid 1px #999
+
 .footer
   position: absolute
   bottom: 50px

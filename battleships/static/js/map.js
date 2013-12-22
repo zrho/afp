@@ -94,6 +94,7 @@ function Map(canvas, numX, numY, cellSize, shipDef) {
 	this.reset = function() {
 		this.ships.splice(0, this.ships.length);
 		this.shipDef.reset();
+		this.redraw();
 	};
 	this.shipSelected = function (ship) {
 		for (var i = this.ships.length - 1; i >= 0; i--) {
