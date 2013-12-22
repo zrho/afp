@@ -1,21 +1,24 @@
-<canvas id="map">
-<div id="sidebar">
-    <table id="status">
-        <thead>
-            <tr>
-                <td>Length
-                <td># Avaiable
-        <tbody>
-        <tfoot>
-            <tr>
-                <td>Total
-                <td id="tdTotalShips">
-    <hr>
-    <div>
-        <button id="btnReset">Reset Fleet
-        <button id="btnRnadom" disabled>Random
-    <hr>
-    <div>
-        <form id="fleetForm" action="" method="POST">
-            <input id="fleetData" name="fleetData" type="hidden" >
-            <input id="btnSubmit" type="submit" value="Ready!" disabled>
+<h1>_{MsgStartPlacing}
+
+<div .content>
+    <canvas id="map">
+    <div id="sidebar">
+        <table id="status">
+            <thead>
+                <tr>
+                    <td>Length
+                    <td># Avaiable
+            <tbody>
+            <tfoot>
+                <tr>
+                    <td>Total
+                    <td id="tdTotalShips">
+        <hr>
+        <div>
+            <button id="btnReset">Reset Fleet
+            <button id="btnRnadom" disabled>Random
+        <hr>
+        <div>
+            <form id="fleetForm" action="" method="POST">
+                <input id="fleetData" name="fleetData" type="hidden" >
+                <input id="btnSubmit" type="submit" value="Ready!" disabled>

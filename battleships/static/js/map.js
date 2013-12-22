@@ -54,6 +54,9 @@ function Map(canvas, numX, numY, cellSize, shipDef) {
 		if(that.shipAdmissible(ship)) {
 			that.ships.push(ship);
 			that.shipDef.takeShip(ship.Size);
+		} else if(s = that.shipSelected(ship)) {
+			that.ships.splice(that.ships.indexOf(s),1);
+			that.shipDef.returnShip(s.Size);
 		}
 		that.redraw();
 	});
@@ -65,15 +68,14 @@ function Map(canvas, numX, numY, cellSize, shipDef) {
 		shipOY = toG(evt.pos.y);
 		for (var i = that.ships.length - 1; i >= 0; i--) {
 			if(that.ships[i].contains(shipOX, shipOY, 0)) {
-				that.ships.splice(i, 1);
 				that.shipDef.returnShip(that.ships[i].Size);
+				that.ships.splice(i, 1);
 			}
 		};
 		that.redraw();
 	});
 
 	this.shipAdmissible = function (ship) {
-		//return false;
 		for (var i = this.ships.length - 1; i >= 0; i--) {
 			if(ship.intersects(this.ships[i], this.safetyMargin)) {
 				return false;
@@ -93,6 +95,14 @@ function Map(canvas, numX, numY, cellSize, shipDef) {
 		this.ships.splice(0, this.ships.length);
 		this.shipDef.reset();
 	};
+	this.shipSelected = function (ship) {
+		for (var i = this.ships.length - 1; i >= 0; i--) {
+			if (ship.equals(this.ships[i])) {
+				return this.ships[i];
+			}
+		}
+		return null;
+	}
 
 	// initial redraw
 	this.redraw();
@@ -344,6 +354,11 @@ function Ship(x, y, size, orientation) {
 				this.Y <= ob &&
 				other.Y - margin <= tb);
 	};
+	this.equals = function(other) {
+		return (this.X == other.X && 
+			    this.Y == other.Y && 
+			    this.Orientation == other.Orientation);
+	}
 }
 Ship.fromLine = function(x1, y1, x2, y2) {
 	if(Math.abs(x2 - x1) >= Math.abs(y2 - y1)) {
