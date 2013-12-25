@@ -4,7 +4,6 @@ module Logic.Game where
 import Prelude
 import Data.Array
 import Data.Aeson hiding (Array)
-import qualified Data.Aeson as Aeson
 import Data.Attoparsec.Number
 import Data.Maybe
 import Control.Monad
@@ -70,7 +69,7 @@ data Ship = Ship
 
 -- | State of the game for both players.
 data GameState a = GameState
-  { playerImpact :: ImpactGrid    -- ^ impacts on the player field
+  { playerImpact :: TrackingGrid    -- ^ impacts on the player field
   , playerTrack  :: TrackingGrid  -- ^ tracking for the player
   , playerFleet  :: Fleet         -- ^ fleet of the player
   , enemyFleet   :: Fleet         -- ^ fleet of the enemy
@@ -90,9 +89,6 @@ type Grid a = Array Pos a
 -- | A grid where the results of shots and the position of the last shot are tracked.
 type TrackingGrid = (Grid (Maybe HitResponse), Maybe Pos)
 
--- | A grid where the impacts of shots and the position of the last shot are tracked..
-type ImpactGrid = (Grid Bool, Maybe Pos)
-
 instance Random Orientation where
   randomR (a, b) g = (toEnum r, g') where
     (r, g')        = randomR (fromEnum a, fromEnum b) g
@@ -111,7 +107,7 @@ newGame
 
 newGame r pFleet = do 
   (ai, eFleet) <- aiInit r
-  let impacts  = (newGrid (rulesSize r) False, Nothing)
+  let impacts  = (newGrid (rulesSize r) Nothing, Nothing)
   let tracking = (newGrid (rulesSize r) Nothing, Nothing)
   return $ GameState impacts tracking pFleet eFleet ai r
 
@@ -151,27 +147,30 @@ shipAt fleet (px, py) = listToMaybe $ filter containsP fleet where
     Vertical   -> px == sx && py >= sy && py < sy + shipSize
     where (sx, sy) = shipPosition
 
-fireAt :: Fleet -> ImpactGrid -> Pos -> HitResponse
+fireAt :: Fleet -> TrackingGrid -> Pos -> HitResponse
 fireAt fleet impacts pos = case shipAt fleet pos of
   Nothing -> Water
   Just s  -> case leftover of
     []    -> Sunk
     _     -> Hit
-    where leftover = filter (\p -> not $ p == pos || (fst impacts) ! p) $ shipCoordinates 0 s
+    where leftover = filter (\p -> (not $ p == pos) && isNothing ((fst impacts) ! p)) $ shipCoordinates 0 s
 
-allSunk :: Fleet -> ImpactGrid -> Bool
+allSunk :: Fleet -> TrackingGrid -> Bool
 allSunk fleet impacts = foldr (&&) True hit where
-  hit    = fmap ((fst impacts) !) points
+  hit    = fmap (\p -> isJust ((fst impacts) ! p)) points
   points = fleet >>= shipCoordinates 0
 
-isSunk :: ImpactGrid -> Ship -> Bool
+isSunk :: TrackingGrid -> Ship -> Bool
 isSunk impacts ship = case leftover of
   [] -> True
   _  -> False
-  where leftover = filter (\p -> (fst impacts) ! p) $ shipCoordinates 0 ship
+  where leftover = filter (\p -> isNothing ((fst impacts) ! p)) $ shipCoordinates 0 ship
 
-trackToImpact :: TrackingGrid -> ImpactGrid
-trackToImpact t = (fmap (/= Nothing) $ fst t, snd t)
+isHit :: TrackingGrid -> Ship -> Bool
+isHit impacts ship = case damaged of
+  [] -> False
+  _  -> True 
+  where damaged = filter (\p -> isJust ((fst impacts) ! p)) $ shipCoordinates 0 ship
 
 -------------------------------------------------------------------------------
 -- * Turn
@@ -191,7 +190,7 @@ turnEnemy g@(GameState {..}) = do
   -- fire the enemy's shot
   let response = fireAt playerFleet playerImpact pos
   -- update the impact grid
-  let impact   = ((fst playerImpact) // [(pos, True)], Just pos)
+  let impact   = ((fst playerImpact) // [(pos, Just response)], Just pos)
   -- notify the AI
   (_, s') <- runStateT (aiResponse pos response) s
   -- all player ships sunk now?
@@ -202,11 +201,11 @@ turnEnemy g@(GameState {..}) = do
 turnPlayer :: Monad m => GameState a -> Pos -> m (Turn a)
 turnPlayer g@(GameState {..}) pos = do
   -- fire the player's shot
-  let response  = fireAt enemyFleet (trackToImpact playerTrack) pos
+  let response  = fireAt enemyFleet playerTrack pos
   -- update the tracking grid
   let track     = ((fst playerTrack) // [(pos, Just response)], Just pos)
   -- all enemy ships sunk now?
-  return $ case allSunk enemyFleet (trackToImpact track) of
+  return $ case allSunk enemyFleet track of
     True  -> Won $ g { playerTrack = track }
     False -> Next $ g { playerTrack = track }
 

@@ -8,7 +8,7 @@ import Handler.Util
 
 getGameEndedR :: GameStateExt -> Handler Html
 getGameEndedR gameE = withGame gameE $ \game -> do
-  let outcome = case allSunk (enemyFleet game) (trackToImpact $ playerTrack game) of
+  let outcome = case allSunk (enemyFleet game) (playerTrack game) of
                   True  -> Won game
                   False -> Lost game
   defaultLayout $ do

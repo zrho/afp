@@ -6,16 +6,11 @@ module Handler.PlaceShips2
 
 import Import
 import Data.Aeson (decode)
-import qualified Data.Text  as T
 import qualified Data.Text.Encoding as TE
 import qualified Data.ByteString.Lazy as BL
 import Logic.Game
 import Logic.GameExt
-import Logic.Render
-import Logic.StupidAI
 import Handler.Util
-import Data.List as L
-import Data.Serialize (Serialize)
 import Debug.Trace
 
 -------------------------------------------------------------------------------

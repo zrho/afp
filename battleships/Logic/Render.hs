@@ -28,17 +28,17 @@ renderEnemyGrid (grid, mLastPos) = renderGrid nx ny <> cells nx ny renderCell wh
     Just Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
     Just Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
 
-renderPlayerGrid :: Fleet -> ImpactGrid -> BattleDia
+renderPlayerGrid :: Fleet -> TrackingGrid -> BattleDia
 renderPlayerGrid fleet (grid, mLastPos) = renderGrid nx ny <> cells nx ny renderCell where
   (nx,ny)          =  gridSize grid
   renderCell pos   = value [] $ markedSquare (isLastPos pos mLastPos) $ case (grid ! pos, shipAt fleet pos) of
-    (False, Nothing) -> waterSquare 
-    (True, Nothing)  -> marker # lc markerWaterColor # lw 3 <> waterSquare
-    (False, Just s)  -> if (isSunk (grid, mLastPos) s) then movableSquare else shipSquare
-    (True, Just _)   -> square cellSize # fc burningShipColor
+    (Nothing, Nothing) -> waterSquare 
+    (Just _, Nothing)  -> marker # lc markerWaterColor # lw 3 <> waterSquare
+    (Nothing, Just s)  -> if (isHit (grid, mLastPos) s) then shipSquare else movableSquare
+    (Just _, Just _)   -> square cellSize # fc burningShipColor
 
 renderPlaceGrid :: Fleet -> (Int, Int) -> BattleDia
-renderPlaceGrid fleet gSize = renderPlayerGrid fleet $ (newGrid gSize False, Nothing)
+renderPlaceGrid fleet gSize = renderPlayerGrid fleet $ (newGrid gSize Nothing, Nothing)
 
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering
