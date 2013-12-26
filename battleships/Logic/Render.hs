@@ -34,7 +34,7 @@ renderPlayerGrid fleet (grid, mLastPos) = renderGrid nx ny <> cells nx ny render
   renderCell pos   = value [] $ markedSquare (isLastPos pos mLastPos) $ case (grid ! pos, shipAt fleet pos) of
     (Nothing, Nothing) -> waterSquare 
     (Just _, Nothing)  -> marker # lc markerWaterColor # lw 3 <> waterSquare
-    (Nothing, Just s)  -> if (isHit (grid, mLastPos) s) then shipSquare else movableSquare
+    (Nothing, Just s)  -> if (isDamaged (grid, mLastPos) s) then shipSquare else movableSquare
     (Just _, Just _)   -> square cellSize # fc burningShipColor
 
 renderPlaceGrid :: Fleet -> (Int, Int) -> BattleDia

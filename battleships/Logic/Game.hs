@@ -69,7 +69,7 @@ data Ship = Ship
 
 -- | State of the game for both players.
 data GameState a = GameState
-  { playerImpact :: TrackingGrid    -- ^ impacts on the player field
+  { playerImpact :: TrackingGrid  -- ^ impacts on the player field
   , playerTrack  :: TrackingGrid  -- ^ tracking for the player
   , playerFleet  :: Fleet         -- ^ fleet of the player
   , enemyFleet   :: Fleet         -- ^ fleet of the enemy
@@ -153,21 +153,15 @@ fireAt fleet impacts pos = case shipAt fleet pos of
   Just s  -> case leftover of
     []    -> Sunk
     _     -> Hit
-    where leftover = filter (\p -> (not $ p == pos) && isNothing ((fst impacts) ! p)) $ shipCoordinates 0 s
+    where leftover = filter (\p -> p /= pos && isNothing ((fst impacts) ! p)) $ shipCoordinates 0 s
 
 allSunk :: Fleet -> TrackingGrid -> Bool
 allSunk fleet impacts = foldr (&&) True hit where
   hit    = fmap (\p -> isJust ((fst impacts) ! p)) points
   points = fleet >>= shipCoordinates 0
 
-isSunk :: TrackingGrid -> Ship -> Bool
-isSunk impacts ship = case leftover of
-  [] -> True
-  _  -> False
-  where leftover = filter (\p -> isNothing ((fst impacts) ! p)) $ shipCoordinates 0 ship
-
-isHit :: TrackingGrid -> Ship -> Bool
-isHit impacts ship = case damaged of
+isDamaged :: TrackingGrid -> Ship -> Bool
+isDamaged impacts ship = case damaged of
   [] -> False
   _  -> True 
   where damaged = filter (\p -> isJust ((fst impacts) ! p)) $ shipCoordinates 0 ship
@@ -184,30 +178,31 @@ turn game pos = turnPlayer game pos >>= \t -> case t of
   _          -> return t
 
 turnEnemy :: (MonadRandom m, AI a) => GameState a -> m (Turn a)
-turnEnemy g@(GameState {..}) = do
-  -- determine next position
-  (pos, s) <- runStateT aiFire enemyState
-  -- fire the enemy's shot
-  let response = fireAt playerFleet playerImpact pos
-  -- update the impact grid
-  let impact   = ((fst playerImpact) // [(pos, Just response)], Just pos)
-  -- notify the AI
-  (_, s') <- runStateT (aiResponse pos response) s
-  -- all player ships sunk now?
-  return $ case allSunk playerFleet impact of
-    True  -> Lost $ g { playerImpact = impact, enemyState = s' }
-    False -> Next $ g { playerImpact = impact, enemyState = s' }
+turnEnemy g = do
+  (pos, _) <- runStateT aiFire (enemyState g)
+  newState <- turnCommon g pos
+  return $ case allSunk (playerFleet newState) (playerImpact newState) of
+    True  -> Lost newState
+    False -> Next newState
 
-turnPlayer :: Monad m => GameState a -> Pos -> m (Turn a)
-turnPlayer g@(GameState {..}) pos = do
-  -- fire the player's shot
-  let response  = fireAt enemyFleet playerTrack pos
-  -- update the tracking grid
-  let track     = ((fst playerTrack) // [(pos, Just response)], Just pos)
-  -- all enemy ships sunk now?
-  return $ case allSunk enemyFleet track of
-    True  -> Won $ g { playerTrack = track }
-    False -> Next $ g { playerTrack = track }
+turnPlayer :: (MonadRandom m, AI a) => GameState a -> Pos -> m (Turn a)
+turnPlayer g pos = do
+  newState <- turnCommon (switchRoles g) pos
+  return $ case allSunk (playerFleet newState) (playerImpact newState) of
+    True  -> Won (switchRoles newState)
+    False -> Next (switchRoles newState)
+
+-- Assumes it is the computer's turn. If it is the player's turn, you have to switch positions before and afterwards!
+turnCommon :: (MonadRandom m, AI a) => GameState a -> Pos-> m (GameState a)
+turnCommon g@(GameState {..}) pos = do
+  (_, s)      <- runStateT aiFire enemyState
+  let response = fireAt playerFleet playerImpact pos
+  let impact   = ((fst playerImpact) // [(pos, Just response)], Just pos)
+  (_, s')     <- runStateT (aiResponse pos response) s
+  return g {playerImpact = impact, enemyState = s'}
+
+switchRoles :: GameState a -> GameState a
+switchRoles g = g {playerImpact = playerTrack g, playerTrack = playerImpact g, playerFleet = enemyFleet g, enemyFleet = playerFleet g}
 
 -------------------------------------------------------------------------------
 -- * Serialization

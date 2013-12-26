@@ -5,13 +5,9 @@ import Prelude
 import Yesod
 import Yesod.Static
 import Yesod.Default.Config
-import Yesod.Default.Util (addStaticContentExternal)
-import Network.HTTP.Conduit (Manager)
 import qualified Settings
 import Settings.Development (development)
-import Settings.StaticFiles
 import Settings (widgetFile)
-import Text.Jasmine (minifym)
 import Text.Hamlet (hamletFile)
 import System.Log.FastLogger (Logger)
 import Control.Monad
