@@ -9,7 +9,11 @@ import qualified Settings
 import Settings.Development (development)
 import Settings (widgetFile)
 import Text.Hamlet (hamletFile)
+#if MIN_VERSION_fast_logger(2,1,0)
+import Yesod.Core.Types (Logger)
+#else
 import System.Log.FastLogger (Logger)
+#endif
 import Control.Monad
 import Web.Cookie (setCookiePath)
 import Logic.GameExt

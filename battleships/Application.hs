@@ -10,9 +10,19 @@ import Import
 import Data.Default (def)
 import Yesod.Default.Config
 import Yesod.Default.Main (defaultDevelApp)
-import Network.Wai.Middleware.RequestLogger
 import System.IO (stdout)
+#if MIN_VERSION_fast_logger(2,1,0)
+import Network.Wai.Middleware.RequestLogger
+    ( mkRequestLogger, outputFormat, OutputFormat (..), IPAddrSource (..), destination
+    )
+import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
+import System.Log.FastLogger (newLoggerSet, defaultBufSize)
+import Network.Wai.Logger (clockDateCacher)
+import Yesod.Core.Types (loggerSet, Logger (Logger))
+#else
+import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger (mkLogger)
+#endif
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -35,14 +45,25 @@ makeApplication conf = do
             if development
             then Detailed True
             else Apache FromSocket
+#if MIN_VERSION_fast_logger(2,1,0)
+        , destination = RequestLogger.Logger $ loggerSet $ appLogger foundation
+#else
         , destination = Logger $ appLogger foundation
+#endif
         }
     app <- toWaiAppPlain foundation
     return $ logWare app
 
 makeFoundation :: AppConfig DefaultEnv () -> IO App
 makeFoundation conf = do
+#if MIN_VERSION_fast_logger(2,1,0)
+    loggerSet' <- newLoggerSet defaultBufSize Nothing
+    (getter, _) <- clockDateCacher
+
+    let logger = Yesod.Core.Types.Logger loggerSet' getter
+#else
     logger <- mkLogger True stdout
+#endif
     s <- staticSite
     let foundation = App conf s logger
     return foundation

@@ -10,3 +10,6 @@ Setup.hs
 # Sublime-Text Projekte
 *.sublime-project
 *.sublime-workspace
+# Cabal-Sandbox
+.cabal-sandbox
+cabal.sandbox.config
