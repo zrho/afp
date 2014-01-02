@@ -41,6 +41,7 @@ library
                      Logic.Game
                      Logic.GameExt
                      Logic.StupidAI
+                     Logic.Benchmark
                      Logic.Render
                      Logic.Session
 
