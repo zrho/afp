@@ -8,12 +8,16 @@ module Logic.Render
 
 import Prelude
 import Logic.Game
+import Control.Monad
 import Data.Array
 import Diagrams.Prelude
 import Diagrams.Backend.SVG
 import Data.Colour.SRGB
 
 type BattleDia = QDiagram SVG R2 [Pos]
+
+-- | Arrows displayed on the bow and stern of undamaged ships.
+data MoveArrow = ArrowRight | ArrowUp | ArrowLeft | ArrowDown deriving (Show, Eq, Ord, Bounded, Enum)
 
 -------------------------------------------------------------------------------
 -- * High-Level Rendering
@@ -29,12 +33,15 @@ renderEnemyGrid (grid, mLastPos) = renderGrid nx ny <> cells nx ny renderCell wh
     Just Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
 
 renderPlayerGrid :: Fleet -> TrackingGrid -> BattleDia
-renderPlayerGrid fleet (grid, mLastPos) = renderGrid nx ny <> cells nx ny renderCell where
+renderPlayerGrid fleet tgrid@(grid, mLastPos) = renderGrid nx ny <> cells nx ny renderCell where
   (nx,ny)          =  gridSize grid
   renderCell pos   = value [] $ markedSquare (isLastPos pos mLastPos) $ case (grid ! pos, shipAt fleet pos) of
     (Nothing, Nothing) -> waterSquare 
     (Just _, Nothing)  -> marker # lc markerWaterColor # lw 3 <> waterSquare
-    (Nothing, Just s)  -> if (isDamaged (grid, mLastPos) s) then shipSquare else movableSquare
+    (Nothing, Just s)  -> 
+      if (isDamaged tgrid s) 
+        then shipSquare 
+        else maybe mempty renderArrow (movementArrowAt fleet tgrid pos) <> movableSquare
     (Just _, Just _)   -> square cellSize # fc burningShipColor
 
 renderPlaceGrid :: Fleet -> (Int, Int) -> BattleDia
@@ -88,6 +95,28 @@ isLastPos :: Pos -> (Maybe Pos) -> Bool
 isLastPos _    Nothing    = False
 isLastPos pos (Just lPos) = pos == lPos
 
+movementArrowAt :: Fleet -> TrackingGrid -> Pos -> Maybe MoveArrow
+movementArrowAt fleet grid pos = do
+  ship <- shipAt fleet pos
+  let 
+    Ship{..} = ship
+    (x,y)    = shipPosition
+  case shipOrientation of
+    Horizontal
+      | pos == shipPosition     -> Just ArrowLeft
+      | pos == (x+shipSize-1,y) -> Just ArrowRight
+    Vertical
+      | pos == shipPosition     -> Just ArrowUp
+      | pos == (x,y+shipSize-1) -> Just ArrowDown
+    _ -> Nothing
+
+renderArrow :: MoveArrow -> QDiagram SVG R2 Any
+renderArrow arrType = arrowShape # rotateBy circleFraction # arrowStyle  where 
+  circleFraction = (fromIntegral $ fromEnum arrType) / 4
+  arrowShape     = fromVertices [ p2 (0, -0.8 * halfCellSize)
+                                , p2 (0.8 * halfCellSize,  0)
+                                , p2 (0,  0.8 * halfCellSize)]
+
 -------------------------------------------------------------------------------
 -- * Grid Rendering
 -------------------------------------------------------------------------------
@@ -111,13 +140,15 @@ yticks w ys = mconcat [fromVertices [p2 (0, y), p2 (w, y) ] | y <- ys]
 -- * Style Constants
 -------------------------------------------------------------------------------
 
-cellSize, markerRadius :: Double
+cellSize, halfCellSize, markerRadius :: Double
 cellSize     = 40
+halfCellSize = cellSize / 2
 markerRadius = cellSize / 2 - 3
 
-innerGridLineStyle, outerGridLineStyle :: HasStyle c => c -> c
+innerGridLineStyle, outerGridLineStyle, arrowStyle :: HasStyle c => c -> c
 innerGridLineStyle = lw 1 . lc black . dashing [3, 3] 0
 outerGridLineStyle = lw 1 . lc black
+arrowStyle         = lw 3 . lc gray
 
 numberStyle :: HasStyle c => c -> c
 numberStyle = fontSize 30 . font "Monospace"
