@@ -8,6 +8,7 @@ import           Control.Monad.Trans.State (runStateT)
 import           Data.Array
 import           Logic.Game
 import           Logic.StupidAI
+import           Logic.CleverAI
 import           Data.Maybe
 import           Prelude
 import           Debug.Trace
@@ -16,7 +17,7 @@ verboseOutput :: String -> IO ()
 verboseOutput = putStrLn -- to suppress verbose output, change to `const (return ())`
 
 -- | Tests the performance of the AI, that is the average number of shots
--- | needed to sink all the ships. So we can estimate the quality of the AI.
+-- | needed to sink all the ships. This way, we can estimate how well the AI plays.
 -- | The AI plays against itself.
 benchmark :: Int -> IO ()
 benchmark repetitions = do
@@ -27,7 +28,7 @@ benchmark repetitions = do
     f total i = do
       verboseOutput $ "\n---\n" ++ show i ++ "th run:"
       shotCount <- playGame
-      verboseOutput $ show shotCount ++ " shot needed."
+      verboseOutput $ show shotCount ++ " shots needed."
       return (total + shotCount)
 
 -- | Returns number of shots the AI needed.
@@ -35,8 +36,7 @@ playGame :: IO Int
 playGame = do
   (ai, fleet) <- aiInit rules
   verboseOutput $ showFleet rules fleet
-  verboseOutput $ show fleet
-  (count, _newAi) <- runStateT (aiTurn impact fleet 0) (ai :: StupidAI)
+  (count, _newAi) <- runStateT (aiTurn impact fleet 0) (ai :: CleverAI)
   return count where
     impact = (newGrid (rulesSize rules) Nothing, Nothing)
 
@@ -50,6 +50,7 @@ aiTurn impact fleet count = do
     let response = fireAt fleet impact pos
     -- update the impact grid
     let newImpact   = ((fst impact) // [(pos, Just response)], Just pos)
+    trace (showTracking newImpact) $ return () -- for debugging
     -- notify the AI
     aiResponse pos response
     -- all ships sunk now?
@@ -69,3 +70,16 @@ showFleet r fleet = tail $ concat
   , x <- [0..width - 1]
   ] where
      (width, height) = rulesSize r
+
+showTracking :: TrackingGrid -> String
+showTracking (grid, pos) = concat
+  [(case grid ! ((x,y) :: Pos) of
+      Nothing -> " "
+      Just Water -> "~"
+      Just Hit -> "H"
+      Just Sunk -> "S")
+  ++ (if x == width' then "\n" else "")
+  | y <- [0..height']
+  , x <- [0..width']
+  ] ++ show pos where
+    ((0,0), (width', height')) = bounds grid
