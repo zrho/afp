@@ -9,6 +9,7 @@ import           Data.Array
 import           Logic.Game
 import           Logic.StupidAI
 import           Logic.CleverAI
+import           Logic.AIUtil
 import           Data.Maybe
 import           Prelude
 import           Debug.Trace
@@ -60,26 +61,3 @@ aiTurn impact fleet count = do
 
 rules :: Rules 
 rules = Rules (10, 10) [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ] 1
-
--- For debugging:
-showFleet :: Rules -> Fleet -> String
-showFleet r fleet = tail $ concat
-  [ (if x == 0 then "\n" else "") ++
-    (if isJust . shipAt fleet $ (x,y) then "O" else "~")
-  | y <- [0..height - 1]
-  , x <- [0..width - 1]
-  ] where
-     (width, height) = rulesSize r
-
-showTracking :: TrackingGrid -> String
-showTracking (grid, pos) = concat
-  [(case grid ! ((x,y) :: Pos) of
-      Nothing -> " "
-      Just Water -> "~"
-      Just Hit -> "H"
-      Just Sunk -> "S")
-  ++ (if x == width' then "\n" else "")
-  | y <- [0..height']
-  , x <- [0..width']
-  ] ++ show pos where
-    ((0,0), (width', height')) = bounds grid

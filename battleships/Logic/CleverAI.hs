@@ -6,6 +6,7 @@ import           Data.Array
 import           Data.List ((\\), all, any, intersect)
 import           Data.Maybe (fromJust, isJust)
 import           Logic.Game
+import           Logic.AIUtil
 import           Control.Monad.Random
 import           Control.Monad.Reader
 import           Control.Monad.State
@@ -16,11 +17,6 @@ import           Debug.Trace
 
 data CleverAI = CleverAI { rules :: Rules, tracking :: TrackingGrid }
 
-type Score = Double
-type ScoreGrid = Array Pos Score
-
-type TrackingArray = Array Pos (Maybe HitResponse)
-
 instance AI CleverAI where
   aiInit r       = liftM2 (,) (return (CleverAI r (newGrid (rulesSize r) Nothing, Nothing))) (initShips r)
   aiFire         = liftM chooseMaximum scoreGrid where
@@ -29,56 +25,12 @@ instance AI CleverAI where
   aiResponse p r = state updateTracking where
     updateTracking ai =
       let tracking' = (fst (tracking ai) // [(p, Just r)], Just p)
-      in ((), ai { tracking = tracking' })
+      in ((), ai { tracking = trace' showTracking tracking' })
 
 instance Serialize CleverAI where
   get = CleverAI <$> S.get <*> S.get
   put CleverAI {..} = S.put rules >> S.put tracking
 
---------------------------------------------------------------------------------
--- * Placing ships
---------------------------------------------------------------------------------
-
-initShips :: MonadRandom m => Rules -> m Fleet
-initShips r = do
-  result <- initShips' r [] (rulesShips r)
-  case result of
-    Nothing -> undefined -- the grid is too small to place the fleet, there is no valid one
-    Just fleet -> return fleet
-
--- | returns a random fleet, if one exists
-initShips' :: MonadRandom m => Rules
-                            -> Fleet
-                            -> [Int] -- the sizes of the remaining ships to be placed
-                            -> m (Maybe Fleet)
-initShips' _ fleet []   = return . Just $ fleet
-initShips' r fleet (len:lens) =
-  let placements = admissibleShipPlacements r fleet len
-  in tryPlacement placements where
-    -- | Given a list of placements for the current ship,
-    -- | try all of them in random order and choose the first one that works out.
-    -- | Place the remaining fleet recursively.
-    tryPlacement :: (MonadRandom m) => [(Pos, Orientation)] -> m (Maybe Fleet)
-    tryPlacement []         = return Nothing -- No feasible placement for the current ship exists,
-                                             -- so there is none for the whole fleet, either.
-    tryPlacement placements = do
-      ix <- getRandomR (0, length placements - 1)
-      let (pos, orient) = placements !! ix
-          newShip       = Ship pos len orient
-      remainingShips <- initShips' r (newShip : fleet) lens -- place the remaining ships recursively
-      case remainingShips of
-        Just f -> return $ Just f
-        Nothing    -> tryPlacement (removeNth ix placements) -- this placement doesn't work, try the next one
-
--- | calculates all possible placements (Pos, Orientation) for a ship of the given lengths
-admissibleShipPlacements :: Rules -> Fleet -> Int -> [(Pos, Orientation)]
-admissibleShipPlacements r fleet len = filter admissible allPlacements where
-  admissible (pos, orient) = shipAdmissible r fleet $ Ship pos len orient
-  (width, height) = rulesSize r
-  allPlacements = [((x,y), orient) | x <- [0..width-1]
-                                   , y <- [0..height-1]
-                                   , orient <- [Horizontal, Vertical]
-                                   ]
 
 --------------------------------------------------------------------------------
 -- * Firing shots
@@ -186,53 +138,3 @@ shipMatchesTracking margin t sunk s =
     coord = shipCoordinates 0 s
     safetyZones = filter (isHitOrSunk . (t !)) (indices t) >>= (addMargin margin)
     sunkZones = sunk >>= shipCoordinates margin
-
---------------------------------------------------------------------------------
--- * Helper functions
---------------------------------------------------------------------------------
-
-isHit :: Maybe HitResponse -> Bool
-isHit (Just Hit) = True
-isHit _          = False
-
-isSunk :: Maybe HitResponse -> Bool
-isSunk (Just Sunk) = True
-isSunk _           = False
-
-isWater :: Maybe HitResponse -> Bool
-isWater (Just Water) = True
-isWater _            = False
-
-isHitOrSunk :: Maybe HitResponse -> Bool
-isHitOrSunk h = isSunk h || isHit h
-
-addMargin :: Int -> Pos -> [Pos]
-addMargin margin (x,y) = [(x + dx, y + dy) | dx <- [-margin..margin], dy <- [-margin..margin]]
-
--- can't find this function in the standard libraries...
-removeNth :: Int -> [a] -> [a]
-removeNth n xs = let (ys,zs) = splitAt n xs in ys ++ (tail zs)
-
---------------------------------------------------------------------------------
--- * Debugging
---------------------------------------------------------------------------------
-
-showPositions :: Int -> Int -> [Pos] -> String
-showPositions width height ps = concat
-  [(if (x,y) `elem` ps then "X" else " ")
-  ++ (if x == width - 1 then "\n" else "")
-  | y <- [0..height - 1]
-  , x <- [0..width - 1]
-  ]
-
-showScoreGrid :: ScoreGrid -> String
-showScoreGrid grid = concat
-  [ show (round $ grid ! (x,y))
-  ++ (if x == width' then "\n" else "|")
-  | y <- [0..height']
-  , x <- [0..width']
-  ] where
-    ((0,0), (width', height')) = bounds grid
-
-trace' :: (a -> String) -> a -> a
-trace' f x = trace (f x) x
