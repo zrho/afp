@@ -25,7 +25,7 @@ instance AI CleverAI where
   aiResponse p r = state updateTracking where
     updateTracking ai =
       let tracking' = (fst (tracking ai) // [(p, Just r)], Just p)
-      in ((), ai { tracking = trace' showTracking tracking' })
+      in ((), ai { tracking = {- trace' showTracking -} tracking' })
 
 instance Serialize CleverAI where
   get = CleverAI <$> S.get <*> S.get
@@ -41,7 +41,7 @@ instance Serialize CleverAI where
 scoreGrid :: (MonadRandom m, MonadState CleverAI m) => m ScoreGrid
 scoreGrid = do
   CleverAI {rules = r, tracking = (t,_)} <- get
-  return $ trace' showScoreGrid $ scoreGrid' r t
+  return $ {- trace' showScoreGrid $ -} scoreGrid' r t
 
 scoreGrid' :: Rules -> TrackingArray -> ScoreGrid
 scoreGrid' r t = array
