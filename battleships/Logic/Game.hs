@@ -179,30 +179,35 @@ turn game pos = turnPlayer game pos >>= \t -> case t of
 
 turnEnemy :: (MonadRandom m, AI a) => GameState a -> m (Turn a)
 turnEnemy g = do
-  (pos, _) <- runStateT aiFire (enemyState g)
-  newState <- turnCommon g pos
+  (pos, s) <- runStateT aiFire (enemyState g)
+  let (newState', response) = turnCommon g pos
+  (_, s')  <- runStateT (aiResponse pos response) s
+  let newState = newState' { enemyState = s' }
   return $ case allSunk (playerFleet newState) (playerImpact newState) of
     True  -> Lost newState
     False -> Next newState
 
 turnPlayer :: (MonadRandom m, AI a) => GameState a -> Pos -> m (Turn a)
 turnPlayer g pos = do
-  newState <- turnCommon (switchRoles g) pos
+  let (newState, _) = turnCommon (switchRoles g) pos
   return $ case allSunk (playerFleet newState) (playerImpact newState) of
     True  -> Won (switchRoles newState)
     False -> Next (switchRoles newState)
 
 -- Assumes it is the computer's turn. If it is the player's turn, you have to switch positions before and afterwards!
-turnCommon :: (MonadRandom m, AI a) => GameState a -> Pos-> m (GameState a)
-turnCommon g@(GameState {..}) pos = do
-  (_, s)      <- runStateT aiFire enemyState
+turnCommon :: AI a => GameState a -> Pos-> (GameState a, HitResponse)
+turnCommon g@(GameState {..}) pos =
   let response = fireAt playerFleet playerImpact pos
-  let impact   = ((fst playerImpact) // [(pos, Just response)], Just pos)
-  (_, s')     <- runStateT (aiResponse pos response) s
-  return g {playerImpact = impact, enemyState = s'}
+      impact   = ((fst playerImpact) // [(pos, Just response)], Just pos)
+  in (g { playerImpact = impact }, response)
 
 switchRoles :: GameState a -> GameState a
-switchRoles g = g {playerImpact = playerTrack g, playerTrack = playerImpact g, playerFleet = enemyFleet g, enemyFleet = playerFleet g}
+switchRoles g = g
+  { playerImpact = playerTrack g
+  , playerTrack = playerImpact g
+  , playerFleet = enemyFleet g
+  , enemyFleet = playerFleet g
+  }
 
 -------------------------------------------------------------------------------
 -- * Serialization
