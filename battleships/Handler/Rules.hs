@@ -4,7 +4,7 @@ module Handler.Rules (getRulesR, postRulesR) where
 import Import
 import Logic.Game
 import Logic.GameExt
-import Logic.StupidAI
+import Logic.CleverAI
 import Handler.Util
 import Data.Maybe
 
@@ -17,7 +17,7 @@ postRulesR = do
   let size = fromMaybe 10 s
   if size >= 10
     then do
-           game  <- liftIO $ (newGame (rules size) [] :: IO (GameState StupidAI))
+           game  <- liftIO $ (newGame (rules size) [] :: IO (GameState CleverAI))
            gameE <- expGame game
            redirect (PlaceShips2R gameE)
     else renderRulePage 10 $ Just MsgInvalidFieldSize

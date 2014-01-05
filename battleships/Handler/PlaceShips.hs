@@ -9,7 +9,7 @@ import qualified Data.Text  as T
 import Logic.Game
 import Logic.GameExt
 import Logic.Render
-import Logic.StupidAI
+import Logic.CleverAI
 import Handler.Util
 import Data.List as L
 import Data.Serialize (Serialize)
@@ -33,7 +33,7 @@ getPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
 
 exportNewGame :: MonadHandler m => Rules -> m GameStateExt
 exportNewGame rules
- = expGame =<< (liftIO $ (newGame rules [] :: IO (GameState StupidAI)))
+ = expGame =<< (liftIO $ (newGame rules [] :: IO (GameState CleverAI)))
 
 postPlaceShipsR :: GameStateExt -> Handler Html
 postPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
@@ -43,7 +43,7 @@ postPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
     FormSuccess Nothing  -> translateMessage MsgNoCell >>= setMessage . toHtml
     FormSuccess (Just s)
       | shipAdmissible gameRules playerFleet s -> do
-        let game' = game { playerFleet = s : playerFleet } :: GameState StupidAI
+        let game' = game { playerFleet = s : playerFleet } :: GameState CleverAI
         expGame game' >>= redirect . PlaceShipsR
       | otherwise        -> translateMessage MsgInvalidPlacement >>= setMessage . toHtml
     FormFailure text     -> setMessage . toHtml . T.intercalate " " $ text

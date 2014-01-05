@@ -6,10 +6,10 @@ import Diagrams.Prelude
 import Data.Maybe
 import Logic.Game
 import Logic.GameExt
-import Logic.StupidAI
+import Logic.CleverAI
 import Logic.Render
 
-withGame :: GameStateExt -> (GameState StupidAI -> Handler a) -> Handler a
+withGame :: GameStateExt -> (GameState CleverAI -> Handler a) -> Handler a
 withGame gameE act = impGame gameE >>= \g -> case g of
   Nothing   -> redirect HomeR
   Just game -> act game

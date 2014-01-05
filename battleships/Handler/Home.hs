@@ -4,12 +4,12 @@ module Handler.Home where
 import Import
 import Logic.Game
 import Logic.GameExt
-import Logic.StupidAI
+import Logic.CleverAI
 import Handler.Util
 
 getHomeR :: Handler Html
 getHomeR = do
-  game  <- liftIO $ (newGame rules [] :: IO (GameState StupidAI))
+  game  <- liftIO $ (newGame rules [] :: IO (GameState CleverAI))
   gameE <- expGame game
   defaultLayout $ do 
   	setNormalTitle
