@@ -75,9 +75,15 @@ colNumbers n = hcat [num i | i <- [0..n-1]] # value [] where
   strNum :: Int -> String
   strNum i = [toEnum $ fromEnum 'A' + i]
 
+#if MIN_VERSION_diagrams_lib(0,7,0)
 marker, waterSquare, shipSquare, fogSquare, lastShotMarker
   :: (TrailLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
+#else
+marker, waterSquare, shipSquare, fogSquare, lastShotMarker
+  :: (PathLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
+  => b
+#endif
 marker         = drawX (markerRadius * sqrt 2) <> circle markerRadius where
   drawX s      = p2 (-0.5 * s, -0.5 * s) ~~ p2 (0.5 * s, 0.5 * s)
                <> p2 (-0.5 * s, 0.5 * s) ~~ p2 (0.5 * s, -0.5 * s)
@@ -131,8 +137,13 @@ renderGrid nx ny = (innerLines <> outerLines) # alignTL where
   innerLines = (xticks h (innerOffsets nx) <> yticks w (innerOffsets ny)) # innerGridLineStyle # value []
   outerLines = (xticks h (outerOffsets nx) <> yticks w (outerOffsets ny)) # outerGridLineStyle # value []
 
+#if MIN_VERSION_diagrams_lib(0,7,0)
 xticks, yticks :: (Monoid a, TrailLike a, V a ~ R2) 
                => Double -> [Double] -> a
+#else
+xticks, yticks :: (Monoid a, PathLike a, V a ~ R2) 
+               => Double -> [Double] -> a
+#endif
 xticks h xs = mconcat [fromVertices [p2 (x, 0), p2 (x, h) ] | x <- xs]
 yticks w ys = mconcat [fromVertices [p2 (0, y), p2 (w, y) ] | y <- ys]
 
