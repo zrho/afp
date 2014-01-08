@@ -215,41 +215,48 @@ switchRoles g = g
 
 data Movement = Forward | Backward -- +1 or -1 for the respective coordinate
 
--- Moves the player's ship if pos is one of its endings.
+-- Tries to move the player's ship if pos is one of its endings.
 move :: (MonadRandom m, AI a) => GameState a -> Pos -> m (Turn a)
-move g@GameState{..} pos = return $ Next (g {playerFleet = moveShip' playerFleet pos})
+move g@GameState{..} pos = case desiredMove playerFleet pos of
+  Nothing               -> return $ Next g
+  Just (ship, movement) -> if isDamaged playerImpact ship
+                           then return $ Next g 
+                           else return $ Next (g {playerFleet = newFleet}) 
+                             where newFleet = moveShip playerFleet ship movement gameRules 
 
-moveShip' :: Fleet -> Pos -> Fleet
-moveShip' fleet pos = case shipAt fleet pos of
-  Nothing   -> fleet
+-- Find out which ship the player wants to move into which direction.
+desiredMove :: Fleet -> Pos -> Maybe (Ship, Movement)
+desiredMove fleet pos = case shipAt fleet pos of
+  Nothing -> Nothing
   Just ship@Ship{..} -> case shipOrientation of
     Horizontal 
-      | pos == (x, y)                -> moveShipTo' fleet ship (x-1, y)
-      | pos == (x + shipSize - 1, y) -> moveShipTo' fleet ship (x+1, y)
+      | pos == (x, y)                -> Just (ship, Forward)
+      | pos == (x + shipSize - 1, y) -> Just (ship, Backward)
     Vertical
-      | pos == (x, y)                -> moveShipTo' fleet ship (x, y-1)
-      | pos == (x, y + shipSize - 1) -> moveShipTo' fleet ship (x, y+1)
-    _ -> fleet
+      | pos == (x, y)                -> Just (ship, Forward)
+      | pos == (x, y + shipSize - 1) -> Just (ship, Backward)
+    _ -> Nothing
     where 
       (x,y) = shipPosition
 
-moveShipTo' :: Fleet -> Ship -> Pos -> Fleet
-moveShipTo' fleet s@Ship{..} pos = (s {shipPosition = pos}) : (filter (/= s) fleet)
-
+-- Only moves the ship if it complies with the given rules.
 moveShip :: Fleet -> Ship -> Movement -> Rules -> Fleet
-moveShip fleet ship movement rules = case canMoveShip fleet ship movement rules of
+moveShip fleet ship movement rules = case shipAdmissible rules (filter (/= ship) fleet) newShip of
   False -> fleet
-  True  -> moveShipInDirection fleet ship movement
+  True  -> substituteShipBy fleet ship newShip
+  where newShip = movedShip ship movement
 
-moveShipInDirection :: Fleet -> Ship -> Movement -> Fleet
-moveShipInDirection fleet ship@Ship{..} movement = case (shipOrientation, movement) of
-  (Horizontal, Forward)  -> moveShipTo' fleet ship (fst shipPosition + 1, snd shipPosition)
-  (Horizontal, Backward) -> moveShipTo' fleet ship (fst shipPosition - 1, snd shipPosition)
-  (Vertical, Forward)    -> moveShipTo' fleet ship (fst shipPosition, snd shipPosition + 1)
-  (Vertical, Backward)   -> moveShipTo' fleet ship (fst shipPosition, snd shipPosition - 1)
+-- Ship after movement was made.
+movedShip :: Ship -> Movement -> Ship
+movedShip ship movement = case (shipOrientation ship, movement) of
+  (Horizontal, Forward)  -> ship {shipPosition = (x - 1, y)}
+  (Horizontal, Backward) -> ship {shipPosition = (x + 1, y)}
+  (Vertical, Forward)    -> ship {shipPosition = (x, y - 1)}
+  (Vertical, Backward)   -> ship {shipPosition = (x, y + 1)}
+  where (x,y) = shipPosition ship
 
-canMoveShip :: Fleet -> Ship -> Movement -> Rules  -> Bool
-canMoveShip fleet ship movement rules = True -- To be implemented and used ;-)
+substituteShipBy :: Fleet -> Ship -> Ship -> Fleet
+substituteShipBy fleet oldShip newShip = newShip : filter (/= oldShip) fleet
 
 -------------------------------------------------------------------------------
 -- * Serialization
