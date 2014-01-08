@@ -48,13 +48,28 @@ instance PathPiece GameStateExt where
     . eitherToMaybe
     . B64.decode
     . fromStrict
+    . fromBase64Url
     . TE.encodeUtf8
 
   toPathPiece
     = TE.decodeUtf8
+    . toBase64Url
     . toStrict
     . B64.encode
     . fromStateExt
+
+
+toBase64Url :: BS.ByteString -> BS.ByteString
+toBase64Url = BS.map convert where
+  convert 43 = 45 -- '+' --> '-'
+  convert 47 = 95 -- '/' --> '_'
+  convert  x =  x
+
+fromBase64Url :: BS.ByteString -> BS.ByteString
+fromBase64Url = BS.map convert where
+  convert 45 = 43 -- '+' <-- '-'
+  convert 95 = 47 -- '/' <-- '_'
+  convert  x =  x
 
 eitherToMaybe :: Either a b -> Maybe b
 eitherToMaybe e = case e of

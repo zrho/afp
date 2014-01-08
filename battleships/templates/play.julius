@@ -24,7 +24,16 @@ function clickableEvent(event, target, move) {
     hiddenField = document.createElement('input');
     hiddenField.setAttribute('type', 'hidden');
     hiddenField.setAttribute('name', 'move');
-    hiddenField.setAttribute('value', move);
+    // use yesod boolean names. the version of yesod running on the production server
+    // seems to use the following parser, which leaves out the most obvious cases "true" and "false".
+    /*  boolParser (x:_) = case x of
+          "" -> Right Nothing
+          "none" -> Right Nothing
+          "yes" -> Right $ Just True
+          "no" -> Right $ Just False
+          t -> Left $ SomeMessage $ MsgInvalidBool t
+    */
+    hiddenField.setAttribute('value', move ? 'yes' : 'no');
     form.appendChild(hiddenField);
 
     document.body.appendChild(form);
