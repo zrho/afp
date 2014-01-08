@@ -210,6 +210,34 @@ switchRoles g = g
   }
 
 -------------------------------------------------------------------------------
+-- * Move a ship
+-------------------------------------------------------------------------------
+
+-- Moves the player's ship if pos is one of its endings.
+move :: (MonadRandom m, AI a) => GameState a -> Pos -> m (Turn a)
+move g@GameState{..} pos = return $ Next (g {playerFleet = moveShip playerFleet pos})
+
+moveShip :: Fleet -> Pos -> Fleet
+moveShip fleet pos = case shipAt fleet pos of
+  Nothing   -> fleet
+  Just ship@Ship{..} -> case shipOrientation of
+    Horizontal 
+      | pos == (x, y)                -> moveShipTo fleet ship (x-1, y)
+      | pos == (x + shipSize - 1, y) -> moveShipTo fleet ship (x+1, y)
+    Vertical
+      | pos == (x, y)                -> moveShipTo fleet ship (x, y-1)
+      | pos == (x, y + shipSize - 1) -> moveShipTo fleet ship (x, y+1)
+    _ -> fleet
+    where 
+      (x,y) = shipPosition
+
+moveShipTo :: Fleet -> Ship -> Pos -> Fleet
+moveShipTo fleet s@Ship{..} pos = (s {shipPosition = pos}) : (filter (/= s) fleet)
+
+canMoveShip :: Fleet -> Ship -> Rules -> Bool
+canMoveShip fleet ship rules = True -- To be implemented and used ;-)
+
+-------------------------------------------------------------------------------
 -- * Serialization
 -------------------------------------------------------------------------------
 
