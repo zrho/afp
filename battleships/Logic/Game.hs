@@ -11,6 +11,7 @@ import Data.Serialize (Serialize (..))
 import Data.Int
 import Data.List as L
 import Control.Applicative
+import Control.Arrow ((&&&))
 import Control.Monad.Random
 import Control.Monad.Trans.State (runStateT)
 import Control.Monad.State.Class (MonadState)
@@ -89,11 +90,6 @@ type Grid a = Array Pos a
 -- | A grid where the results of shots and the position of the last shot are tracked.
 type TrackingGrid = (Grid (Maybe HitResponse), Maybe Pos)
 
-instance Random Orientation where
-  randomR (a, b) g = (toEnum r, g') where
-    (r, g')        = randomR (fromEnum a, fromEnum b) g
-  random g         = randomR (Horizontal, Vertical) g
-
 -------------------------------------------------------------------------------
 -- * New Games
 -------------------------------------------------------------------------------
@@ -126,8 +122,10 @@ gridSize grid = let ((x1,y1),(x2,y2)) = bounds grid in (x2 - x1 + 1, y2 - y1 + 1
 
 shipAdmissible :: Rules -> Fleet -> Ship -> Bool
 shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
+  -- check if ship is completely inside grid
   rangeCheck     = L.all (inRange range)
                  $ shipCoordinates 0 ship
+  -- check if ship is not overlapping the safety margin of other ships
   freeCheck      = L.all (isNothing . shipAt fleet)
                  $ shipCoordinates rulesSafetyMargin ship
   (w, h)         = rulesSize
@@ -150,20 +148,18 @@ shipAt fleet (px, py) = listToMaybe $ filter containsP fleet where
 fireAt :: Fleet -> TrackingGrid -> Pos -> HitResponse
 fireAt fleet impacts pos = case shipAt fleet pos of
   Nothing -> Water
-  Just s  -> case leftover of
-    []    -> Sunk
-    _     -> Hit
+  Just s
+    | null leftover -> Sunk
+    | otherwise     -> Hit
     where leftover = filter (\p -> p /= pos && isNothing ((fst impacts) ! p)) $ shipCoordinates 0 s
 
 allSunk :: Fleet -> TrackingGrid -> Bool
-allSunk fleet impacts = foldr (&&) True hit where
+allSunk fleet impacts = and hit where
   hit    = fmap (\p -> isJust ((fst impacts) ! p)) points
   points = fleet >>= shipCoordinates 0
 
 isDamaged :: TrackingGrid -> Ship -> Bool
-isDamaged impacts ship = case damaged of
-  [] -> False
-  _  -> True 
+isDamaged impacts ship = not $ null damaged
   where damaged = filter (\p -> isJust ((fst impacts) ! p)) $ shipCoordinates 0 ship
 
 -------------------------------------------------------------------------------
@@ -213,22 +209,27 @@ switchRoles g = g
 -- * Move a ship
 -------------------------------------------------------------------------------
 
-data Movement = Forward | Backward -- +1 or -1 for the respective coordinate
+-- | A ships movement
+data Movement 
+  = Forward  -- ^ -1 for the respective coordinate
+  | Backward -- ^ +1 for the respective coordinate
+  deriving (Show, Eq, Ord, Enum, Bounded)
 
--- Tries to move the player's ship if pos is one of its endings.
+-- | Tries to move the player's ship if pos is one of its endings.
 move :: (MonadRandom m, AI a) => GameState a -> Pos -> m (Turn a)
 move g@GameState{..} pos = case desiredMove playerFleet pos of
   Nothing               -> return $ Next g
-  Just (ship, movement) -> if isDamaged playerImpact ship
-                           then return $ Next g 
-                           else return $ Next (g {playerFleet = newFleet}) 
-                             where newFleet = moveShip playerFleet ship movement gameRules 
+  Just (ship, movement) ->
+    if isDamaged playerImpact ship
+      then return $ Next g 
+      else return $ Next (g {playerFleet = newFleet}) 
+    where newFleet = moveShip playerFleet ship movement gameRules 
 
--- Find out which ship the player wants to move into which direction.
+-- | Find out which ship the player wants to move into which direction.
 desiredMove :: Fleet -> Pos -> Maybe (Ship, Movement)
-desiredMove fleet pos = case shipAt fleet pos of
-  Nothing -> Nothing
-  Just ship@Ship{..} -> case shipOrientation of
+desiredMove fleet pos = do 
+  ship@Ship{shipPosition = (x,y), ..} <- shipAt fleet pos
+  case shipOrientation of
     Horizontal 
       | pos == (x, y)                -> Just (ship, Forward)
       | pos == (x + shipSize - 1, y) -> Just (ship, Backward)
@@ -236,17 +237,16 @@ desiredMove fleet pos = case shipAt fleet pos of
       | pos == (x, y)                -> Just (ship, Forward)
       | pos == (x, y + shipSize - 1) -> Just (ship, Backward)
     _ -> Nothing
-    where 
-      (x,y) = shipPosition
 
--- Only moves the ship if it complies with the given rules.
+-- | Only moves the ship if it complies with the given rules.
 moveShip :: Fleet -> Ship -> Movement -> Rules -> Fleet
-moveShip fleet ship movement rules = case shipAdmissible rules (filter (/= ship) fleet) newShip of
-  False -> fleet
-  True  -> substituteShipBy fleet ship newShip
+moveShip fleet ship movement rules = 
+  if shipAdmissible rules (filter (/= ship) fleet) newShip
+    then substituteShipBy fleet ship newShip
+    else fleet
   where newShip = movedShip ship movement
 
--- Ship after movement was made.
+-- | Ship after movement was made.
 movedShip :: Ship -> Movement -> Ship
 movedShip ship movement = case (shipOrientation ship, movement) of
   (Horizontal, Forward)  -> ship {shipPosition = (x - 1, y)}
@@ -255,8 +255,10 @@ movedShip ship movement = case (shipOrientation ship, movement) of
   (Vertical, Backward)   -> ship {shipPosition = (x, y + 1)}
   where (x,y) = shipPosition ship
 
+-- | Replaces a ship in the fleet by another
+-- The functions preserves the ordering of the ships.
 substituteShipBy :: Fleet -> Ship -> Ship -> Fleet
-substituteShipBy fleet oldShip newShip = newShip : filter (/= oldShip) fleet
+substituteShipBy fleet oldShip newShip = map (\ship -> if ship == oldShip then newShip else ship) fleet
 
 -------------------------------------------------------------------------------
 -- * Serialization
@@ -297,6 +299,19 @@ toByte = fromIntegral . fromEnum
 fromByte :: Enum a => Int8 -> a
 fromByte = toEnum . fromIntegral
 
+-------------------------------------------------------------------------------
+-- * Random
+-------------------------------------------------------------------------------
+
+instance Random Orientation where
+  randomR (a, b) g = (toEnum r, g') where
+    (r, g')        = randomR (fromEnum a, fromEnum b) g
+  random g         = randomR (Horizontal, Vertical) g
+
+instance Random Movement where
+  randomR (a, b) g = (toEnum r, g') where
+    (r, g')        = randomR (fromEnum a, fromEnum b) g
+  random g         = randomR (Forward, Backward) g
 
 -------------------------------------------------------------------------------
 -- * JSON
