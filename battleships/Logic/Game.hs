@@ -13,7 +13,7 @@ import           Control.Monad
 import           Data.Serialize (Serialize (..))
 import           Data.Int
 import           Data.Word8
-import qualified Data.Map.Strict as Map
+import qualified Data.Map as Map
 import           Data.List as L hiding (and, or, foldl, foldr, find)
 import           Control.Applicative
 import           Control.Arrow ((&&&))
