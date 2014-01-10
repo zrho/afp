@@ -1,4 +1,4 @@
-$if hasWon outcome
+$if humanWon
    <!-- This is only for proper positioning of the game area -->
    <h1 style="opacity: 0">_{MsgWon}
    <div .banner>

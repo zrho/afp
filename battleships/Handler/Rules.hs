@@ -17,7 +17,7 @@ postRulesR = do
   let size = fromMaybe 10 s
   if size >= 10
     then do
-           game  <- liftIO $ (newGame (rules size) [] :: IO (GameState CleverAI))
+           game  <- liftIO $ (newGame (rules size) [] HumanPlayer :: IO (GameState CleverAI))
            gameE <- expGame game
            redirect (PlaceShips2R gameE)
     else renderRulePage 10 $ Just MsgInvalidFieldSize
@@ -28,4 +28,4 @@ renderRulePage fieldSize formError = defaultLayout $ do
   $(widgetFile "rules")
 
 rules :: Int -> Rules 
-rules size = Rules (size, size) [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ] 1
+rules size = defaultRules { rulesSize = (size, size) }

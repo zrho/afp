@@ -1,11 +1,23 @@
 <h1>_{MsgFireShot}
 
 <div .content>
-  <embed 
-      src="@{PlayerGridR gameE}" 
-      type="image/svg+xml" 
-      onload="clickableInit(this, '@{PlayR gameE}', true);" />
-  <embed
-      src="@{EnemyGridR gameE}"
-      type="image/svg+xml"
-      onload="clickableInit(this, '@{PlayR gameE}', false);" />
+  $case expectedAction
+    $of ActionFire
+      <embed 
+          src="@{PlayerGridR gameE}" 
+          type="image/svg+xml" />
+      <embed
+          src="@{EnemyGridR gameE}"
+          type="image/svg+xml"
+          onload="clickableInit(this, '@{FireR gameE}');" />
+    $of ActionMove
+      <embed 
+          src="@{PlayerGridR gameE}" 
+          type="image/svg+xml" 
+          onload="clickableInit(this, '@{MoveR gameE}');" />
+      <embed
+          src="@{EnemyGridR gameE}"
+          type="image/svg+xml" />
+      <br>
+      <form method="POST" action="@{MoveR gameE}">
+        <input .linkButton .redButton type="submit" value="Skip Move" />

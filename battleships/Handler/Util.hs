@@ -15,7 +15,7 @@ withGame gameE act = impGame gameE >>= \g -> case g of
   Just game -> act game
 
 fieldPos :: GameState a -> (Double, Double) -> Maybe Pos
-fieldPos (GameState {..}) p = fieldPos' (renderEnemyGrid playerTrack) p
+fieldPos (GameState {..}) p = fieldPos' (renderReferenceGrid $ rulesSize gameRules) p
 
 fieldPos' :: BattleDia -> (Double, Double) -> Maybe Pos
 fieldPos' dia (px, py)

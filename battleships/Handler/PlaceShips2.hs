@@ -29,12 +29,14 @@ getPlaceShips2R gameE = withGame gameE $ \game@(GameState {..}) -> do
 postPlaceShips2R :: GameStateExt -> Handler Html
 postPlaceShips2R gameE = withGame gameE $ \game@(GameState {..}) -> do
   jsonStr <- runInputPost $ ireq textField "fleetData"
-  let ships = decode (BL.fromChunks $ [TE.encodeUtf8 jsonStr]) :: (Maybe [Ship])
+  let ships = decode (BL.fromChunks $ [TE.encodeUtf8 jsonStr]) :: (Maybe [ShipShape])
   traceShow ships (return ())
   case ships of
     Nothing -> redirect $ PlaceShips2R gameE
-    Just fleet -> do
-      g <- expGame game { playerFleet = fleet }
+    Just fleetPlacement -> do
+      let 
+        fleet = generateFleet fleetPlacement
+      g <- expGame game { currentPlayer = currentPlayer { playerFleet = fleet } }
       redirect $ PlayR g
   
 

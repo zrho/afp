@@ -35,11 +35,12 @@ benchmark repetitions = do
 -- | Returns number of shots the AI needed.
 playGame :: IO Int
 playGame = do
-  (ai, fleet) <- aiInit rules
-  verboseOutput $ showFleet rules fleet
+  (ai, fleetPlacement) <- aiInit rules
+  verboseOutput $ showFleetPlacement rules fleetPlacement
+  let fleet = generateFleet fleetPlacement
   (count, _newAi) <- runStateT (aiTurn impact fleet 0) (ai :: CleverAI)
   return count where
-    impact = (newGrid (rulesSize rules) Nothing, Nothing)
+    impact = newGrid (rulesSize rules) Nothing
 
 -- | Let the AI play against itself. Returns the number of shots fired.
 -- | TODO: Allow ships to be moved.
@@ -48,14 +49,13 @@ aiTurn impact fleet count = do
     -- get target position from AI
     pos <- aiFire
     -- fire the AI's shot against itself
-    let response = fireAt fleet impact pos
+    let response = undefined -- fireAt fleet pos
     -- update the impact grid
-    let newImpact   = ((fst impact) // [(pos, Just response)], Just pos)
-    trace (showTracking newImpact) $ return () -- for debugging
+    let newImpact   = impact // [(pos, Just response)]
     -- notify the AI
     aiResponse pos response
     -- all ships sunk now?
-    case allSunk fleet newImpact of
+    case allSunk fleet of
       True  -> return (count + 1)
       False -> aiTurn newImpact fleet (count + 1)
 

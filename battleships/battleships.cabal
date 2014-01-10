@@ -31,7 +31,6 @@ library
                      Settings.StaticFiles
                      Handler.Home
                      Handler.Favicon
-                     Handler.PlaceShips
                      Handler.PlaceShips2
                      Handler.Play
                      Handler.Util
@@ -43,7 +42,7 @@ library
                      Logic.CleverAI
                      Logic.StupidAI
                      Logic.AIUtil
-                     Logic.Benchmark
+                 --  Logic.Benchmark
                      Logic.Render
                      Logic.Session
 
@@ -66,6 +65,7 @@ library
                 EmptyDataDecls
                 NoMonomorphismRestriction
                 DeriveDataTypeable
+                ViewPatterns
 
     build-depends: base                          >= 4          && < 5
                 -- * needed for yesod
@@ -116,6 +116,7 @@ library
                  , base64-bytestring
                  , SimpleAES
                  , attoparsec
+                 , word8
 
 executable         main.cgi
     if flag(library-only)

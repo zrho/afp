@@ -11,13 +11,15 @@ import Logic.Game
 import Logic.GameExt
 import Handler.Util
 
+-- | renders the currentPlayer's grid
 getPlayerGridR :: GameStateExt -> Handler TypedContent
 getPlayerGridR gameE = withGame gameE $ \(GameState {..}) -> return
-  $ renderField $ renderPlayerGrid playerFleet playerImpact
+  $ renderField $ renderPlayerGrid (rulesSize gameRules) (playerFleet currentPlayer) (playerShots otherPlayer)
 
+-- | renders the otherPlayer's grid
 getEnemyGridR :: GameStateExt -> Handler TypedContent
 getEnemyGridR gameE = withGame gameE $ \(GameState {..}) -> return
-  $ renderField $ renderEnemyGrid playerTrack
+  $ renderField $ renderEnemyGrid (rulesSize gameRules) (playerShots currentPlayer)
 
 renderField :: BattleDia -> TypedContent
 renderField

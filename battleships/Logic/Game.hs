@@ -1,20 +1,27 @@
 {-# LANGUAGE RecordWildCards, TupleSections, OverloadedStrings #-}
 module Logic.Game where
 
-import Prelude
-import Data.Array
-import Data.Aeson hiding (Array)
-import Data.Attoparsec.Number
-import Data.Maybe
-import Control.Monad
-import Data.Serialize (Serialize (..))
-import Data.Int
-import Data.List as L
-import Control.Applicative
-import Control.Arrow ((&&&))
-import Control.Monad.Random
-import Control.Monad.Trans.State (runStateT)
-import Control.Monad.State.Class (MonadState)
+import           Prelude hiding (and, or, foldl, foldr)
+import           Data.Array
+import           Data.Aeson hiding (Array)
+import           Data.Attoparsec.Number
+import           Data.Maybe
+import           Data.Foldable
+import           Data.Function (on)
+import           Data.Traversable
+import           Control.Monad
+import           Data.Serialize (Serialize (..))
+import           Data.Int
+import           Data.Word8
+import qualified Data.Map.Strict as Map
+import           Data.List as L hiding (and, or, foldl, foldr, find)
+import           Control.Applicative
+import           Control.Arrow ((&&&))
+import           Control.Monad.Random
+import           Control.Monad.Trans.State (runStateT)
+import           Control.Monad.State.Class (MonadState, gets, modify)
+
+import Debug.Trace
 
 -------------------------------------------------------------------------------
 -- * AI
@@ -25,8 +32,8 @@ class AI a where
   -- | Initial state and fleet position
   aiInit
     :: MonadRandom m 
-    => Rules          -- ^ game rules
-    -> m (a, Fleet)   -- ^ initial state
+    => Rules                 -- ^ game rules
+    -> m (a, FleetPlacement) -- ^ initial state
 
   -- | Computes the next shot based on the current AI state
   aiFire
@@ -40,6 +47,12 @@ class AI a where
     -> HitResponse -- ^ result of the last shot
     -> m ()
 
+  -- | Computes the ship movement
+  aiMove
+    :: (MonadRandom m, MonadState a m)
+    => m (Maybe (ShipID, Movement))
+  aiMove = return Nothing
+
 -------------------------------------------------------------------------------
 -- * Game State
 -------------------------------------------------------------------------------
@@ -48,6 +61,8 @@ data Rules = Rules
   { rulesSize         :: (Int, Int)
   , rulesShips        :: [Int]
   , rulesSafetyMargin :: Int
+  , rulesAgainWhenHit :: Bool
+  , rulesMove         :: Bool
   }
 
 -- | Reponse sent to the AI after a shot.
@@ -62,24 +77,65 @@ data Orientation
   | Vertical
   deriving (Show, Eq, Ord, Bounded, Enum)
 
-data Ship = Ship 
+-- | Encodes a ships state using position, size and orientation
+data ShipShape = ShipShape 
   { shipPosition    :: Pos
   , shipSize        :: Int
   , shipOrientation :: Orientation
   } deriving (Show, Eq)
 
+-- | A ship using with unique id, a shape and current damage.
+data Ship = Ship
+  { shipID     :: ShipID         -- ^ unique ID of ship
+  , shipShape  :: ShipShape      -- ^ shape of ship (including position, orientation and size)
+  , shipDamage :: Array Int Bool -- ^ damage at each position
+  } deriving (Show)
+
+instance Eq Ship where
+  (==) = (==) `on` shipID
+
+-- | Used to allow lookup functions to work both with FleetPlacement and Fleet
+class HasShipShape a where
+  getShipShape :: a -> ShipShape
+instance HasShipShape Ship where
+  getShipShape = shipShape
+instance HasShipShape ShipShape where
+  getShipShape = id
+
+
 -- | State of the game for both players.
 data GameState a = GameState
-  { playerImpact :: TrackingGrid  -- ^ impacts on the player field
-  , playerTrack  :: TrackingGrid  -- ^ tracking for the player
-  , playerFleet  :: Fleet         -- ^ fleet of the player
-  , enemyFleet   :: Fleet         -- ^ fleet of the enemy
-  , enemyState   :: a             -- ^ state of the enemy
-  , gameRules    :: Rules
+  { currentPlayer  :: PlayerState -- ^ the current player's state 
+  , otherPlayer    :: PlayerState -- ^ the other player's state
+  , aiState        :: a           -- ^ state of the AI
+  , gameRules      :: Rules
+  , expectedAction :: Action
   }
 
--- | A fleet is a list of ships
-type Fleet = [Ship]
+-- | The state belonging to one player
+data PlayerState = PlayerState
+  { playerShots :: TrackingList -- ^ the player's shots
+  , playerFleet :: Fleet        -- ^ the player's fleet
+  , playerType  :: Player
+  } deriving (Show, Eq)
+
+-- | type to distinguish between human and AI player
+data Player
+  = HumanPlayer
+  | AIPlayer
+  deriving (Show, Eq, Ord, Enum, Bounded)
+
+-- | the next action expected from the human player
+data Action
+  = ActionFire
+  | ActionMove
+  deriving (Show, Eq, Ord, Enum, Bounded)
+
+-- | A fleet is a map of ship ID's to ships
+type Fleet = Map.Map ShipID Ship
+
+-- | A fleet placement is a list of the ship shapes
+type FleetPlacement = [ShipShape]
 
 -- | A two-dimensional position stored with zero-based indices
 type Pos = (Int,Int)
@@ -87,8 +143,11 @@ type Pos = (Int,Int)
 -- | A grid is an array indexed by positions with zero-based indices
 type Grid a = Array Pos a
 
--- | A grid where the results of shots and the position of the last shot are tracked.
-type TrackingGrid = (Grid (Maybe HitResponse), Maybe Pos)
+-- | A list of all shots. Easier to handle, because no index lookup is needed.
+type TrackingList = [(Pos, HitResponse)]
+
+-- | Used for identifying a ship.
+type ShipID = Int
 
 -------------------------------------------------------------------------------
 -- * New Games
@@ -97,15 +156,34 @@ type TrackingGrid = (Grid (Maybe HitResponse), Maybe Pos)
 -- | Creates a new game.
 newGame
   :: (AI a, MonadRandom m)
-  => Rules  -- ^ rules of the game
-  -> Fleet  -- ^ fleet of the human player
+  => Rules          -- ^ rules of the game
+  -> FleetPlacement -- ^ fleet of the human player
+  -> Player         -- ^ beginning player
   -> m (GameState a)
-
-newGame r pFleet = do 
+newGame r pFleet begin = do 
   (ai, eFleet) <- aiInit r
-  let impacts  = (newGrid (rulesSize r) Nothing, Nothing)
-  let tracking = (newGrid (rulesSize r) Nothing, Nothing)
-  return $ GameState impacts tracking pFleet eFleet ai r
+  let
+    humanPlayer = PlayerState [] (generateFleet pFleet) HumanPlayer
+    aiPlayer    = PlayerState [] (generateFleet eFleet) AIPlayer
+    template    = GameState
+      { aiState        = ai
+      , gameRules      = r
+      , expectedAction = ActionFire -- the human is expected to fire a shot
+      }
+    gameState = case begin of
+      HumanPlayer -> template { currentPlayer = humanPlayer, otherPlayer = aiPlayer }
+      AIPlayer    -> template { currentPlayer = aiPlayer, otherPlayer = humanPlayer }
+  return gameState
+
+-- | The battleship default rules
+defaultRules :: Rules 
+defaultRules = Rules
+  { rulesSize  = (10, 10)
+  , rulesShips = [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ]
+  , rulesSafetyMargin = 1
+  , rulesAgainWhenHit = True
+  , rulesMove  = True
+  }
 
 -- | Helper: Creates a grid, filled with one value.
 newGrid :: (Int, Int) -> a -> Grid a
@@ -120,7 +198,7 @@ newGrid (w, h) a
 gridSize :: Grid a -> (Int, Int)
 gridSize grid = let ((x1,y1),(x2,y2)) = bounds grid in (x2 - x1 + 1, y2 - y1 + 1)
 
-shipAdmissible :: Rules -> Fleet -> Ship -> Bool
+shipAdmissible :: Rules -> FleetPlacement -> ShipShape -> Bool
 shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
   -- check if ship is completely inside grid
   rangeCheck     = L.all (inRange range)
@@ -132,78 +210,174 @@ shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
   range          = ((0, 0), (w - 1, h - 1))
 
 -- | Calculates the position occupied by a ship including safety margin.
-shipCoordinates :: Int -> Ship -> [Pos]
-shipCoordinates margin Ship{..} = case shipOrientation of
-  Horizontal -> [(x + i, y + d) | i <- [-margin..shipSize - 1 + margin], d <- [-margin..margin]]
-  Vertical   -> [(x + d, y + i) | i <- [-margin..shipSize - 1 + margin], d <- [-margin..margin]]
+shipCoordinates :: HasShipShape s => Int -> s -> [Pos]
+shipCoordinates margin (getShipShape -> ShipShape{..}) = 
+  case shipOrientation of
+    Horizontal -> [(x + i, y + d) | i <- [-margin..shipSize - 1 + margin], d <- [-margin..margin]]
+    Vertical   -> [(x + d, y + i) | i <- [-margin..shipSize - 1 + margin], d <- [-margin..margin]]
   where (x, y) = shipPosition
 
-shipAt :: Fleet -> Pos -> Maybe Ship
-shipAt fleet (px, py) = listToMaybe $ filter containsP fleet where
-  containsP Ship {..} = case shipOrientation of
+shipAt :: (Foldable f, HasShipShape s) => f s -> Pos -> Maybe s
+shipAt fleet (px, py) = find containsP fleet where
+  containsP (getShipShape -> ShipShape{..}) = case shipOrientation of
     Horizontal -> px >= sx && px < sx + shipSize && py == sy
     Vertical   -> px == sx && py >= sy && py < sy + shipSize
     where (sx, sy) = shipPosition
 
-fireAt :: Fleet -> TrackingGrid -> Pos -> HitResponse
-fireAt fleet impacts pos = case shipAt fleet pos of
-  Nothing -> Water
-  Just s
-    | null leftover -> Sunk
-    | otherwise     -> Hit
-    where leftover = filter (\p -> p /= pos && isNothing ((fst impacts) ! p)) $ shipCoordinates 0 s
+-- | Returns the zero-based index of a ship cell based on a global coordinate
+shipCellIndex :: HasShipShape s => Pos -> s -> Maybe Int
+shipCellIndex (px,py) (getShipShape -> ShipShape{..}) = case shipOrientation of
+    Horizontal 
+      | px >= sx && px < sx + shipSize && py == sy -> Just $ px - sx
+    Vertical
+      | px == sx && py >= sy && py < sy + shipSize -> Just $ py - sy
+    _ -> Nothing
+    where (sx, sy) = shipPosition
 
-allSunk :: Fleet -> TrackingGrid -> Bool
-allSunk fleet impacts = and hit where
-  hit    = fmap (\p -> isJust ((fst impacts) ! p)) points
-  points = fleet >>= shipCoordinates 0
+-- | Inflicts damage to the specified ship cell
+damageShip :: Int -> Ship -> Ship
+damageShip i ship = ship { shipDamage = shipDamage ship // [(i,True)] }
 
-isDamaged :: TrackingGrid -> Ship -> Bool
-isDamaged impacts ship = not $ null damaged
-  where damaged = filter (\p -> isJust ((fst impacts) ! p)) $ shipCoordinates 0 ship
+allSunk :: Fleet -> Bool
+allSunk = and . fmap isShipSunk
+
+isDamaged :: Ship -> Bool
+isDamaged = or . elems . shipDamage
+
+isShipSunk :: Ship -> Bool
+isShipSunk = and . elems . shipDamage
+
+generateFleet :: FleetPlacement -> Fleet
+generateFleet = Map.fromAscList . fmap newShip . zip [1..] where
+  newShip (sID, shape) = (sID, Ship sID shape (listArray (0,shipSize shape-1) (repeat False)))
 
 -------------------------------------------------------------------------------
 -- * Turn
 -------------------------------------------------------------------------------
 
-data Turn a = Won (GameState a) | Lost (GameState a) | Next (GameState a)
+-- | Result of the turn with respect to the current player
+data Turn = Won | Again | Next
 
-turn :: (MonadRandom m, AI a) => GameState a -> Pos -> m (Turn a)
-turn game pos = turnPlayer game pos >>= \t -> case t of
-  Next game' -> turnEnemy game'
-  _          -> return t
+-- | Performs a full AI turn. 
+-- This function takes care of swapping the current player.
+-- If the AI player won, the currentPlayer is not swapped back.
+-- 1. according to the rules, the AI may fire once or more
+-- 2. according to the rules, the AI may move one ship
+aiTurn :: (MonadState (GameState a) m, MonadRandom m, AI a)
+        => m Turn
+aiTurn = do
+    switchRoles
+    result <- shots
+    case result of
+      -- AI has won, no need to move ships
+      Won -> return ()
+      -- AI may move its ship
+      _   -> do
+        executeMove moveAI
+    switchRoles
+    return result
+  where
+    shots = do
+      result <- executeShot aiShot
+      rules <- gets gameRules
+      case result of
+        -- the AI player is allowed to shoot once more, when enabled
+        Again
+          | rulesAgainWhenHit rules -> shots
+          | otherwise               -> return Next
+        -- the AI player has either won or missed
+        _     -> return result
 
-turnEnemy :: (MonadRandom m, AI a) => GameState a -> m (Turn a)
-turnEnemy g = do
-  (pos, s) <- runStateT aiFire (enemyState g)
-  let (newState', response) = turnCommon g pos
-  (_, s')  <- runStateT (aiResponse pos response) s
-  let newState = newState' { enemyState = s' }
-  return $ case allSunk (playerFleet newState) (playerImpact newState) of
-    True  -> Lost newState
-    False -> Next newState
+-- | This function executes the fire-part of the human's turn
+-- It updates the "expectedAction" field of the state appropriately
+humanTurnFire :: (MonadState (GameState a) m, MonadRandom m)
+        => Pos -> m Turn
+humanTurnFire target = do
+  -- assert, that the human is allowed to fire a shot
+  ActionFire <- gets expectedAction
+  -- setup common actions
+  rules <- gets gameRules
+  let 
+    -- update the action to "move". this function respects the game rules
+    expectMove = when (rulesMove rules) $
+      modify (\gs -> gs { expectedAction = ActionMove})
+  -- fire
+  result <- executeShot $ fireAt target
+  case result of
+    -- human has won, no further action needed
+    Won -> return Won
+    -- expect a move of the human player first
+    Next -> expectMove >> return Next
+    -- human may fire again
+    Again
+      -- expected move is still "fire"
+      | rulesAgainWhenHit rules -> return Again
+      -- firing again not allowed
+      | otherwise               -> expectMove >> return Next
 
-turnPlayer :: (MonadRandom m, AI a) => GameState a -> Pos -> m (Turn a)
-turnPlayer g pos = do
-  let (newState, _) = turnCommon (switchRoles g) pos
-  return $ case allSunk (playerFleet newState) (playerImpact newState) of
-    True  -> Won (switchRoles newState)
-    False -> Next (switchRoles newState)
 
--- Assumes it is the computer's turn. If it is the player's turn, you have to switch positions before and afterwards!
-turnCommon :: AI a => GameState a -> Pos-> (GameState a, HitResponse)
-turnCommon g@(GameState {..}) pos =
-  let response = fireAt playerFleet playerImpact pos
-      impact   = ((fst playerImpact) // [(pos, Just response)], Just pos)
-  in (g { playerImpact = impact }, response)
+-- | The current player fires at the other player
+-- Modifies the list of shots fired by the player and
+-- inflicts damage to the other player's ship, if hit.
+fireAt :: (MonadState (GameState a) m) 
+       => Pos -> m HitResponse
+fireAt pos = do
+  self  <- gets currentPlayer
+  other <- gets otherPlayer
+  result <- case shipAt (playerFleet other) pos of
+    Nothing -> return Water
+    Just ship -> do
+      let
+        -- inflict damage to the ship
+        Just idx = shipCellIndex pos ship
+        newShip  = damageShip idx ship
+        -- replace ship
+        newFleet = Map.insert (shipID ship) newShip (playerFleet other)
+        other'   = other { playerFleet = newFleet }
+      -- update other player
+      modify (\gs -> gs { otherPlayer = other' })
+      return $ if isShipSunk newShip
+        then Sunk
+        else Hit
+  -- add this shot to history
+  let self' = self { playerShots = (pos, result) : playerShots self }
+  modify (\gs -> gs{currentPlayer = self'})
+  return result
 
-switchRoles :: GameState a -> GameState a
-switchRoles g = g
-  { playerImpact = playerTrack g
-  , playerTrack = playerImpact g
-  , playerFleet = enemyFleet g
-  , enemyFleet = playerFleet g
-  }
+-- | Performs the enemies turn
+-- assumes, that the enemy is the currentPlayer
+aiShot :: (MonadState (GameState a) m, MonadRandom m, AI a) => m HitResponse
+aiShot = do
+  -- let the AI decide where to shoot
+  ai <- gets aiState
+  (pos, s) <- runStateT aiFire ai
+  -- fire shot
+  result <- fireAt pos
+  -- give feedback to the AI
+  (_, s')  <- runStateT (aiResponse pos result) s
+  -- save modified AI state
+  modify (\g -> g{aiState = s'})
+  return result
+
+-- | Executes the supplied turn.
+executeShot :: (MonadState (GameState a) m, MonadRandom m)
+            => (m HitResponse) -> m Turn
+executeShot turn = do
+  result <- turn
+  op <- gets otherPlayer
+  case result of
+    Water -> return Next
+    Hit   -> return Again
+    Sunk
+      | allSunk $ playerFleet op -> return Won
+      | otherwise                -> return Again
+
+
+switchRoles :: (MonadState (GameState a) m) => m ()
+switchRoles = modify(\g -> g
+  { currentPlayer = otherPlayer g
+  , otherPlayer = currentPlayer g
+  })
 
 -------------------------------------------------------------------------------
 -- * Move a ship
@@ -215,68 +389,114 @@ data Movement
   | Backward -- ^ +1 for the respective coordinate
   deriving (Show, Eq, Ord, Enum, Bounded)
 
--- | Tries to move the player's ship if pos is one of its endings.
-move :: (MonadRandom m, AI a) => GameState a -> Pos -> m (Turn a)
-move g@GameState{..} pos = case desiredMove playerFleet pos of
-  Nothing               -> return $ Next g
-  Just (ship, movement) ->
-    if isDamaged playerImpact ship
-      then return $ Next g 
-      else return $ Next (g {playerFleet = newFleet}) 
-    where newFleet = moveShip playerFleet ship movement gameRules 
+-- | Tries to move the human player's ship if pos is one of its endings.
+-- Assumes that the human player is the currentPlayer
+moveHuman :: (MonadState (GameState a) m, MonadRandom m) 
+     => Maybe Pos -> m (Maybe (ShipID, Movement))
+moveHuman pos = do
+  -- assert the human is really expected to move a ship
+  ActionMove <- gets expectedAction
+  -- change expected action
+  modify (\gs -> gs { expectedAction = ActionFire } )
+  -- return real move
+  case pos of
+    Nothing -> return Nothing
+    Just p  -> desiredMove p `liftM` gets (playerFleet . currentPlayer)
+
+moveAI :: (MonadState (GameState a) m, MonadRandom m, AI a) 
+     => m (Maybe (ShipID, Movement))
+moveAI = do
+  ai <- gets aiState
+  (mov, s) <- runStateT aiMove ai
+  modify (\g -> g{aiState = s})
+  return mov
+
+-- | executes a move for the current player
+executeMove :: (MonadState (GameState a) m, MonadRandom m, AI a) 
+     => m (Maybe (ShipID, Movement)) -> m ()
+executeMove moveAction = do
+  move <- moveAction
+  curPlayer <- gets currentPlayer
+  rules <- gets gameRules
+  let fleet = playerFleet curPlayer
+  case move of
+    Nothing               -> return ()
+    Just (shipID, movement) -> case Map.lookup shipID fleet of
+      Just ship -> when (not $ isDamaged ship) $ do
+        let
+          newFleet   = moveShip ship movement rules fleet
+          curPlayer' = curPlayer { playerFleet = newFleet }
+        modify (\gs -> gs { currentPlayer = curPlayer' })
 
 -- | Find out which ship the player wants to move into which direction.
-desiredMove :: Fleet -> Pos -> Maybe (Ship, Movement)
-desiredMove fleet pos = do 
-  ship@Ship{shipPosition = (x,y), ..} <- shipAt fleet pos
-  case shipOrientation of
+desiredMove :: Pos -> Fleet -> Maybe (ShipID, Movement)
+desiredMove pos fleet = do 
+  Ship{..} <- shipAt fleet pos
+  let 
+    (x,y) = shipPosition $ shipShape
+    size  = shipSize shipShape
+  case shipOrientation shipShape of
     Horizontal 
-      | pos == (x, y)                -> Just (ship, Forward)
-      | pos == (x + shipSize - 1, y) -> Just (ship, Backward)
+      | pos == (x, y)            -> Just (shipID, Forward)
+      | pos == (x + size - 1, y) -> Just (shipID, Backward)
     Vertical
-      | pos == (x, y)                -> Just (ship, Forward)
-      | pos == (x, y + shipSize - 1) -> Just (ship, Backward)
+      | pos == (x, y)            -> Just (shipID, Forward)
+      | pos == (x, y + size - 1) -> Just (shipID, Backward)
     _ -> Nothing
 
 -- | Only moves the ship if it complies with the given rules.
-moveShip :: Fleet -> Ship -> Movement -> Rules -> Fleet
-moveShip fleet ship movement rules = 
-  if shipAdmissible rules (filter (/= ship) fleet) newShip
-    then substituteShipBy fleet ship newShip
+moveShip :: Ship -> Movement -> Rules -> Fleet -> Fleet
+moveShip ship movement rules fleet = 
+  if shipAdmissible rules (map (shipShape.snd) $ Map.toAscList $ Map.delete (shipID ship) fleet) newShape
+    then Map.adjust (\s -> s{shipShape = newShape}) (shipID ship) fleet
     else fleet
-  where newShip = movedShip ship movement
+  where newShape = movedShipShape movement (shipShape ship)
 
 -- | Ship after movement was made.
-movedShip :: Ship -> Movement -> Ship
-movedShip ship movement = case (shipOrientation ship, movement) of
+movedShipShape :: Movement -> ShipShape -> ShipShape
+movedShipShape movement ship = case (shipOrientation ship, movement) of
   (Horizontal, Forward)  -> ship {shipPosition = (x - 1, y)}
   (Horizontal, Backward) -> ship {shipPosition = (x + 1, y)}
   (Vertical, Forward)    -> ship {shipPosition = (x, y - 1)}
   (Vertical, Backward)   -> ship {shipPosition = (x, y + 1)}
   where (x,y) = shipPosition ship
 
--- | Replaces a ship in the fleet by another
--- The functions preserves the ordering of the ships.
-substituteShipBy :: Fleet -> Ship -> Ship -> Fleet
-substituteShipBy fleet oldShip newShip = map (\ship -> if ship == oldShip then newShip else ship) fleet
-
 -------------------------------------------------------------------------------
 -- * Serialization
 -------------------------------------------------------------------------------
 
 instance Serialize a => Serialize (GameState a) where
-  get = GameState <$> get <*> get <*> get <*> get <*> get <*> get
+  get = GameState <$> get <*> get <*> get <*> get <*> get
   put GameState {..} = do
-    put playerImpact
-    put playerTrack 
-    put playerFleet 
-    put enemyFleet
-    put enemyState
+    put currentPlayer
+    put otherPlayer
+    put aiState
     put gameRules
+    put expectedAction
+
+instance Serialize PlayerState where
+  get = PlayerState <$> (fmap fromPlayerShots8 get) <*> get <*> get
+  put PlayerState{..} = do
+    put (toPlayerShots8 playerShots)
+    put playerFleet
+    put playerType
+
+toPlayerShots8 :: [(Pos,HitResponse)] -> [((Word8,Word8), HitResponse)]
+toPlayerShots8 = fmap conv where
+  conv ((x,y),r) = ((fromIntegral x, fromIntegral y),r)
+
+fromPlayerShots8 :: [((Word8,Word8), HitResponse)] -> [(Pos,HitResponse)]
+fromPlayerShots8 = fmap conv where
+  conv ((x,y),r) = ((fromIntegral x, fromIntegral y),r)
 
 instance Serialize Rules where
-  get = Rules <$> get <*> get <*> get
-  put Rules {..} = put rulesSize >> put rulesShips >> put rulesSafetyMargin
+  get = Rules <$> get <*> get <*> get <*> get <*> get
+  put Rules {..} = do
+    put rulesSize
+    put rulesShips
+    put rulesSafetyMargin
+    put rulesAgainWhenHit
+    put rulesMove
 
 instance Serialize HitResponse where
   get = fromByte <$> get
@@ -286,12 +506,27 @@ instance Serialize Orientation where
   get = fromByte <$> get
   put = put . toByte
 
-instance Serialize Ship where
-  get = Ship <$> get <*> get <*> get
-  put Ship{..} = do
+instance Serialize Player where
+  get = fromByte <$> get
+  put = put . toByte
+
+instance Serialize Action where
+  get = fromByte <$> get
+  put = put . toByte
+
+instance Serialize ShipShape where
+  get = ShipShape <$> get <*> get <*> get
+  put ShipShape{..} = do
     put shipPosition
     put shipSize
     put shipOrientation
+
+instance Serialize Ship where
+  get = Ship <$> get <*> get <*> get
+  put Ship{..} = do
+    put shipID
+    put shipShape
+    put shipDamage
 
 toByte :: Enum a => a -> Int8
 toByte = fromIntegral . fromEnum
@@ -316,8 +551,8 @@ instance Random Movement where
 -------------------------------------------------------------------------------
 -- * JSON
 -------------------------------------------------------------------------------
-instance FromJSON Ship where
-   parseJSON (Object v) = curry Ship <$>
+instance FromJSON ShipShape where
+   parseJSON (Object v) = curry ShipShape <$>
                           v .: "X" <*>
                           v .: "Y" <*>
                           v .: "Size" <*>
