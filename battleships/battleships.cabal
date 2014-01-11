@@ -122,6 +122,12 @@ library
 executable         main.cgi
     if flag(library-only)
         Buildable: False
+    if flag(dev)
+        cpp-options:   -DDEVELOPMENT
+        ghc-options:   -Wall -Werror -O0
+        build-depends: warp
+    else
+        ghc-options:   -Wall -Werror -O2
 
     main-is:           main.hs
     hs-source-dirs:    app

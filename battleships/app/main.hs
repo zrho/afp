@@ -1,10 +1,10 @@
 {-# LANGUAGE CPP #-}
 import Prelude              (IO, (>>=), return)
-import Yesod.Default.Config (loadConfig, configSettings, DefaultEnv(Development, Production), ConfigSettings(csFile))
 import Application          (makeApplication)
 
 #if DEVELOPMENT
 import qualified Network.Wai.Handler.Warp (run)
+import Yesod.Default.Config (loadConfig, configSettings, DefaultEnv(Development))
 
 main :: IO ()
 main =
@@ -13,6 +13,7 @@ main =
     >>= Network.Wai.Handler.Warp.run 3000
 #else
 import qualified Network.Wai.Handler.CGI (run)
+import Yesod.Default.Config (loadConfig, configSettings, DefaultEnv(Production), ConfigSettings(csFile))
 
 main :: IO ()
 main =
