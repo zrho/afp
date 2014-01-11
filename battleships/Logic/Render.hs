@@ -102,7 +102,7 @@ movableSquare  = roundedRect cellSize cellSize 0 # fc movableColor
 lastShotMarker = roundedRect (cellSize - 3) (cellSize - 3) 0 # lc lastShotColor # lw 3
 
 contentSquare :: Int -> Int -> BattleDia
-contentSquare nx ny = rect (cellSize * realToFrac nx) (cellSize * realToFrac ny) # value [] # translateToPos (0,0)
+contentSquare nx ny = rect (cellSize * realToFrac nx) (cellSize * realToFrac ny) # alignTL # value [] # translateToPos (0,0)
 
 movementArrowAt :: ShipShape -> Int -> Maybe MoveArrow
 movementArrowAt shape i =
