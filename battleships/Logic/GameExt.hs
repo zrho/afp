@@ -76,5 +76,8 @@ eitherToMaybe e = case e of
   Right x -> Just x
   _       -> Nothing
 
+toStrict :: BL.ByteString -> BS.ByteString
 toStrict = BS.concat . BL.toChunks
+
+fromStrict :: BS.ByteString -> BL.ByteString
 fromStrict = BL.fromChunks . return

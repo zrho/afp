@@ -8,7 +8,6 @@ import           Data.Attoparsec.Number
 import           Data.Maybe
 import           Data.Foldable
 import           Data.Function (on)
-import           Data.Traversable
 import           Control.Monad
 import           Data.Serialize (Serialize (..))
 import           Data.Int
@@ -16,12 +15,9 @@ import           Data.Word8
 import qualified Data.Map as Map
 import           Data.List as L hiding (and, or, foldl, foldr, find)
 import           Control.Applicative
-import           Control.Arrow ((&&&))
 import           Control.Monad.Random
 import           Control.Monad.Trans.State (runStateT)
 import           Control.Monad.State.Class (MonadState, gets, modify)
-
-import Debug.Trace
 
 -------------------------------------------------------------------------------
 -- * AI
@@ -166,7 +162,9 @@ newGame r pFleet begin = do
     humanPlayer = PlayerState [] (generateFleet pFleet) HumanPlayer
     aiPlayer    = PlayerState [] (generateFleet eFleet) AIPlayer
     template    = GameState
-      { aiState        = ai
+      { currentPlayer  = undefined
+      , otherPlayer    = undefined
+      , aiState        = ai
       , gameRules      = r
       , expectedAction = ActionFire -- the human is expected to fire a shot
       }
@@ -201,13 +199,13 @@ gridSize grid = let ((x1,y1),(x2,y2)) = bounds grid in (x2 - x1 + 1, y2 - y1 + 1
 shipAdmissible :: Rules -> FleetPlacement -> ShipShape -> Bool
 shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
   -- check if ship is completely inside grid
-  rangeCheck     = L.all (inRange range)
+  rangeCheck     = L.all (inRange gridRange)
                  $ shipCoordinates 0 ship
   -- check if ship is not overlapping the safety margin of other ships
   freeCheck      = L.all (isNothing . shipAt fleet)
                  $ shipCoordinates rulesSafetyMargin ship
   (w, h)         = rulesSize
-  range          = ((0, 0), (w - 1, h - 1))
+  gridRange      = ((0, 0), (w - 1, h - 1))
 
 -- | Calculates the position occupied by a ship including safety margin.
 shipCoordinates :: HasShipShape s => Int -> s -> [Pos]
@@ -427,6 +425,7 @@ executeMove moveAction = do
           newFleet   = moveShip ship movement rules fleet
           curPlayer' = curPlayer { playerFleet = newFleet }
         modify (\gs -> gs { currentPlayer = curPlayer' })
+      Nothing -> return ()
 
 -- | Find out which ship the player wants to move into which direction.
 desiredMove :: Pos -> Fleet -> Maybe (ShipID, Movement)

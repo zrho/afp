@@ -7,7 +7,6 @@ import Data.Serialize (Serialize)
 import Logic.Game
 import Logic.GameExt
 import Handler.Util
-import Debug.Trace
 
 fireForm :: FormInput Handler (Double, Double)
 fireForm = (,) <$> ireq doubleField "X" <*> ireq doubleField "Y"
@@ -68,6 +67,6 @@ continue game = expGame game >>= redirect . PlayR
 performAI game = do
   (result, game') <- liftIO $ runStateT aiTurn game
   case result of
-    Won -> gameEnded game'
-    Next -> continue game'
-    Next -> error "impossible. `Again` is handled by aiTurn"
+    Won   -> gameEnded game'
+    Next  -> continue game'
+    Again -> error "impossible. `Again` is handled by aiTurn"

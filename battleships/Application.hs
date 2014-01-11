@@ -10,7 +10,6 @@ import Import
 import Data.Default (def)
 import Yesod.Default.Config
 import Yesod.Default.Main (defaultDevelApp)
-import System.IO (stdout)
 #if MIN_VERSION_fast_logger(2,1,0)
 import Network.Wai.Middleware.RequestLogger
     ( mkRequestLogger, outputFormat, OutputFormat (..), IPAddrSource (..), destination

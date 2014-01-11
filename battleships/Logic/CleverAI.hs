@@ -3,7 +3,7 @@ module Logic.CleverAI (CleverAI) where
 
 import           Prelude
 import           Data.Array
-import           Data.List ((\\), all, any, intersect)
+import           Data.List ((\\), intersect)
 import           Data.Maybe (fromJust, isJust)
 import           Logic.Game
 import           Logic.AIUtil
@@ -13,7 +13,6 @@ import           Control.Monad.State
 import           Control.Applicative
 import           Data.Serialize (Serialize)
 import qualified Data.Serialize as S
-import           Debug.Trace
 
 data CleverAI = CleverAI { rules :: Rules, tracking :: TrackingGrid }
 
@@ -75,8 +74,8 @@ findSunkShip t p = findHorizontal `mplus` findVertical where
         (_,downY)  = findEnd (\(x,y) -> (x,y+1)) p
         len        = downY - upY + 1
     in if len < 2 then Nothing else Just $ ShipShape up len Vertical
-  findEnd move p = if inRange (bounds t) (move p) && isHitOrSunk (t ! (move p))
-                         then findEnd move $ move p else p
+  findEnd move pos = if inRange (bounds t) (move pos) && isHitOrSunk (t ! (move pos))
+                         then findEnd move $ move pos else pos
 
 
 -- | Given a position p, assign it a score. This is calculated by
@@ -94,24 +93,29 @@ scorePos :: Int            -- ^ safety margin from the rules
          -> Pos            -- ^ the position to be scored
          -> Score
 scorePos _ t _ _ p | isJust (t ! p) = 0 -- don't fire at same spot twice
-scorePos margin t sunk f p@(x,y) = 
+scorePos margin t sunk f pos@(x,y) = 
   checkerboard . removeImpossible
-  $ sum (map (scoreShipsThrough p) f) where
+  $ sum (map (scoreShipsThrough pos) f) where
+
   checkerboard :: Score -> Score
   checkerboard = if even (x + y) then id else (0.9 *)
+
   removeImpossible :: Score -> Score
-  removeImpossible = if p `elem` impossibleZones then const 0 else id
+  removeImpossible = if pos `elem` impossibleZones then const 0 else id
+
   scoreShipsThrough :: Pos -> Int -> Score
-  scoreShipsThrough p@(x,y) len =
+  scoreShipsThrough (sx,sy) len =
     sum . map scoreShip
     . filter (shipMatchesTracking margin t sunk)
-    $ [ShipShape (x-dx, y) len Horizontal | dx <- [0..len-1]]
-      ++ [ShipShape (x, y-dy) len Vertical | dy <- [0..len-1]]
+    $ [ShipShape (sx-dx, sy) len Horizontal | dx <- [0..len-1]]
+      ++ [ShipShape (sx, sy-dy) len Vertical | dy <- [0..len-1]]
+
   scoreShip :: ShipShape -> Score
   scoreShip s = if hitCells == 0 then 1 else
     if hitCells == 1 then 10 else 50 where -- score hit ships higher -> we want to sink them
       hitCells = length . filter (isHit . (t !)) $ coord
       coord    = shipCoordinates 0 s
+
   impossibleZones :: [Pos]
   impossibleZones = sunk >>= shipCoordinates margin
 

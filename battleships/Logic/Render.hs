@@ -8,13 +8,11 @@ module Logic.Render
 
 import Prelude
 import Logic.Game
-import Control.Monad
 import Data.Array
 import Diagrams.Prelude
 import Diagrams.Backend.SVG
 import Data.Colour.SRGB
 import Data.Foldable (fold)
-import Debug.Trace
 
 type BattleDia = QDiagram SVG R2 [Pos]
 
@@ -29,8 +27,11 @@ renderReferenceGrid :: (Int,Int) -> BattleDia
 renderReferenceGrid (nx, ny) = renderGrid nx ny
 
 renderEnemyGrid :: (Int,Int) -> TrackingList -> BattleDia
-renderEnemyGrid (nx,ny) shots = renderGrid nx ny
-    <> mconcat (fmap renderShot shots)
+renderEnemyGrid (nx,ny) shots = mconcat
+  [ renderGrid nx ny
+  , mconcat (fmap renderShot shots)
+  , contentSquare nx ny # fc fogColor
+  ]
   where
     renderShot (pos, val) = translateToPos pos $ value [] $ alignTL $
       case val of
@@ -44,6 +45,7 @@ renderPlayerGrid (nx,ny) fleet shots = mconcat
     , markLastShot
     , fold (fmap renderShot shots)
     , fold $ fmap renderShip fleet
+    , contentSquare nx ny # fc waterColor
     ]
   where
   markLastShot = case shots of
@@ -83,11 +85,11 @@ colNumbers n = hcat [num i | i <- [0..n-1]] # value [] where
   strNum i = [toEnum $ fromEnum 'A' + i]
 
 #if MIN_VERSION_diagrams_lib(0,7,0)
-marker, waterSquare, shipSquare, fogSquare, lastShotMarker
+marker, waterSquare, shipSquare, movableSquare, lastShotMarker
   :: (TrailLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #else
-marker, waterSquare, shipSquare, fogSquare, lastShotMarker
+marker, waterSquare, shipSquare, movableSquare, lastShotMarker
   :: (PathLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #endif
@@ -97,8 +99,10 @@ marker         = drawX (markerRadius * sqrt 2) <> circle markerRadius where
 waterSquare    = square cellSize # fc waterColor
 shipSquare     = roundedRect cellSize cellSize 0 # fc shipColor
 movableSquare  = roundedRect cellSize cellSize 0 # fc movableColor
-fogSquare      = square cellSize # fc fogColor
 lastShotMarker = roundedRect (cellSize - 3) (cellSize - 3) 0 # lc lastShotColor # lw 3
+
+contentSquare :: Int -> Int -> BattleDia
+contentSquare nx ny = rect (cellSize * realToFrac nx) (cellSize * realToFrac ny) # value [] # translateToPos (0,0)
 
 movementArrowAt :: ShipShape -> Int -> Maybe MoveArrow
 movementArrowAt shape i =
@@ -173,8 +177,8 @@ arrowStyle         = lw 3 . lc gray
 numberStyle :: HasStyle c => c -> c
 numberStyle = fontSize 30 . font "Monospace"
 
-fogColor, waterColor, markerHitColor, markerSunkColor,
-  markerWaterColor, shipColor, burningShipColor, lastShotColor 
+fogColor, waterColor, markerHitColor, markerSunkColor, markerWaterColor, 
+  shipColor, burningShipColor, lastShotColor, movableColor
   :: Colour Double
 
 fogColor         = sRGB 0.7 0.7 0.7

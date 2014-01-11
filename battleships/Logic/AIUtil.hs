@@ -103,7 +103,7 @@ showPositions width height ps = concat
 
 showScoreGrid :: ScoreGrid -> String
 showScoreGrid grid = concat
-  [ show (round $ grid ! (x,y))
+  [ show (round $ grid ! (x,y) :: Int)
   ++ (if x == width' then "\n" else "|")
   | y <- [0..height']
   , x <- [0..width']
