@@ -21,6 +21,7 @@ import Yesod.Core.Types (loggerSet, Logger (Logger))
 #else
 import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger (mkLogger)
+import System.IO (stdout)
 #endif
 
 -- Import all relevant handler modules here.
