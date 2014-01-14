@@ -46,8 +46,9 @@ class AI a where
   -- | Computes the ship movement
   aiMove
     :: (MonadRandom m, MonadState a m)
-    => m (Maybe (ShipID, Movement))
-  aiMove = return Nothing
+    => Fleet                        -- ^ AI's fleet including IDs                
+    -> m (Maybe (ShipID, Movement)) -- ^ ship and movement, if any
+  aiMove = const $ return Nothing
 
 -------------------------------------------------------------------------------
 -- * Game State
@@ -405,9 +406,13 @@ moveAI :: (MonadState (GameState a) m, MonadRandom m, AI a)
      => m (Maybe (ShipID, Movement))
 moveAI = do
   ai <- gets aiState
-  (mov, s) <- runStateT aiMove ai
+  fleet <- gets (playerFleet . aiPlayer)
+  (mov, s) <- runStateT (aiMove fleet) ai
   modify (\g -> g{aiState = s})
-  return mov
+  return mov where
+    aiPlayer g = case playerType . currentPlayer $ g of
+      AIPlayer -> currentPlayer g
+      _        -> otherPlayer   g
 
 -- | executes a move for the current player
 executeMove :: (MonadState (GameState a) m, MonadRandom m, AI a) 
