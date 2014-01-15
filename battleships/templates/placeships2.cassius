@@ -27,3 +27,6 @@ tfoot tr td
 thead tr td:first-child, tbody tr td:first-child, tfoot tr td:first-child
   border-right: 1px solid black;
   padding: 2px;
+
+.center
+  margin:auto;

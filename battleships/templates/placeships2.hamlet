@@ -1,24 +1,30 @@
 <h1>_{MsgStartPlacing}
 
 <div .content>
-    <canvas id="map">
-    <div id="sidebar">
-        <table id="status">
-            <thead>
-                <tr>
-                    <td>_{MsgShipLength}
-                    <td># _{MsgShipsAvailable}
-            <tbody>
-            <tfoot>
-                <tr>
-                    <td>_{MsgShipsTotal}
-                    <td id="tdTotalShips">
-        <hr>
-        <div>
-            <button .linkButton .blueButton id="btnReset">_{MsgResetFleet}
-            <button .linkButton .blueButton id="btnRandom">_{MsgPlaceRandom}
-        <hr>
-        <div>
-            <form id="fleetForm" action="" method="POST">
-                <input id="fleetData" name="fleetData" type="hidden" >
-                <input .linkButton .redButton id="btnSubmit" type="submit" value=_{MsgStartPlaying} disabled>
+    <table .center>
+        <tbody>
+            <tr>
+                <td style="border-right: 0px solid black;">
+                    <canvas id="map">
+                <td width="100px">
+                <td>
+                    <div id="sidebar">
+                        <table id="status">
+                            <thead>
+                                <tr>
+                                    <td>_{MsgShipLength}
+                                    <td># _{MsgShipsAvailable}
+                            <tbody>
+                            <tfoot>
+                                <tr>
+                                    <td>_{MsgShipsTotal}
+                                    <td id="tdTotalShips">
+                        <hr>
+                        <div>
+                            <button .linkButton .blueButton id="btnReset">_{MsgResetFleet}
+                            <button .linkButton .blueButton id="btnRandom">_{MsgPlaceRandom}
+                        <hr>
+                        <div>
+                            <form id="fleetForm" action="" method="POST">
+                                <input id="fleetData" name="fleetData" type="hidden" >
+                                <input .linkButton .redButton id="btnSubmit" type="submit" value=_{MsgStartPlaying} disabled>
