@@ -6,19 +6,19 @@
         <table id="status">
             <thead>
                 <tr>
-                    <td>Length
-                    <td># Avaiable
+                    <td>_{MsgShipLength}
+                    <td># _{MsgShipsAvailable}
             <tbody>
             <tfoot>
                 <tr>
-                    <td>Total
+                    <td>_{MsgShipsTotal}
                     <td id="tdTotalShips">
         <hr>
         <div>
-            <button .linkButton .blueButton id="btnReset">Reset Fleet
-            <button .linkButton .blueButton id="btnRnadom" disabled>Random
+            <button .linkButton .blueButton id="btnReset">_{MsgResetFleet}
+            <button .linkButton .blueButton id="btnRnadom" disabled>_{MsgPlaceRandom}
         <hr>
         <div>
             <form id="fleetForm" action="" method="POST">
                 <input id="fleetData" name="fleetData" type="hidden" >
-                <input .linkButton .redButton id="btnSubmit" type="submit" value="Ready!" disabled>
+                <input .linkButton .redButton id="btnSubmit" type="submit" value=_{MsgStartPlaying} disabled>

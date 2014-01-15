@@ -9,7 +9,6 @@ Lost: You Lost.
 InsertShip: Insert a ship of size
 WithOrientation: with orientation
 AtPosition: at position (please click in the field)
-Reset: Reset ships!
 InvalidPlacement: Ship cannot be placed there.
 NoForm: Form missing.
 NoCell: Please click in a cell.
@@ -20,3 +19,9 @@ InputFieldSize: Desired field size
 AdjustRules: Adjust the rules
 Rules: Rules
 InvalidFieldSize: You have to enter a number of at least 10.
+ShipLength: Length
+ShipsAvailable: Available
+ShipsTotal: Total
+ResetFleet: Reset Fleet 
+PlaceRandom: Random
+StartPlaying: Ready!
