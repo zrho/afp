@@ -65,7 +65,7 @@ instance Yesod App where
         giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
 
     -- Place Javascript at bottom of the body tag so the rest of the page loads first
-    jsLoader _ = BottomOfBody
+    jsLoader _ = BottomOfHeadBlocking
 
     -- What messages should be logged. The following includes all messages when
     -- in development, and warnings and errors in production.
