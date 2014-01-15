@@ -25,3 +25,4 @@ ShipsTotal: Total
 ResetFleet: Flotte zurücksetzen
 PlaceRandom: Zufällig
 StartPlaying: Los!
+SkipMove: Zug überspringen

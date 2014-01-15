@@ -49,7 +49,5 @@ getY :: ShipShape -> Int
 getY s = snd $ shipPosition s
 
 getOrientation :: ShipShape -> Int 
-getOrientation s = case shipOrientation s of 
-  Horizontal -> 0
-  Vertical   -> 1
+getOrientation s = fromEnum $ shipOrientation s
   

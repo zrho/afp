@@ -25,3 +25,4 @@ ShipsTotal: Total
 ResetFleet: Reset Fleet 
 PlaceRandom: Random
 StartPlaying: Ready!
+SkipMove: Skip move
