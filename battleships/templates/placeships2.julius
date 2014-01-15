@@ -18,6 +18,9 @@ $(window).load(function() {
 	$("#btnReset").click(function() {
 		map.reset();
 	});
+	$("#btnRandom").click(function() {
+		placeRandom();
+	});
 	// setup table
 	for (var i = 0; i < shipDef.shipTypes.length; i++) {
 		var len = shipDef.shipTypes[i];
@@ -33,6 +36,27 @@ $(window).load(function() {
 	};
 	shipDefChanged();
 });
+
+function placeRandom() {
+	map.reset();
+	// Extract relevant data (x,y,size, orientation) from the fleet that was randomly generated when loading this page 
+	// and turn them into ship objects:
+	var shipData = #{toJSON (map getX fleet, map getY fleet, map shipSize fleet, map getOrientation fleet)};
+	for(var i = 0; i < shipData[0].length; i++) {
+		var ship = new Ship (shipData[0][i], shipData[1][i], shipData[2][i], shipData[3][i]);
+		map.ships.push(ship);
+		map.shipDef.takeShip(ship.Size);
+	}
+	// Fill in the form so we can use the fleet in the game, then update screen:
+	$("#fleetData").val(JSON.stringify(map.ships));
+	shipDefChanged();
+	map.redraw();
+	// You cannot generate another random fleet before reloading the page.
+	$("#btnRandom").attr('disabled' , true);
+	$("#btnReset").click(function() {
+		window.location.reload();
+	});
+}
 
 function shipDefChanged() {
 	for(var i = 0; i < shipDef.shipTypes.length; i++) {

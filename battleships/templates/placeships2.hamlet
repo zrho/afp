@@ -16,7 +16,7 @@
         <hr>
         <div>
             <button .linkButton .blueButton id="btnReset">_{MsgResetFleet}
-            <button .linkButton .blueButton id="btnRnadom" disabled>_{MsgPlaceRandom}
+            <button .linkButton .blueButton id="btnRandom">_{MsgPlaceRandom}
         <hr>
         <div>
             <form id="fleetForm" action="" method="POST">

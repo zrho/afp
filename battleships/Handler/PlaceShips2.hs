@@ -10,8 +10,10 @@ import qualified Data.Text.Encoding as TE
 import qualified Data.ByteString.Lazy as BL
 import Logic.Game
 import Logic.GameExt
+import Logic.AIUtil
 import Handler.Util
 import Debug.Trace
+import System.IO.Unsafe
 
 -------------------------------------------------------------------------------
 -- * Handler
@@ -24,6 +26,7 @@ getPlaceShips2R gameE = withGame gameE $ \game@(GameState {..}) -> do
     addScript $ StaticR js_jquery_js
     addScript $ StaticR js_json2_js
     addScript $ StaticR js_map_js
+    let fleet = unsafePerformIO $ initShips defaultRules
     $(widgetFile "placeships2")
 
 postPlaceShips2R :: GameStateExt -> Handler Html
@@ -39,5 +42,14 @@ postPlaceShips2R gameE = withGame gameE $ \game@(GameState {..}) -> do
       g <- expGame game { currentPlayer = currentPlayer { playerFleet = fleet } }
       redirect $ PlayR g
   
+getX :: ShipShape -> Int 
+getX s = fst $ shipPosition s
 
+getY :: ShipShape -> Int 
+getY s = snd $ shipPosition s
+
+getOrientation :: ShipShape -> Int 
+getOrientation s = case shipOrientation s of 
+  Horizontal -> 0
+  Vertical   -> 1
   
