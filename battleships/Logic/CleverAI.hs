@@ -5,6 +5,7 @@ import           Prelude
 import           Data.Array
 import           Data.List ((\\), intersect)
 import           Data.Maybe (fromJust, isJust)
+import           Data.Word8
 import           Logic.Game
 import           Logic.AIUtil
 import           Control.Monad.Random
@@ -14,21 +15,50 @@ import           Control.Applicative
 import           Data.Serialize (Serialize)
 import qualified Data.Serialize as S
 
-data CleverAI = CleverAI { rules :: Rules, tracking :: TrackingGrid }
+data CleverAI = CleverAI { rules :: Rules            -- ^ rules of this game
+                         , tracking :: TrackingGrid  -- ^ stores what was hit the last time at each position
+                         , shots :: [Pos]            -- ^ AI's previous shots
+                         , sunk :: [ShipShape]       -- ^ ships of the user's fleet that are already sunk
+                         }
 
 instance AI CleverAI where
-  aiInit r       = liftM2 (,) (return (CleverAI r (newGrid (rulesSize r) Nothing))) (initShips r)
+
+  aiInit r       = liftM2 (,)
+                     (return CleverAI { rules    = r
+                                      , tracking = newGrid (rulesSize r) Nothing
+                                      , shots    = []
+                                      , sunk     = []
+                                      }
+                     )
+                     (initShips r)
+
   aiFire         = liftM chooseMaximum scoreGrid where
     chooseMaximum :: ScoreGrid -> Pos
     chooseMaximum arr = foldl1 (\maxP p -> if arr ! p > arr ! maxP then p else maxP) (indices arr)
-  aiResponse p r = state updateTracking where
+
+  aiResponse p r = modify updateTracking where
     updateTracking ai =
       let tracking' = (tracking ai) // [(p, Just r)]
-      in ((), ai { tracking = {- trace' showTracking -} tracking' })
+          shots'    = p:(shots ai)
+          sunk'     = case r of
+            Sunk -> (fromJust $ findSunkShip (tracking ai) p):sunk ai
+            _    -> sunk ai
+      in ai { tracking = {- trace' showTracking -} tracking'
+            , shots    = {- trace' show -} shots'
+            , sunk     = {- trace' (showFleetPlacement (rules ai)) -} sunk' }
 
 instance Serialize CleverAI where
-  get = CleverAI <$> S.get <*> S.get
-  put CleverAI {..} = S.put rules >> S.put tracking
+  get = CleverAI <$> S.get <*> S.get <*> (fmap fromWord8s S.get) <*> S.get
+  put CleverAI {..} = S.put rules
+                    >> S.put tracking
+                    >> S.put (toWord8s shots)
+                    >> S.put sunk
+
+fromWord8s :: [(Word8,Word8)] -> [Pos]
+fromWord8s = map (\(x,y) -> (fromIntegral x, fromIntegral y))
+
+toWord8s :: [Pos] -> [(Word8,Word8)]
+toWord8s  = map (\(x,y) -> (fromIntegral x, fromIntegral y))
 
 
 --------------------------------------------------------------------------------

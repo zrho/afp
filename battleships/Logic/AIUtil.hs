@@ -6,6 +6,7 @@ import           Data.Array
 import           Data.Maybe (isJust)
 import           Control.Monad.Random
 import           Debug.Trace
+import           Text.Printf
 
 --------------------------------------------------------------------------------
 -- * Data types
@@ -103,7 +104,7 @@ showPositions width height ps = concat
 
 showScoreGrid :: ScoreGrid -> String
 showScoreGrid grid = concat
-  [ show (round $ grid ! (x,y) :: Int)
+  [ printf "%6.2f" (grid ! (x,y))
   ++ (if x == width' then "\n" else "|")
   | y <- [0..height']
   , x <- [0..width']
@@ -123,8 +124,6 @@ showTracking grid = concat
   ] where
     ((0,0), (width', height')) = bounds grid
 
-trace' :: (a -> String) -> a -> a
-trace' f x = trace (f x) x
 showFleetPlacement :: Rules -> FleetPlacement -> String
 showFleetPlacement r fleet = tail $ concat
   [ (if x == 0 then "\n" else "") ++
@@ -133,3 +132,6 @@ showFleetPlacement r fleet = tail $ concat
   , x <- [0..width - 1]
   ] where
      (width, height) = rulesSize r
+
+trace' :: (a -> String) -> a -> a
+trace' f x = trace (f x) x
