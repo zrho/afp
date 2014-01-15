@@ -12,7 +12,6 @@ import Logic.Game
 import Logic.GameExt
 import Logic.AIUtil
 import Handler.Util
-import Debug.Trace
 
 -------------------------------------------------------------------------------
 -- * Handler
@@ -32,7 +31,6 @@ postPlaceShips2R :: GameStateExt -> Handler Html
 postPlaceShips2R gameE = withGame gameE $ \game@(GameState {..}) -> do
   jsonStr <- runInputPost $ ireq textField "fleetData"
   let ships = decode (BL.fromChunks $ [TE.encodeUtf8 jsonStr]) :: (Maybe [ShipShape])
-  traceShow ships (return ())
   case ships of
     Nothing -> redirect $ PlaceShips2R gameE
     Just fleetPlacement -> do
