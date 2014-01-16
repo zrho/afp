@@ -27,3 +27,5 @@ PlaceRandom: Random
 StartPlaying: Ready!
 SkipMove: Skip move
 MoveShip: Move one of your ships
+OpponentRemainingShips: These ships are yet to be found
+ShipsUnsunk: Not yet sunk

@@ -257,6 +257,18 @@ generateFleet :: FleetPlacement -> Fleet
 generateFleet = Map.fromAscList . fmap newShip . zip [1..] where
   newShip (sID, shape) = (sID, Ship sID shape (listArray (0,shipSize shape-1) (repeat False)))
 
+shipSizes :: Rules -> [Int]
+shipSizes rules = sort $ nub (rulesShips rules)
+
+numberShipsOfSize :: [Int] -> Int -> Int
+numberShipsOfSize ships size = length $ filter (== size) ships
+
+unsunkShips :: Fleet -> [Ship]
+unsunkShips fleet = filter (not . isShipSunk) (Map.elems fleet)
+
+sizesOfShips :: [Ship] -> [Int]
+sizesOfShips = map (shipSize . shipShape)
+
 -------------------------------------------------------------------------------
 -- * Turn
 -------------------------------------------------------------------------------

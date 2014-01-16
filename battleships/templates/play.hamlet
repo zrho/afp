@@ -14,6 +14,7 @@ $case expectedAction
           src="@{EnemyGridR gameE}"
           type="image/svg+xml"
           onload="clickableInit(this, '@{FireR gameE}');" />
+      ^{shipsOpponentWidget gameState}
     $of ActionMove
       <embed 
           src="@{PlayerGridR gameE ActionMove}" 
@@ -22,6 +23,7 @@ $case expectedAction
       <embed
           src="@{EnemyGridR gameE}"
           type="image/svg+xml" />
+      ^{shipsOpponentWidget gameState}
       <br>
       <form method="POST" action="@{MoveR gameE}">
         <input .linkButton .redButton type="submit" value=_{MsgSkipMove} />
