@@ -9,6 +9,7 @@ module Logic.Render
 import Prelude
 import Logic.Game
 import Data.Array
+import qualified Data.Map as Map
 import Diagrams.Prelude
 import Diagrams.Backend.SVG
 import Data.Colour.SRGB
@@ -41,10 +42,11 @@ renderEnemyGrid (nx,ny) shots = mconcat
 
 renderPlayerGrid :: (Int,Int) -> Fleet -> TrackingList -> BattleDia
 renderPlayerGrid (nx,ny) fleet shots = mconcat
-    [ renderGrid nx ny 
+    [ renderGrid nx ny
     , markLastShot
+    , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
     , fold (fmap renderShot shots)
-    , fold $ fmap renderShip fleet
+    , fold $ fmap renderShip $ Map.filter isDamaged fleet         -- ... damaged ones below
     , contentSquare nx ny # fc waterColor
     ]
   where
