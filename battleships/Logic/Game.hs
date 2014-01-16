@@ -451,15 +451,21 @@ desiredMove pos fleet = do
 -- | Only moves the ship if it complies with the given rules.
 moveShip :: Ship -> Movement -> Rules -> Fleet -> Fleet
 moveShip ship movement rules fleet = 
-  if shipAdmissible rules otherShips newShape
+  if canBeMoved ship movement rules fleet
     then Map.adjust (\s -> s{shipShape = newShape}) (shipID ship) fleet
     else fleet
   where newShape = movedShipShape movement (shipShape ship)
-        otherShips = map (shipShape . snd)
-                   . Map.toAscList
-                   . Map.filter (not . isShipSunk) -- this ship can move over sunk ships
-                   . Map.delete (shipID ship)
-                   $ fleet
+
+-- | Checks whether a ship can be moved.
+canBeMoved :: Ship -> Movement -> Rules -> Fleet -> Bool
+canBeMoved ship movement rules fleet =  shipAdmissible rules otherShips newShape
+                                     && not (isDamaged ship) where
+  newShape = movedShipShape movement (shipShape ship)
+  otherShips = map (shipShape . snd)
+             . Map.toAscList
+             . Map.filter (not . isShipSunk) -- this ship can move over sunk ships
+             . Map.delete (shipID ship)
+             $ fleet
 
 -- | Ship after movement was made.
 movedShipShape :: Movement -> ShipShape -> ShipShape

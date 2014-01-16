@@ -6,6 +6,7 @@ import           Data.Array
 import           Data.List ((\\), intersect)
 import           Data.Maybe (fromJust, isJust)
 import           Data.Word8
+import qualified Data.Map as Map
 import           Logic.Game
 import           Logic.AIUtil
 import           Control.Monad.Random
@@ -43,9 +44,20 @@ instance AI CleverAI where
           sunk'     = case r of
             Sunk -> (fromJust $ findSunkShip (tracking ai) p):sunk ai
             _    -> sunk ai
-      in ai { tracking = {- trace' showTracking -} tracking'
+      in ai { tracking =  trace' showTracking tracking'
             , shots    = {- trace' show -} shots'
             , sunk     = {- trace' (showFleetPlacement (rules ai)) -} sunk' }
+
+  aiMove fleet = gets rules >>= \rls -> chooseRandom $ generateMoves rls fleet where
+    chooseRandom :: MonadRandom m => [Maybe a] -> m (Maybe a)
+    chooseRandom [] = return Nothing
+    chooseRandom xs = (xs !!) `liftM` getRandomR (0, length xs - 1)
+    generateMoves :: Rules -> Fleet -> [Maybe (ShipID, Movement)]
+    generateMoves r f = map (\(s, m) -> Just (shipID s, m))
+                      . filter (isMovable r f)
+                      $ liftM2 (,) (Map.elems f) [Forward, Backward]
+    isMovable :: Rules -> Fleet -> (Ship, Movement) -> Bool
+    isMovable r f (s, m) = canBeMoved s m r f
 
 instance Serialize CleverAI where
   get = CleverAI <$> S.get <*> S.get <*> (fmap fromWord8s S.get) <*> S.get
