@@ -1,17 +1,14 @@
-$case requestedRoute
-  $of Just HomeR
-    <p .header>
-      <h1>_{MsgGameName}
-      <h2>_{MsgCredits}
-      <div .content>
-        $maybe msg <- mmsg
-           <script>
-             setTimeout(function() {alert("#{msg}")}, 200);
-        ^{widget}
-  $of _
-    $maybe msg <- mmsg
-       <script>
-         setTimeout(function() {alert("#{msg}")}, 200);
-    ^{widget}
-    <div .controlBox>
-      <a .linkButton .blueButton href="@{HomeR}">_{MsgLinkHome}
+<header>
+  <h1 .gameName>_{MsgGameName}
+  $if isHome
+    <h2 .credits>_{MsgCredits}
+
+<div .content>
+  $maybe msg <- mmsg
+     <script>
+       setTimeout(function() {alert("#{msg}")}, 200);
+  ^{widget}
+  
+$if (not isHome)
+  <div .footer>
+    <a .linkButton .blueButton href="@{HomeR}">_{MsgLinkHome}

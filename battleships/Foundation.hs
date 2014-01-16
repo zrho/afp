@@ -60,6 +60,10 @@ instance Yesod App where
         -- you to use normal widget features in default-layout.
 
         requestedRoute <- getCurrentRoute
+        let 
+            isHome = case requestedRoute of
+                Just HomeR -> True
+                _          -> False
         pc <- widgetToPageContent $ do
             langs <- languages
             when (head langs == "la") (toWidget [lucius|body, input {font-variant:small-caps}|])

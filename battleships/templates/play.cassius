@@ -1,0 +1,11 @@
+div.legendSidebar
+  float: left
+  margin: 0px
+  padding: 0px
+
+div.board
+  float: left
+
+h3.expectedAction
+  color: #FE3F44
+  display: none

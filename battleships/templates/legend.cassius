@@ -1,7 +1,8 @@
 div.legend
-  background-color: #333
+  background-color: #015965
   color: #EEE
   border: 1px solid black
+  height: 100%
 
 div.legendCaption
   font-weight: bold
@@ -15,9 +16,12 @@ table.legend
 
 table.legend td
   padding: 5px
+  vertical-align: middle
 
 table.legend tr:nth-child(odd)
-  background-color:#222;
+  background-color: #03899C
+  color: #111
 
 table.legend tr:nth-child(even)
-  background-color:#333;
+  background-color:#015965
+  color: #EEE

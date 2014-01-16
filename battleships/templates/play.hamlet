@@ -1,29 +1,31 @@
-$case expectedAction
-  $of ActionFire
-    <h1>_{MsgFireShot}
-  $of ActionMove
-    <h1>_{MsgMoveShip}
-
-<div .content>
-  <div style="float: left">
-    ^{legendWidget}
-  $case expectedAction
-    $of ActionFire
-      <embed 
-          src="@{PlayerGridR gameE ActionFire}" 
-          type="image/svg+xml" />
-      <embed
-          src="@{EnemyGridR gameE}"
-          type="image/svg+xml"
-          onload="clickableInit(this, '@{FireR gameE}');" />
-    $of ActionMove
-      <embed 
-          src="@{PlayerGridR gameE ActionMove}" 
-          type="image/svg+xml" 
-          onload="clickableInit(this, '@{MoveR gameE}');" />
-      <embed
-          src="@{EnemyGridR gameE}"
-          type="image/svg+xml" />
-      <br>
-      <form method="POST" action="@{MoveR gameE}">
-        <input .linkButton .redButton type="submit" value=_{MsgSkipMove} />
+<table .play>
+  <tr>
+    <td rowspan="2" style="vertical-align: top">^{legendWidget}
+    <td>
+      $case expectedAction
+        $of ActionFire
+          <h1>_{MsgFireShot}
+        $of ActionMove
+          <h1>_{MsgMoveShip}
+  <tr>
+    <td>
+      $case expectedAction
+        $of ActionFire
+          <embed 
+              src="@{PlayerGridR gameE ActionFire}" 
+              type="image/svg+xml" />
+          <embed
+              src="@{EnemyGridR gameE}"
+              type="image/svg+xml"
+              onload="clickableInit(this, '@{FireR gameE}');" />
+        $of ActionMove
+          <embed 
+              src="@{PlayerGridR gameE ActionMove}" 
+              type="image/svg+xml" 
+              onload="clickableInit(this, '@{MoveR gameE}');" />
+          <embed
+              src="@{EnemyGridR gameE}"
+              type="image/svg+xml" />
+          <br>
+          <form method="POST" action="@{MoveR gameE}">
+            <input .linkButton .redButton type="submit" value=_{MsgSkipMove} />
