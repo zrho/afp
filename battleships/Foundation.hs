@@ -65,7 +65,7 @@ instance Yesod App where
             $(widgetFile "default-layout")
         giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
 
-    -- Place Javascript at bottom of the body tag so the rest of the page loads first
+    -- was BottomOfBody: Place Javascript at bottom of the body tag so the rest of the page loads first
     jsLoader _ = BottomOfHeadBlocking
 
     -- What messages should be logged. The following includes all messages when
