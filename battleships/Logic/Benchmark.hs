@@ -6,13 +6,14 @@ import           Control.Monad.Random
 import           Control.Monad.State.Class (MonadState)
 import           Control.Monad.Trans.State (runStateT)
 import           Data.Array
+import qualified Data.Map as Map
 import           Logic.Game
-import           Logic.StupidAI
+-- import           Logic.StupidAI
 import           Logic.CleverAI
 import           Logic.AIUtil
 import           Data.Maybe
 import           Prelude
-import           Debug.Trace
+-- import           Debug.Trace
 
 verboseOutput :: String -> IO ()
 verboseOutput = putStrLn -- to suppress verbose output, change to `const (return ())`
@@ -38,26 +39,46 @@ playGame = do
   (ai, fleetPlacement) <- aiInit rules
   verboseOutput $ showFleetPlacement rules fleetPlacement
   let fleet = generateFleet fleetPlacement
-  (count, _newAi) <- runStateT (aiTurn impact fleet 0) (ai :: CleverAI)
+  (count, _newAi) <- runStateT (turn impact fleet 0) (ai :: CleverAI)
   return count where
     impact = newGrid (rulesSize rules) Nothing
 
 -- | Let the AI play against itself. Returns the number of shots fired.
--- | TODO: Allow ships to be moved.
-aiTurn :: (AI a, MonadRandom m, MonadState a m) => TrackingGrid -> Fleet -> Int -> m Int
-aiTurn impact fleet count = do
+turn :: (AI a, MonadRandom m, MonadState a m) => TrackingGrid -> Fleet -> Int -> m Int
+turn impact fleet count = do
     -- get target position from AI
     pos <- aiFire
     -- fire the AI's shot against itself
-    let response = undefined -- fireAt fleet pos
+    let
+      (response, fleet') = case shipAt fleet pos of
+        Nothing   ->  (Water, fleet)
+        Just ship ->
+          let
+            -- inflict damage to the ship
+            Just idx = shipCellIndex pos ship
+            newShip  = damageShip idx ship
+            -- replace ship
+            newFleet = Map.insert (shipID ship) newShip fleet
+          in (if isShipSunk newShip then Sunk else Hit, newFleet)
     -- update the impact grid
     let newImpact   = impact // [(pos, Just response)]
     -- notify the AI
     aiResponse pos response
+    -- should any ships be moved?
+    mMove <- aiMove fleet' >>= \a -> trace' (const $ show a) $ return a
+    let
+      fleet'' = case mMove of
+        Nothing -> fleet'
+        Just (shipID, movement) -> case Map.lookup shipID fleet' of
+          Just ship -> if not $ isDamaged ship then moveShip ship movement rules fleet' else fleet'
+          Nothing   -> fleet'
     -- all ships sunk now?
-    case allSunk fleet of
+    case allSunk fleet'' of
       True  -> return (count + 1)
-      False -> aiTurn newImpact fleet (count + 1)
+      False -> turn
+                  newImpact
+                  ( trace' (showFleet rules) fleet'')
+                  (count + 1)
 
-rules :: Rules 
-rules = Rules (10, 10) [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ] 1
+rules :: Rules
+rules = Rules (10, 10) [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ] 1 False False
