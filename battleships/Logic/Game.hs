@@ -435,7 +435,7 @@ executeMove moveAction = do
 -- | Find out which ship the player wants to move into which direction.
 desiredMove :: Pos -> Fleet -> Maybe (ShipID, Movement)
 desiredMove pos fleet = do 
-  Ship{..} <- shipAt fleet pos
+  Ship{..} <- shipAt remainingFleet pos
   let 
     (x,y) = shipPosition $ shipShape
     size  = shipSize shipShape
@@ -447,6 +447,7 @@ desiredMove pos fleet = do
       | pos == (x, y)            -> Just (shipID, Forward)
       | pos == (x, y + size - 1) -> Just (shipID, Backward)
     _ -> Nothing
+  where remainingFleet = Map.filter (not . isDamaged) fleet
 
 -- | Only moves the ship if it complies with the given rules.
 moveShip :: Ship -> Movement -> Rules -> Fleet -> Fleet
