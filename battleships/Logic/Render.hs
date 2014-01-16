@@ -3,25 +3,63 @@ module Logic.Render
   ( renderReferenceGrid
   , renderEnemyGrid
   , renderPlayerGrid
+  , renderLegend
+  , LegendIcon (..)
   , BattleDia
   ) where
 
-import Prelude
-import Logic.Game
-import Data.Array
+import           Prelude
+import           Logic.Game
+import           Data.Array
 import qualified Data.Map as Map
-import Diagrams.Prelude
-import Diagrams.Backend.SVG
-import Data.Colour.SRGB
-import Data.Foldable (fold)
+import           Diagrams.Prelude
+import           Diagrams.Backend.SVG
+import           Data.Colour.SRGB
+import           Data.Foldable (fold)
+import qualified Data.Text as T hiding (find, zip, map)
+import           Yesod (PathPiece (..))
 
 type BattleDia = QDiagram SVG R2 [Pos]
 
 -- | Arrows displayed on the bow and stern of undamaged ships.
 data MoveArrow = ArrowRight | ArrowUp | ArrowLeft | ArrowDown deriving (Show, Eq, Ord, Bounded, Enum)
 
+-- | legend icon to render
+data LegendIcon 
+  = LIShipWithArrow 
+  | LIShipMovable
+  | LIShipImmovable
+  | LIShipHit
+  | LIShipSunk
+  | LIFogOfWar
+  | LIWater
+  | LILastShot
+  deriving (Show, Read, Eq, Ord, Enum, Bounded)
+
+instance PathPiece LegendIcon where
+  fromPathPiece = convert . T.unpack where
+    convert s = case reads s of
+      [(foo,"")] -> Just foo
+      _          -> Nothing
+  toPathPiece = T.pack . show
+
 -------------------------------------------------------------------------------
--- * High-Level Rendering
+-- * Legend Rendering
+-------------------------------------------------------------------------------
+
+renderLegend :: LegendIcon -> QDiagram SVG R2 Any
+renderLegend icon = case icon of
+  LIShipWithArrow -> renderArrow ArrowRight <> movableSquare
+  LIShipMovable   -> movableSquare
+  LIShipImmovable -> shipSquare
+  LIShipHit       -> marker # lc markerHitColor # lw 3 <> shipSquare
+  LIShipSunk      -> marker # lc markerSunkColor # lw 3 <> shipSquare
+  LIFogOfWar      -> square cellSize # fc fogColor
+  LIWater         -> waterSquare
+  LILastShot      -> lastShotMarker
+
+-------------------------------------------------------------------------------
+-- * High-Level Rendering for Grids
 -------------------------------------------------------------------------------
 
 renderReferenceGrid :: (Int,Int) -> BattleDia

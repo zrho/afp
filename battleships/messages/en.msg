@@ -27,3 +27,13 @@ PlaceRandom: Random
 StartPlaying: Ready!
 SkipMove: Skip move
 MoveShip: Move one of your ships
+
+Legend: Legend
+LegendShipWithArrow: click to move the ship
+LegendShipMovable: movable ship
+LegendShipImmovable: immovable ship
+LegendShipHit: hit
+LegendShipSunk: hit and sunk
+LegendFogOfWar: undiscovered area
+LegendWater: water
+LegendLastShot: enemy's last shot

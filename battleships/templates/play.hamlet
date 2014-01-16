@@ -5,6 +5,8 @@ $case expectedAction
     <h1>_{MsgMoveShip}
 
 <div .content>
+  <div style="float: left">
+    ^{legendWidget}
   $case expectedAction
     $of ActionFire
       <embed 

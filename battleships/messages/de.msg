@@ -27,3 +27,13 @@ PlaceRandom: Zufällig
 StartPlaying: Los!
 SkipMove: Zug überspringen
 MoveShip: Bewege eins deiner Schiffe
+
+Legend: Legende
+LegendShipWithArrow: Schiff durch Klick bewegen
+LegendShipMovable: Bewegliches Schiff
+LegendShipImmovable: Unbewegliches Schiff
+LegendShipHit: Treffer
+LegendShipSunk: Treffer, Versenkt
+LegendFogOfWar: Nicht kartografierter Bereich
+LegendWater: Wasser
+LegendLastShot: Letzter Schuss des Feindes
