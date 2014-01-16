@@ -26,3 +26,4 @@ ResetFleet: Flotte zurücksetzen
 PlaceRandom: Zufällig
 StartPlaying: Los!
 SkipMove: Zug überspringen
+MoveShip: Bewege eins deiner Schiffe

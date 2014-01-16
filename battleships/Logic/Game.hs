@@ -18,7 +18,8 @@ import           Control.Applicative
 import           Control.Monad.Random
 import           Control.Monad.Trans.State (runStateT)
 import           Control.Monad.State.Class (MonadState, gets, modify)
-
+import           Yesod (PathPiece (..))
+import qualified Data.Text as T hiding (find, zip, map)
 -------------------------------------------------------------------------------
 -- * AI
 -------------------------------------------------------------------------------
@@ -126,7 +127,13 @@ data Player
 data Action
   = ActionFire
   | ActionMove
-  deriving (Show, Eq, Ord, Enum, Bounded)
+  deriving (Show, Read, Eq, Ord, Enum, Bounded)
+
+instance PathPiece Action where
+  fromPathPiece "ActionFire" = Just ActionFire
+  fromPathPiece "ActionMove" = Just ActionMove
+  fromPathPiece  _ = Nothing
+  toPathPiece = T.pack . show
 
 -- | A fleet is a map of ship ID's to ships
 type Fleet = Map.Map ShipID Ship

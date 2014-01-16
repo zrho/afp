@@ -40,8 +40,8 @@ renderEnemyGrid (nx,ny) shots = mconcat
         Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
         Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
 
-renderPlayerGrid :: (Int,Int) -> Fleet -> TrackingList -> BattleDia
-renderPlayerGrid (nx,ny) fleet shots = mconcat
+renderPlayerGrid :: (Int,Int) -> Fleet -> TrackingList -> Action -> BattleDia
+renderPlayerGrid (nx,ny) fleet shots requiredAction = mconcat
     [ renderGrid nx ny
     , markLastShot
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
@@ -60,7 +60,7 @@ renderPlayerGrid (nx,ny) fleet shots = mconcat
       Horizontal -> hcat [shipCell i | i <- [0..shipSize-1]] # alignTL
       Vertical   -> vcat [shipCell i | i <- [0..shipSize-1]] # alignTL
     where
-      shipCell = if isDamaged ship then defaultShipCell else movableShipCell
+      shipCell = if isDamaged ship || requiredAction == ActionFire then defaultShipCell else movableShipCell
       defaultShipCell i = if shipDamage ! i 
         then square cellSize # fc burningShipColor 
         else shipSquare

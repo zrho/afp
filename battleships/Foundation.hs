@@ -17,6 +17,7 @@ import System.Log.FastLogger (Logger)
 import Control.Monad
 import Web.Cookie (setCookiePath)
 import Logic.GameExt
+import Logic.Game
 
 data App = App
     { settings :: AppConfig DefaultEnv ()

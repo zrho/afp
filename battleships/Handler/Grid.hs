@@ -12,9 +12,9 @@ import Logic.GameExt
 import Handler.Util
 
 -- | renders the currentPlayer's grid
-getPlayerGridR :: GameStateExt -> Handler TypedContent
-getPlayerGridR gameE = withGame gameE $ \(GameState {..}) -> return
-  $ renderField $ renderPlayerGrid (rulesSize gameRules) (playerFleet currentPlayer) (playerShots otherPlayer)
+getPlayerGridR :: GameStateExt -> Action-> Handler TypedContent
+getPlayerGridR gameE requiredAction = withGame gameE $ \(GameState {..}) -> return
+  $ renderField $ renderPlayerGrid (rulesSize gameRules) (playerFleet currentPlayer) (playerShots otherPlayer) requiredAction
 
 -- | renders the otherPlayer's grid
 getEnemyGridR :: GameStateExt -> Handler TypedContent

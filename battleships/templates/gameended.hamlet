@@ -9,5 +9,5 @@ $else
      <h1> _{MsgLost}
 
 <div .content .halftransparent>
-  <embed src="@{PlayerGridR gameE}" type="image/svg+xml" />
+  <embed src="@{PlayerGridR gameE ActionFire}" type="image/svg+xml" />
   <embed src="@{EnemyGridR gameE}" type="image/svg+xml" />

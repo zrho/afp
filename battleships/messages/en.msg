@@ -26,3 +26,4 @@ ResetFleet: Reset Fleet
 PlaceRandom: Random
 StartPlaying: Ready!
 SkipMove: Skip move
+MoveShip: Move one of your ships
