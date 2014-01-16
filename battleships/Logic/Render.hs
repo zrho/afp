@@ -40,8 +40,8 @@ renderEnemyGrid (nx,ny) shots = mconcat
         Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
         Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
 
-renderPlayerGrid :: (Int,Int) -> Fleet -> TrackingList -> Action -> BattleDia
-renderPlayerGrid (nx,ny) fleet shots requiredAction = mconcat
+renderPlayerGrid :: (Int,Int) -> Fleet -> TrackingList -> Action -> Rules -> BattleDia
+renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
     [ renderGrid nx ny
     , markLastShot
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
@@ -64,7 +64,7 @@ renderPlayerGrid (nx,ny) fleet shots requiredAction = mconcat
       defaultShipCell i = if shipDamage ! i 
         then square cellSize # fc burningShipColor 
         else shipSquare
-      movableShipCell i = maybe mempty renderArrow (movementArrowAt (shipShape ship) i) <> movableSquare
+      movableShipCell i = maybe mempty renderArrow (movementArrowAt ship i fleet rules) <> movableSquare
       
   renderShot (pos, val) = translateToPos pos $ value [] $ alignTL $
     case val of
@@ -106,16 +106,18 @@ lastShotMarker = roundedRect (cellSize - 3) (cellSize - 3) 0 # lc lastShotColor 
 contentSquare :: Int -> Int -> BattleDia
 contentSquare nx ny = rect (cellSize * realToFrac nx) (cellSize * realToFrac ny) # alignTL # value [] # translateToPos (0,0)
 
-movementArrowAt :: ShipShape -> Int -> Maybe MoveArrow
-movementArrowAt shape i =
-  case shipOrientation shape of
+movementArrowAt :: Ship -> Int -> Fleet -> Rules -> Maybe MoveArrow
+movementArrowAt ship@Ship{..} i fleet rules =
+  case shipOrientation shipShape of
     Horizontal
-      | i == 0                  -> Just ArrowLeft
-      | i == shipSize shape - 1 -> Just ArrowRight
+      | i == 0                      && canMove Forward  -> Just ArrowLeft
+      | i == shipSize shipShape - 1 && canMove Backward -> Just ArrowRight
     Vertical
-      | i == 0                  -> Just ArrowUp
-      | i == shipSize shape - 1 -> Just ArrowDown
+      | i == 0                      && canMove Forward  -> Just ArrowUp
+      | i == shipSize shipShape - 1 && canMove Backward -> Just ArrowDown
     _ -> Nothing
+    where 
+      canMove dir = canBeMoved ship dir rules fleet
 
 renderArrow :: MoveArrow -> QDiagram SVG R2 Any
 renderArrow arrType = arrowShape # rotateBy circleFraction # arrowStyle  where 

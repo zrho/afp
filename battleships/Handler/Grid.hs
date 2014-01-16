@@ -14,7 +14,7 @@ import Handler.Util
 -- | renders the currentPlayer's grid
 getPlayerGridR :: GameStateExt -> Action-> Handler TypedContent
 getPlayerGridR gameE requiredAction = withGame gameE $ \(GameState {..}) -> return
-  $ renderField $ renderPlayerGrid (rulesSize gameRules) (playerFleet currentPlayer) (playerShots otherPlayer) requiredAction
+  $ renderField $ renderPlayerGrid (rulesSize gameRules) (playerFleet currentPlayer) (playerShots otherPlayer) requiredAction gameRules
 
 -- | renders the otherPlayer's grid
 getEnemyGridR :: GameStateExt -> Handler TypedContent
