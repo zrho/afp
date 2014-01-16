@@ -18,6 +18,7 @@ import Control.Monad
 import Web.Cookie (setCookiePath)
 import Logic.GameExt
 import Logic.Game
+import Logic.Render (LegendIcon)
 
 data App = App
     { settings :: AppConfig DefaultEnv ()

@@ -7,6 +7,7 @@ import Data.Serialize (Serialize)
 import Logic.Game
 import Logic.GameExt
 import Handler.Util
+import Handler.Grid
 
 fireForm :: FormInput Handler (Double, Double)
 fireForm = (,) <$> ireq doubleField "X" <*> ireq doubleField "Y"

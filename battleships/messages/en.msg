@@ -29,3 +29,12 @@ SkipMove: Skip move
 MoveShip: Move one of your ships
 OpponentRemainingShips: These ships are yet to be found
 ShipsUnsunk: Not yet sunk
+Legend: Legend
+LegendShipWithArrow: click to move the ship
+LegendShipMovable: movable ship
+LegendShipImmovable: immovable ship
+LegendShipHit: hit
+LegendShipSunk: hit and sunk
+LegendFogOfWar: undiscovered area
+LegendWater: water
+LegendLastShot: enemy's last shot
