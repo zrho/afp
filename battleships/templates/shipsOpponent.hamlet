@@ -1,0 +1,16 @@
+<div .right>
+  <h4>_{MsgOpponentRemainingShips}
+  <table id="shipsOpponent">
+    <thead>
+      <tr>
+        <td>_{MsgShipLength}
+        <td>#_{MsgShipsUnsunk}
+    <tbody>
+      $forall size <- (shipSizes (gameRules gameState))
+        <tr>
+          <td>#{show size}
+          <td>#{show $ numberShipsOfSize (sizesOfShips $ unsunkShips $ playerFleet $ otherPlayer gameState) size}
+    <tfoot>
+      <tr>
+          <td>_{MsgShipsTotal}
+          <td>#{length $ sizesOfShips $ unsunkShips $ playerFleet $ otherPlayer gameState}

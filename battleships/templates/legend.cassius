@@ -1,0 +1,23 @@
+div.legend
+  background-color: #333
+  color: #EEE
+  border: 1px solid black
+
+div.legendCaption
+  font-weight: bold
+  font-size: 20px
+  margin: 5px
+
+table.legend
+  text-align: left
+  border-spacing: 0px
+  border-collapse: separate
+
+table.legend td
+  padding: 5px
+
+table.legend tr:nth-child(odd)
+  background-color:#222;
+
+table.legend tr:nth-child(even)
+  background-color:#333;

@@ -3,25 +3,63 @@ module Logic.Render
   ( renderReferenceGrid
   , renderEnemyGrid
   , renderPlayerGrid
+  , renderLegend
+  , LegendIcon (..)
   , BattleDia
   ) where
 
-import Prelude
-import Logic.Game
-import Data.Array
+import           Prelude
+import           Logic.Game
+import           Data.Array
 import qualified Data.Map as Map
-import Diagrams.Prelude
-import Diagrams.Backend.SVG
-import Data.Colour.SRGB
-import Data.Foldable (fold)
+import           Diagrams.Prelude
+import           Diagrams.Backend.SVG
+import           Data.Colour.SRGB
+import           Data.Foldable (fold)
+import qualified Data.Text as T hiding (find, zip, map)
+import           Yesod (PathPiece (..))
 
 type BattleDia = QDiagram SVG R2 [Pos]
 
 -- | Arrows displayed on the bow and stern of undamaged ships.
 data MoveArrow = ArrowRight | ArrowUp | ArrowLeft | ArrowDown deriving (Show, Eq, Ord, Bounded, Enum)
 
+-- | legend icon to render
+data LegendIcon 
+  = LIShipWithArrow 
+  | LIShipMovable
+  | LIShipImmovable
+  | LIShipHit
+  | LIShipSunk
+  | LIFogOfWar
+  | LIWater
+  | LILastShot
+  deriving (Show, Read, Eq, Ord, Enum, Bounded)
+
+instance PathPiece LegendIcon where
+  fromPathPiece = convert . T.unpack where
+    convert s = case reads s of
+      [(foo,"")] -> Just foo
+      _          -> Nothing
+  toPathPiece = T.pack . show
+
 -------------------------------------------------------------------------------
--- * High-Level Rendering
+-- * Legend Rendering
+-------------------------------------------------------------------------------
+
+renderLegend :: LegendIcon -> QDiagram SVG R2 Any
+renderLegend icon = case icon of
+  LIShipWithArrow -> renderArrow ArrowRight <> movableSquare
+  LIShipMovable   -> movableSquare
+  LIShipImmovable -> shipSquare
+  LIShipHit       -> marker # lc markerHitColor # lw 3 <> shipSquare
+  LIShipSunk      -> marker # lc markerSunkColor # lw 3 <> shipSquare
+  LIFogOfWar      -> square cellSize # fc fogColor
+  LIWater         -> waterSquare
+  LILastShot      -> lastShotMarker
+
+-------------------------------------------------------------------------------
+-- * High-Level Rendering for Grids
 -------------------------------------------------------------------------------
 
 renderReferenceGrid :: (Int,Int) -> BattleDia
@@ -40,8 +78,8 @@ renderEnemyGrid (nx,ny) shots = mconcat
         Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
         Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
 
-renderPlayerGrid :: (Int,Int) -> Fleet -> TrackingList -> BattleDia
-renderPlayerGrid (nx,ny) fleet shots = mconcat
+renderPlayerGrid :: (Int,Int) -> Fleet -> TrackingList -> Action -> Rules -> BattleDia
+renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
     [ renderGrid nx ny
     , markLastShot
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
@@ -60,11 +98,11 @@ renderPlayerGrid (nx,ny) fleet shots = mconcat
       Horizontal -> hcat [shipCell i | i <- [0..shipSize-1]] # alignTL
       Vertical   -> vcat [shipCell i | i <- [0..shipSize-1]] # alignTL
     where
-      shipCell = if isDamaged ship then defaultShipCell else movableShipCell
+      shipCell = if isDamaged ship || requiredAction == ActionFire then defaultShipCell else movableShipCell
       defaultShipCell i = if shipDamage ! i 
         then square cellSize # fc burningShipColor 
         else shipSquare
-      movableShipCell i = maybe mempty renderArrow (movementArrowAt (shipShape ship) i) <> movableSquare
+      movableShipCell i = maybe mempty renderArrow (movementArrowAt ship i fleet rules) <> movableSquare
       
   renderShot (pos, val) = translateToPos pos $ value [] $ alignTL $
     case val of
@@ -106,16 +144,18 @@ lastShotMarker = roundedRect (cellSize - 3) (cellSize - 3) 0 # lc lastShotColor 
 contentSquare :: Int -> Int -> BattleDia
 contentSquare nx ny = rect (cellSize * realToFrac nx) (cellSize * realToFrac ny) # alignTL # value [] # translateToPos (0,0)
 
-movementArrowAt :: ShipShape -> Int -> Maybe MoveArrow
-movementArrowAt shape i =
-  case shipOrientation shape of
+movementArrowAt :: Ship -> Int -> Fleet -> Rules -> Maybe MoveArrow
+movementArrowAt ship@Ship{..} i fleet rules =
+  case shipOrientation shipShape of
     Horizontal
-      | i == 0                  -> Just ArrowLeft
-      | i == shipSize shape - 1 -> Just ArrowRight
+      | i == 0                      && canMove Forward  -> Just ArrowLeft
+      | i == shipSize shipShape - 1 && canMove Backward -> Just ArrowRight
     Vertical
-      | i == 0                  -> Just ArrowUp
-      | i == shipSize shape - 1 -> Just ArrowDown
+      | i == 0                      && canMove Forward  -> Just ArrowUp
+      | i == shipSize shipShape - 1 && canMove Backward -> Just ArrowDown
     _ -> Nothing
+    where 
+      canMove dir = canBeMoved ship dir rules fleet
 
 renderArrow :: MoveArrow -> QDiagram SVG R2 Any
 renderArrow arrType = arrowShape # rotateBy circleFraction # arrowStyle  where 

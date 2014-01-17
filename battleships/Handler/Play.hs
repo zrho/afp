@@ -7,6 +7,7 @@ import Data.Serialize (Serialize)
 import Logic.Game
 import Logic.GameExt
 import Handler.Util
+import Handler.Grid
 
 fireForm :: FormInput Handler (Double, Double)
 fireForm = (,) <$> ireq doubleField "X" <*> ireq doubleField "Y"
@@ -15,7 +16,7 @@ moveForm :: FormInput Handler (Maybe Double, Maybe Double)
 moveForm = (,) <$> iopt doubleField "X" <*> iopt doubleField "Y"
 
 getPlayR :: GameStateExt -> Handler Html
-getPlayR gameE = withGame gameE $ \(GameState {..}) -> defaultLayout $ do
+getPlayR gameE = withGame gameE $ \(gameState@GameState {..}) -> defaultLayout $ do
   setNormalTitle
   $(widgetFile "play")
 
@@ -70,3 +71,6 @@ performAI game = do
     Won   -> gameEnded game'
     Next  -> continue game'
     Again -> error "impossible. `Again` is handled by aiTurn"
+
+shipsOpponentWidget :: GameState a -> WidgetT App IO ()
+shipsOpponentWidget gameState = $(widgetFile "shipsOpponent")

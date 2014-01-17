@@ -1,23 +1,31 @@
-<h1>_{MsgFireShot}
+$case expectedAction
+  $of ActionFire
+    <h1>_{MsgFireShot}
+  $of ActionMove
+    <h1>_{MsgMoveShip}
 
 <div .content>
+  <div style="float: left">
+    ^{legendWidget}
   $case expectedAction
     $of ActionFire
       <embed 
-          src="@{PlayerGridR gameE}" 
+          src="@{PlayerGridR gameE ActionFire}" 
           type="image/svg+xml" />
       <embed
           src="@{EnemyGridR gameE}"
           type="image/svg+xml"
           onload="clickableInit(this, '@{FireR gameE}');" />
+      ^{shipsOpponentWidget gameState}
     $of ActionMove
       <embed 
-          src="@{PlayerGridR gameE}" 
+          src="@{PlayerGridR gameE ActionMove}" 
           type="image/svg+xml" 
           onload="clickableInit(this, '@{MoveR gameE}');" />
       <embed
           src="@{EnemyGridR gameE}"
           type="image/svg+xml" />
+      ^{shipsOpponentWidget gameState}
       <br>
       <form method="POST" action="@{MoveR gameE}">
         <input .linkButton .redButton type="submit" value=_{MsgSkipMove} />

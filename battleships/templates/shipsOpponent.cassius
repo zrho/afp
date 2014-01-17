@@ -1,0 +1,20 @@
+.right
+  float: right;
+  width: 300px;
+
+thead tr td
+  border-bottom: 1px solid black;
+  padding: 2px;
+
+tfoot tr td
+  border-top: 1px solid black;
+  padding: 2px;
+
+thead tr td:first-child, tbody tr td:first-child, tfoot tr td:first-child
+  border-right: 1px solid black;
+  padding: 2px;
+
+#shipsOpponent
+  border-collapse: collapse;
+  width: 100%;
+  text-align: center;
