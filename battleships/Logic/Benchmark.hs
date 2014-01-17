@@ -13,7 +13,6 @@ import           Logic.CleverAI
 import           Logic.AIUtil
 import           Data.Maybe
 import           Prelude
--- import           Debug.Trace
 
 -- | Tests the performance of the AI, that is the average number of shots
 -- | needed to sink all the ships. This way, we can estimate how well the AI plays.

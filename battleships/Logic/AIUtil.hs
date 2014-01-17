@@ -6,7 +6,7 @@ import           Data.Array
 import           Data.Maybe (isJust)
 import qualified Data.Map as Map
 import           Control.Monad.Random
-import           Debug.Trace
+import           Logic.Debug
 import           Text.Printf
 
 --------------------------------------------------------------------------------
@@ -138,4 +138,4 @@ showFleet :: Rules -> Fleet -> String
 showFleet r = showFleetPlacement r . map shipShape . Map.elems
 
 trace' :: (a -> String) -> a -> a
-trace' f x = trace (f x) x
+trace' f x = debug (f x) x

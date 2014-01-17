@@ -46,6 +46,7 @@ library
                      Logic.Benchmark
                      Logic.Render
                      Logic.Session
+                     Logic.Debug
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
