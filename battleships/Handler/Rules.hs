@@ -19,7 +19,7 @@ postRulesR = do
     then do
            game  <- liftIO $ (newGame (rules size) [] HumanPlayer :: IO (GameState CleverAI))
            gameE <- expGame game
-           redirect (PlaceShips2R gameE)
+           redirect (PlaceShipsR gameE)
     else renderRulePage 10 $ Just MsgInvalidFieldSize
 
 renderRulePage :: Int -> Maybe AppMessage -> Handler Html

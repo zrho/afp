@@ -30,7 +30,7 @@ import Handler.Home
 import Handler.Favicon
 import Handler.Grid
 import Handler.Play
-import Handler.PlaceShips2
+import Handler.PlaceShips
 import Handler.GameEnded
 import Handler.Rules
 

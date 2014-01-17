@@ -1,11 +1,12 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, RecordWildCards #-}
-module Handler.PlaceShips2
-  ( getPlaceShips2R
-  , postPlaceShips2R
+module Handler.PlaceShips
+  ( getPlaceShipsR
+  , postPlaceShipsR
   ) where
 
 import Import
 import Data.Aeson (decode)
+--import Data.Maybe
 import qualified Data.Text.Encoding as TE
 import qualified Data.ByteString.Lazy as BL
 import Logic.Game
@@ -17,8 +18,8 @@ import Handler.Util
 -- * Handler
 -------------------------------------------------------------------------------
 
-getPlaceShips2R :: GameStateExt -> Handler Html
-getPlaceShips2R gameE = withGame gameE $ \game@(GameState {..}) -> do
+getPlaceShipsR :: GameStateExt -> Handler Html
+getPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
   defaultLayout $ do
     setNormalTitle
     addScript $ StaticR js_jquery_js
@@ -27,15 +28,13 @@ getPlaceShips2R gameE = withGame gameE $ \game@(GameState {..}) -> do
     fleet <- liftIO $ initShips defaultRules
     $(widgetFile "placeships2")
 
-postPlaceShips2R :: GameStateExt -> Handler Html
-postPlaceShips2R gameE = withGame gameE $ \game@(GameState {..}) -> do
-  jsonStr <- runInputPost $ ireq textField "fleetData"
-  let ships = decode (BL.fromChunks $ [TE.encodeUtf8 jsonStr]) :: (Maybe [ShipShape])
+postPlaceShipsR :: GameStateExt -> Handler Html
+postPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
+  ships <- getPostedFleet
   case ships of
-    Nothing -> redirect $ PlaceShips2R gameE
+    Nothing             -> redirect $ PlaceShipsR gameE
     Just fleetPlacement -> do
-      let 
-        fleet = generateFleet fleetPlacement
+      let fleet = generateFleet fleetPlacement
       g <- expGame game { currentPlayer = currentPlayer { playerFleet = fleet } }
       redirect $ PlayR g
   
@@ -47,4 +46,9 @@ getY s = snd $ shipPosition s
 
 getOrientation :: ShipShape -> Int 
 getOrientation s = fromEnum $ shipOrientation s
+
+getPostedFleet :: Handler (Maybe [ShipShape])
+getPostedFleet = do
+  jsonStr <- runInputPost $ ireq textField "fleetData"
+  return $ decode (BL.fromChunks [TE.encodeUtf8 jsonStr])
   
