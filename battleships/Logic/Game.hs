@@ -323,7 +323,8 @@ fireAt :: (MonadState (GameState a) m)
 fireAt pos = do
   self  <- gets currentPlayer
   other <- gets otherPlayer
-  result <- case shipAt (playerFleet other) pos of
+  let remainingFleet = Map.filter (not . isShipSunk) (playerFleet other)
+  result <- case shipAt remainingFleet pos of
     Nothing -> return Water
     Just ship -> do
       let
