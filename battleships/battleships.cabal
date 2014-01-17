@@ -38,6 +38,7 @@ library
                      Handler.Grid
                      Handler.GameEnded
                      Handler.Rules
+                     Logic.Random
                      Logic.Game
                      Logic.GameExt
                      Logic.CleverAI
