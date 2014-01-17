@@ -213,12 +213,12 @@ function Render(canvas, numX, numY, cellSize) {
 	$(canvas).attr('height', height);
 
 	// ship styles
-	this.validShipStyle   = { thickness: 1, border: 'rgb(0, 200, 0)', fill : 'rgba(0, 200, 0, 0.5)' };
-	this.invalidShipStyle = { thickness: 1, border: 'rgb(255, 0, 0)', fill : 'rgba(255, 0, 0, 0.5)' };
-	this.placedShipStyle  = { thickness: 1, border: 'rgb(0, 0, 200)', fill : 'rgba(0, 0, 200, 0.5)' };
+	this.validShipStyle   = { thickness: 1, border: 'rgb(0, 200, 0)', fill : '#AEF100' };
+	this.invalidShipStyle = { thickness: 1, border: 'rgb(255, 0, 0)', fill : '#FD0006' };
+	this.placedShipStyle  = { thickness: 1, border: 'rgb(0, 0, 200)', fill : '#03899C' };
 	this.blockedCellColor = 'rgba(200, 200, 200, 0.5)';
 	// grid style
-	this.gridStyle        = { thickness: 1, color: '#000000'};
+	this.gridStyle        = { thickness: 2, color: '#D2F870'};
 
 	// rendering functions
 	this.clear = function () {

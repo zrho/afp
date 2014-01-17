@@ -8,6 +8,7 @@ import Yesod.Default.Config
 import qualified Settings
 import Settings.Development (development)
 import Settings (widgetFile)
+import Settings.StaticFiles
 import Text.Hamlet (hamletFile)
 #if MIN_VERSION_fast_logger(2,1,0)
 import Yesod.Core.Types (Logger)

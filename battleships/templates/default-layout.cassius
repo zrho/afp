@@ -3,7 +3,8 @@ body
   margin: 0px
   padding: 0px
   overflow-x: hidden
-  background-color: #020402
+  background: #020402 url(@{StaticR img_dreadnought_png}) no-repeat
+  background-position: 50% 50%
   color: #5FC0CE
   height: 100%
 

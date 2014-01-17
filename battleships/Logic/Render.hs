@@ -116,11 +116,11 @@ renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
 
 rowNumbers :: Int -> BattleDia
 rowNumbers n = vcat [num i | i <- [1..n]] # value [] where
-  num i = (text (show i) # lc black # numberStyle) <> square cellSize
+  num i = (text (show i) # fc gridColor # numberStyle) <> square cellSize
 
 colNumbers :: Int -> BattleDia
 colNumbers n = hcat [num i | i <- [0..n-1]] # value [] where
-  num i = (text (strNum i) # lc black # numberStyle) <> square cellSize
+  num i = (text (strNum i) # fc gridColor # numberStyle) <> square cellSize
   strNum :: Int -> String
   strNum i = [toEnum $ fromEnum 'A' + i]
 
@@ -212,17 +212,17 @@ halfCellSize = cellSize / 2
 markerRadius = cellSize / 2 - 3
 
 innerGridLineStyle, outerGridLineStyle, arrowStyle :: HasStyle c => c -> c
-innerGridLineStyle = lw 1 . lc black . dashing [3, 3] 0
-outerGridLineStyle = lw 1 . lc black
+innerGridLineStyle = lw 1 . lc gridColor . dashing [3, 3] 0
+outerGridLineStyle = lw 1 . lc gridColor
 arrowStyle         = lw 3 . lc gray
 
 numberStyle :: HasStyle c => c -> c
 numberStyle = fontSize 30 . font "Monospace"
 
-fogColor, waterColor, markerHitColor, markerSunkColor, markerWaterColor, 
+gridColor, fogColor, waterColor, markerHitColor, markerSunkColor, markerWaterColor, 
   shipColor, burningShipColor, lastShotColor, movableColor
   :: Colour Double
-
+gridColor        = sRGB24 0xD2 0xF8 0x70
 fogColor         = sRGB 0.7 0.7 0.7
 waterColor       = sRGB24 0x99 0xCC 0xFF
 markerHitColor   = sRGB 1.0 0.5 0.0

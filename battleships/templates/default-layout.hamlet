@@ -11,4 +11,4 @@
   
 $if (not isHome)
   <div .footer>
-    <a .linkButton .blueButton href="@{HomeR}">_{MsgLinkHome}
+    <a .linkButton .redButton href="@{HomeR}">_{MsgLinkHome}

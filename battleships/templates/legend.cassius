@@ -17,11 +17,10 @@ table.legend
 table.legend td
   padding: 5px
   vertical-align: middle
+  color: #EEE
 
 table.legend tr:nth-child(odd)
   background-color: #03899C
-  color: #111
 
 table.legend tr:nth-child(even)
   background-color:#015965
-  color: #EEE

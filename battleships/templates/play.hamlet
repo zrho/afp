@@ -1,13 +1,6 @@
 <table .play>
   <tr>
-    <td rowspan="2" style="vertical-align: top">^{legendWidget}
-    <td>
-      $case expectedAction
-        $of ActionFire
-          <h1>_{MsgFireShot}
-        $of ActionMove
-          <h1>_{MsgMoveShip}
-  <tr>
+    <td style="vertical-align: top">^{legendWidget}
     <td>
       $case expectedAction
         $of ActionFire
@@ -26,6 +19,13 @@
           <embed
               src="@{EnemyGridR gameE}"
               type="image/svg+xml" />
-          <br>
+  <tr>
+    <td>
+    <td>
+      $case expectedAction
+        $of ActionFire
+          <span .expectedAction>_{MsgFireShot}
+        $of ActionMove
           <form method="POST" action="@{MoveR gameE}">
+            <span .expectedAction>_{MsgMoveShip}
             <input .linkButton .redButton type="submit" value=_{MsgSkipMove} />

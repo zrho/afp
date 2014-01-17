@@ -6,6 +6,6 @@ div.legendSidebar
 div.board
   float: left
 
-h3.expectedAction
+span.expectedAction
+  font-size: 16px
   color: #FE3F44
-  display: none

@@ -17,15 +17,15 @@ body
   float: left;
 
 thead tr td
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #D2F870;
   padding: 2px;
 
 tfoot tr td
-  border-top: 1px solid black;
+  border-top: 1px solid #D2F870;
   padding: 2px;
 
 thead tr td:first-child, tbody tr td:first-child, tfoot tr td:first-child
-  border-right: 1px solid black;
+  border-right: 1px solid #D2F870;
   padding: 2px;
 
 .center
