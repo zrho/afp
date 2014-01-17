@@ -1,5 +1,5 @@
 name:              battleships
-version:           0.0.0
+version:           0.5.0
 cabal-version:     >= 1.8
 build-type:        Simple
 
@@ -46,6 +46,7 @@ library
                      Logic.Benchmark
                      Logic.Render
                      Logic.Session
+                     Logic.Debug
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -124,10 +125,10 @@ executable         main.cgi
         Buildable: False
     if flag(dev)
         cpp-options:   -DDEVELOPMENT
-        ghc-options:   -Wall -Werror -O0
+        ghc-options:   -threaded -Wall -Werror -O0
         build-depends: warp
     else
-        ghc-options:   -Wall -Werror -O2
+        ghc-options:   -threaded -Wall -Werror -O2
 
     main-is:           main.hs
     hs-source-dirs:    app
@@ -135,5 +136,3 @@ executable         main.cgi
                      , battleships
                      , yesod
                      , wai-extra
-
-    ghc-options:       -threaded -O2

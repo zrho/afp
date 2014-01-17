@@ -27,7 +27,8 @@ PlaceRandom: Random
 StartPlaying: Ready!
 SkipMove: Skip move
 MoveShip: Move one of your ships
-
+OpponentRemainingShips: These ships are yet to be found
+ShipsUnsunk: Not yet sunk
 Legend: Legend
 LegendShipWithArrow: click to move the ship
 LegendShipMovable: movable ship
