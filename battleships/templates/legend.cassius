@@ -1,7 +1,6 @@
 div.legend
   background-color: #015965
   color: #EEE
-  border: 1px solid black
   height: 100%
 
 div.legendCaption
@@ -17,6 +16,7 @@ table.legend
 table.legend td
   padding: 5px
   vertical-align: middle
+  border-right-width: 0px
   color: #EEE
 
 table.legend tr:nth-child(odd)

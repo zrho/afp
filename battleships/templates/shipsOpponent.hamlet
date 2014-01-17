@@ -1,4 +1,4 @@
-<div .right>
+<div .shipsOpponent>
   <h4>_{MsgOpponentRemainingShips}
   <table id="shipsOpponent">
     <thead>

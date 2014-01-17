@@ -10,7 +10,6 @@ module Logic.Render
 
 import           Prelude
 import           Logic.Game
-import           Data.Array
 import qualified Data.Map as Map
 import           Diagrams.Prelude
 import           Diagrams.Backend.SVG
@@ -90,7 +89,7 @@ renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
   where
   markLastShot = case shots of
     (lastShotPos,_):_ 
-      -> lastShotMarker # value [] # alignTL # translateToPos lastShotPos
+      -> lastShotMarker # value [] # translateToPos lastShotPos
     _ -> mempty # value []
 
   renderShip ship@Ship{shipShape = ShipShape{shipPosition=(x,y),..},..} = 
@@ -98,11 +97,10 @@ renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
       Horizontal -> hcat [shipCell i | i <- [0..shipSize-1]] # alignTL
       Vertical   -> vcat [shipCell i | i <- [0..shipSize-1]] # alignTL
     where
-      shipCell = if isDamaged ship || requiredAction == ActionFire then defaultShipCell else movableShipCell
-      defaultShipCell i = if shipDamage ! i 
-        then square cellSize # fc burningShipColor 
-        else shipSquare
-      movableShipCell i = maybe mempty renderArrow (movementArrowAt ship i fleet rules) <> movableSquare
+      shipCell = if isDamaged ship then const shipSquare else movableShipCell
+      movableShipCell i = if requiredAction == ActionMove
+          then maybe mempty renderArrow (movementArrowAt ship i fleet rules) <> movableSquare
+          else movableSquare
       
   renderShot (pos, val) = translateToPos pos $ value [] $ alignTL $
     case val of
@@ -126,11 +124,11 @@ colNumbers n = hcat [num i | i <- [0..n-1]] # value [] where
 
 #if MIN_VERSION_diagrams_lib(0,7,0)
 marker, waterSquare, shipSquare, movableSquare, lastShotMarker
-  :: (TrailLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
+  :: (Alignable b, HasOrigin b, TrailLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #else
 marker, waterSquare, shipSquare, movableSquare, lastShotMarker
-  :: (PathLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
+  :: (Alignable b, HasOrigin b, PathLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #endif
 marker         = drawX (markerRadius * sqrt 2) <> circle markerRadius where
@@ -139,7 +137,7 @@ marker         = drawX (markerRadius * sqrt 2) <> circle markerRadius where
 waterSquare    = square cellSize # fc waterColor
 shipSquare     = roundedRect cellSize cellSize 0 # fc shipColor
 movableSquare  = roundedRect cellSize cellSize 0 # fc movableColor
-lastShotMarker = roundedRect (cellSize - 3) (cellSize - 3) 0 # lc lastShotColor # lw 3
+lastShotMarker = roundedRect (cellSize - 4) (cellSize - 4) 0  # alignTL # translate (r2 (2,-2)) # lc lastShotColor # lw 3
 
 contentSquare :: Int -> Int -> BattleDia
 contentSquare nx ny = rect (cellSize * realToFrac nx) (cellSize * realToFrac ny) # alignTL # value [] # translateToPos (0,0)
@@ -220,15 +218,14 @@ numberStyle :: HasStyle c => c -> c
 numberStyle = fontSize 30 . font "Monospace"
 
 gridColor, fogColor, waterColor, markerHitColor, markerSunkColor, markerWaterColor, 
-  shipColor, burningShipColor, lastShotColor, movableColor
+  shipColor, lastShotColor, movableColor
   :: Colour Double
 gridColor        = sRGB24 0xD2 0xF8 0x70
 fogColor         = sRGB 0.7 0.7 0.7
-waterColor       = sRGB24 0x99 0xCC 0xFF
-markerHitColor   = sRGB 1.0 0.5 0.0
-markerSunkColor  = sRGB 1.0 0.0 0.0
+waterColor       = sRGB24 0x36 0xBB 0xCE
+markerHitColor   = sRGB24 0xFE 0x3F 0x44
+markerSunkColor  = sRGB24 0xA4 0x00 0x04
 markerWaterColor = sRGB24 0x33 0x99 0xFF
 shipColor        = gray
-burningShipColor = orange
 lastShotColor    = red
-movableColor     = sRGB 0.5 0.7 0.5
+movableColor     = sRGB24 0xC4 0xF8 0x3E

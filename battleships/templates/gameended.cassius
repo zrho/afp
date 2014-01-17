@@ -1,10 +1,20 @@
-body
-  text-align: left
-
-.banner
+div.banner
+  text-align: center
   position: fixed
   top: 40%
   width:100%
   z-index: 1000
-  background-color: white
-  border: 1px solid black
+
+div.bannerLost
+  background-color: #FE7276
+  box-shadow: 0 0 2px 2px #A40004 inset
+  color: white
+
+div.bannerWon
+  background-color: #D2F870
+  box-shadow: 0 0 2px 2px #719D00 inset
+  color: #222
+
+h3.bannerText
+  display: inline-block
+  font-size: 20px

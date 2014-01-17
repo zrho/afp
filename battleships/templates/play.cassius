@@ -9,3 +9,41 @@ div.board
 span.expectedAction
   font-size: 16px
   color: #FE3F44
+
+.tabs
+  position: relative;
+  clear: both;
+  margin: 25px 0;
+  min-height: 480px; /* This part sucks */
+  min-width: 250px;
+
+.tab
+  float: left;
+
+.tab label
+  background: #1F6B75; 
+  padding: 10px; 
+  border: 1px solid #ccc; 
+  margin-left: -1px; 
+  position: relative;
+  left: 1px; 
+
+.tab [type=radio]
+  display: none;   
+
+.tabContent
+  position: absolute;
+  top: 28px;
+  left: 0;
+  background: #03899C;
+  border: 1px solid #ccc; 
+  height: 100%
+
+[type=radio]:checked ~ label
+  background: #36BBCE;
+  color: #1F6B75
+  border-bottom: 1px solid white;
+  z-index: 2;
+
+[type=radio]:checked ~ label ~ .tabContent
+  z-index: 1;

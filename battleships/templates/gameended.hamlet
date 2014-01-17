@@ -1,12 +1,11 @@
 $if humanWon
-   <!-- This is only for proper positioning of the game area -->
-   <h1 style="opacity: 0">_{MsgWon}
-   <div .banner>
-     <h1> _{MsgWon}
+  <div .banner .bannerWon>
+    <h3 .bannerText>
+       _{MsgWon}
 $else
-   <h1 style="opacity: 0">_{MsgLost}
-   <div .banner>
-     <h1> _{MsgLost}
+  <div .banner .bannerLost>
+    <h3 .bannerText>
+       _{MsgLost}
 
 <div .content .halftransparent>
   <embed src="@{PlayerGridR gameE ActionFire}" type="image/svg+xml" />
