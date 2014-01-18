@@ -3,6 +3,7 @@ module Handler.Grid
   ( getPlayerGridR
   , getEnemyGridR
   , getLegendR
+  , getPlaceGridR
   , legendWidget
   ) where
 
@@ -29,6 +30,9 @@ getEnemyGridR gameE = withGame gameE $ \(GameState {..}) -> return
 getLegendR :: LegendIcon -> Handler TypedContent
 getLegendR = return . diagramContent . renderLegend
 
+getPlaceGridR :: GameStateExt -> Handler TypedContent
+getPlaceGridR gameE = withGame gameE $ \(GameState {..}) -> return
+  $ diagramContent $ renderWaterGrid (rulesSize gameRules)
 
 legendWidget :: Widget
 legendWidget = $(widgetFile "legend")

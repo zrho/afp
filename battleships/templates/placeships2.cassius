@@ -16,6 +16,10 @@ body
   margin: 10px;
   float: left;
 
+#mapBackground
+  padding: 40px
+  background-image: url(@{PlaceGridR gameE})
+
 thead tr td
   border-bottom: 1px solid black;
   padding: 2px;
