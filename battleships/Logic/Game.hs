@@ -21,7 +21,6 @@ import           Control.Monad.State.Class (MonadState, gets, modify)
 import           Yesod (PathPiece (..))
 import qualified Data.Text as T hiding (find, zip, map)
 
-import           Logic.Debug
 -------------------------------------------------------------------------------
 -- * AI
 -------------------------------------------------------------------------------
