@@ -32,12 +32,13 @@ library
                      Settings.StaticFiles
                      Handler.Home
                      Handler.Favicon
-                     Handler.PlaceShips2
+                     Handler.PlaceShips
                      Handler.Play
                      Handler.Util
                      Handler.Grid
                      Handler.GameEnded
                      Handler.Rules
+                     Logic.Random
                      Logic.Game
                      Logic.GameExt
                      Logic.CleverAI
