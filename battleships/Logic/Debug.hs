@@ -4,6 +4,7 @@ module Logic.Debug
   , debug
   , debugShowM
   , debugM
+  , debug'
   ) where
 
 import Prelude
@@ -16,6 +17,9 @@ debugShow = if development then traceShow else flip const
 
 debug :: String -> a -> a
 debug = if development then trace else flip const
+
+debug' :: (a -> String) -> a -> a
+debug' f x = debug (f x) x
 
 debugId :: Show a => a -> a
 debugId x = debugShow x x
