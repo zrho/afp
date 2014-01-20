@@ -10,7 +10,6 @@ import           Control.Monad
 import           Control.Monad.Trans
 import           Control.Monad.Trans.List
 import           Control.Monad.Random
-import           Logic.Debug
 import           Text.Printf
 
 --------------------------------------------------------------------------------
@@ -86,6 +85,15 @@ removeNth n xs = let (ys,zs) = splitAt n xs in ys ++ (tail zs)
 choose :: MonadPlus m => [a] -> m a
 choose = msum . fmap return
 
+fromBool :: Num a => Bool -> a
+fromBool True  = 1
+fromBool False = 0
+
+-- | Maximum function for nonnegative numbers which handles empty lists.
+maximum' :: (Ord a, Num a) => [a] -> a
+maximum' [] = 0
+maximum' xs = maximum xs
+
 --------------------------------------------------------------------------------
 -- * Debugging
 --------------------------------------------------------------------------------
@@ -131,6 +139,3 @@ showFleetPlacement r fleet = tail $ concat
 
 showFleet :: Rules -> Fleet -> String
 showFleet r = showFleetPlacement r . map shipShape . Map.elems
-
-trace' :: (a -> String) -> a -> a
-trace' f x = debug (f x) x
