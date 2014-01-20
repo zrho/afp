@@ -1,16 +1,17 @@
 {-# LANGUAGE RecordWildCards #-}
 module Logic.Benchmark where
 
-import           Control.Monad (foldM)
 import           Control.Monad.Random
 import           Control.Monad.State.Class (MonadState)
 import           Control.Monad.Trans.State (runStateT)
 import           Data.Array
 import qualified Data.Map as Map
+import           Data.List (sort)
 import           Logic.Game
 -- import           Logic.StupidAI
 import           Logic.CleverAI
 import           Logic.AIUtil
+import           Logic.Debug
 import           Data.Maybe
 import           Prelude
 
@@ -19,15 +20,24 @@ import           Prelude
 -- | The AI plays against itself.
 benchmark :: Int -> IO ()
 benchmark repetitions = do
-  total <- foldM f 0 [1..repetitions]
-  let avg = (fromIntegral total :: Double) / fromIntegral repetitions
-  putStrLn $ "Average: " ++ show avg ++ " shots." where
-    f :: Int -> Int -> IO Int
-    f total i = do
+  shotCounts <- mapM f [1..repetitions]
+  let sorted = sort shotCounts
+  let avg = (fromIntegral $ sum shotCounts :: Double) / (fromIntegral $ length shotCounts)
+  let mn = minimum shotCounts
+  let mx = maximum shotCounts
+  let mdn = sorted !! (length sorted `div` 2)
+  putStrLn $ "Average: " ++ show avg ++ " shots."
+  putStrLn $ "Minimum: " ++ show mn ++ " shots."
+  putStrLn $ "Maximum: " ++ show mx ++ " shots."
+  putStrLn $ "Median:  " ++ show mdn ++ " shots."
+  putStrLn $ "Complete list: "
+  mapM_ print $ sorted where
+    f :: Int -> IO Int
+    f i = do
       putStrLn $ "\n---\n" ++ show i ++ "th run:"
       shotCount <- playGame
       putStrLn $ show shotCount ++ " shots needed."
-      return (total + shotCount)
+      return shotCount
 
 -- | Returns number of shots the AI needed.
 playGame :: IO Int
@@ -46,7 +56,8 @@ turn impact fleet sunk count = do
     pos <- aiFire
     -- fire the AI's shot against itself
     let
-      (response, fleet', sunk') = case shipAt (fleet Map.\\ sunk) pos of
+      (response, fleet', sunk') = case shipAt (fleet Map.\\ sunk)
+                                $ debug' (\p -> "AI's target: " ++ show p) pos of
         Nothing   ->  (Water, fleet, sunk)
         Just ship ->
           let
@@ -64,8 +75,8 @@ turn impact fleet sunk count = do
     aiResponse pos response
     -- should any ships be moved?
     fleet'' <- if rulesMove rules
-               then (do
-                      mMove <- aiMove fleet' >>= \a -> {-trace' (\_ -> "AI's movement: " ++ show a) $ -} return a
+               then do
+                      mMove <- aiMove fleet' {- >>= \a ->  debug' (\_ -> "AI's movement: " ++ show a) $ return a -}
                       return $ case mMove of
                         Nothing -> fleet'
                         Just (shipID, movement) -> case Map.lookup shipID fleet' of
@@ -73,15 +84,14 @@ turn impact fleet sunk count = do
                                        then moveShip ship movement rules fleet'
                                        else fleet'
                           Nothing   -> fleet'
-                    )
                else return fleet'
     -- all ships sunk now?
     case allSunk fleet'' of
       True  -> return (count + 1)
       False -> turn
                   newImpact
-                  ( {- trace' (\f -> "Fleet:\n" ++ showFleet rules f) -} fleet'')
-                  ( {- trace' (\f -> "Sunk:\n" ++ showFleet rules f) -} sunk'  )
+                  ( debug' (\f -> "Fleet:\n" ++ showFleet rules f) fleet'')
+                  ( debug' (\f -> "Sunk:\n" ++ showFleet rules f) sunk'  )
                   (count + 1)
 
 rules :: Rules
