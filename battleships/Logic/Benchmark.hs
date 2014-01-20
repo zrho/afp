@@ -4,7 +4,6 @@ module Logic.Benchmark where
 import           Control.Monad.Random
 import           Control.Monad.State.Class (MonadState)
 import           Control.Monad.Trans.State (runStateT)
-import           Data.Array
 import qualified Data.Map as Map
 import           Data.List (sort)
 import           Logic.Game
@@ -45,13 +44,12 @@ playGame = do
   (ai, fleetPlacement) <- aiInit rules
   putStrLn $ showFleetPlacement rules fleetPlacement
   let fleet = generateFleet fleetPlacement
-  (count, _newAi) <- runStateT (turn impact fleet Map.empty 0) (ai :: CleverAI)
-  return count where
-    impact = newGrid (rulesSize rules) Nothing
+  (count, _newAi) <- runStateT (turn [] fleet Map.empty 0) (ai :: CleverAI)
+  return count 
 
 -- | Let the AI play against itself. Returns the number of shots fired.
-turn :: (AI a, MonadRandom m, MonadState a m) => TrackingGrid -> Fleet -> Fleet -> Int -> m Int
-turn impact fleet sunk count = do
+turn :: (AI a, MonadRandom m, MonadState a m) => TrackingList -> Fleet -> Fleet -> Int -> m Int
+turn shots fleet sunk count = do
     -- get target position from AI
     pos <- aiFire
     -- fire the AI's shot against itself
@@ -69,14 +67,14 @@ turn impact fleet sunk count = do
           in if isShipSunk newShip
              then (Sunk, newFleet, Map.insert (shipID ship) newShip sunk)
              else (Hit, newFleet, sunk)
-    -- update the impact grid
-    let newImpact   = impact // [(pos, Just response)]
+    -- update the tracking list
+    let shots'   = (pos, response):shots
     -- notify the AI
     aiResponse pos response
     -- should any ships be moved?
     fleet'' <- if rulesMove rules
                then do
-                      mMove <- aiMove fleet' {- >>= \a ->  debug' (\_ -> "AI's movement: " ++ show a) $ return a -}
+                      mMove <- aiMove fleet' shots' {- >>= \a ->  debug' (\_ -> "AI's movement: " ++ show a) $ return a -}
                       return $ case mMove of
                         Nothing -> fleet'
                         Just (shipID, movement) -> case Map.lookup shipID fleet' of
@@ -89,7 +87,7 @@ turn impact fleet sunk count = do
     case allSunk fleet'' of
       True  -> return (count + 1)
       False -> turn
-                  newImpact
+                  shots'
                   ( debug' (\f -> "Fleet:\n" ++ showFleet rules f) fleet'')
                   ( debug' (\f -> "Sunk:\n" ++ showFleet rules f) sunk'  )
                   (count + 1)

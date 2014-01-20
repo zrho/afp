@@ -20,6 +20,7 @@ import           Control.Monad.Trans.State (runStateT)
 import           Control.Monad.State.Class (MonadState, gets, modify)
 import           Yesod (PathPiece (..))
 import qualified Data.Text as T hiding (find, zip, map)
+
 -------------------------------------------------------------------------------
 -- * AI
 -------------------------------------------------------------------------------
@@ -47,9 +48,10 @@ class AI a where
   -- | Computes the ship movement
   aiMove
     :: (MonadRandom m, MonadState a m)
-    => Fleet                        -- ^ AI's fleet including IDs                
+    => Fleet                        -- ^ AI's fleet including IDs
+    -> TrackingList                 -- ^ enemy shots
     -> m (Maybe (ShipID, Movement)) -- ^ ship and movement, if any
-  aiMove = const $ return Nothing
+  aiMove _ _ = return Nothing
 
 -------------------------------------------------------------------------------
 -- * Game State
@@ -422,17 +424,17 @@ moveHuman pos = do
     Nothing -> return Nothing
     Just p  -> desiredMove p `liftM` gets (playerFleet . currentPlayer)
 
+-- | Lets the AI decide on a move
+-- Assumes that the ai player is the currentPlayer
 moveAI :: (MonadState (GameState a) m, MonadRandom m, AI a) 
      => m (Maybe (ShipID, Movement))
 moveAI = do
   ai <- gets aiState
-  fleet <- gets (playerFleet . aiPlayer)
-  (mov, s) <- runStateT (aiMove fleet) ai
+  fleet <- gets (playerFleet . currentPlayer)
+  shots <- gets (playerShots . otherPlayer)
+  (mov, s) <- runStateT (aiMove fleet shots) ai
   modify (\g -> g{aiState = s})
-  return mov where
-    aiPlayer g = case playerType . currentPlayer $ g of
-      AIPlayer -> currentPlayer g
-      _        -> otherPlayer   g
+  return mov
 
 -- | executes a move for the current player
 executeMove :: (MonadState (GameState a) m, MonadRandom m, AI a) 

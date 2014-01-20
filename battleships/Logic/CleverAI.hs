@@ -61,7 +61,7 @@ instance AI CleverAI where
             } where
       shipArea s t = shipCoordinates (rulesSafetyMargin (rules ai)) s `intersect` indices t
 
-  aiMove fleet = gets rules >>= \rls -> chooseRandom $ generateMoves rls fleet where
+  aiMove fleet _ = gets rules >>= \rls -> chooseRandom $ generateMoves rls fleet where
     chooseRandom :: MonadRandom m => [Maybe a] -> m (Maybe a)
     chooseRandom [] = return Nothing
     chooseRandom xs = (xs !!) `liftM` getRandomR (0, length xs - 1)
