@@ -1,6 +1,7 @@
 {-# LANGUAGE RecordWildCards, TypeFamilies #-}
 module Logic.Render
   ( renderReferenceGrid
+  , renderWaterGrid
   , renderEnemyGrid
   , renderPlayerGrid
   , renderLegend
@@ -63,6 +64,9 @@ renderLegend icon = case icon of
 
 renderReferenceGrid :: (Int,Int) -> BattleDia
 renderReferenceGrid (nx, ny) = renderGrid nx ny
+
+renderWaterGrid :: (Int,Int) -> BattleDia
+renderWaterGrid (nx, ny) = renderGrid nx ny `atop` contentSquare nx ny # fc waterColor
 
 renderEnemyGrid :: (Int,Int) -> TrackingList -> BattleDia
 renderEnemyGrid (nx,ny) shots = mconcat

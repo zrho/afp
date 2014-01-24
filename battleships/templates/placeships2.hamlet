@@ -5,7 +5,8 @@
         <tbody>
             <tr>
                 <td style="border-right: 0px solid black;">
-                    <canvas id="map">
+                    <div id="mapBackground">
+                        <canvas id="map">
                 <td width="100px">
                 <td>
                     <div id="sidebar">

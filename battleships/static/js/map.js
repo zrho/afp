@@ -85,7 +85,6 @@ function Map(canvas, numX, numY, cellSize, shipDef) {
 	};
 	this.redraw = function() {
 		render.clear();
-		render.drawGrid();
 		for (var i = this.ships.length - 1; i >= 0; i--) {
 			render.drawShipMargin(this.ships[i], this.safetyMargin);
 			render.drawShip(this.ships[i], render.placedShipStyle);
