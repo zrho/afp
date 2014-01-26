@@ -13,6 +13,8 @@ Extra-Source-Files:
                 templates/*.lucius
                 templates/*.julius
                 static/js/*.js
+                static/img/*.svg
+                static/img/*.ico
                 make
 
 Flag dev
@@ -76,6 +78,7 @@ library
                  , yesod                         >= 1.2        && < 1.3
                  , yesod-core                    >= 1.2        && < 1.3
                  , yesod-static                  >= 1.2        && < 1.3
+                 , yesod-routes
                  , hamlet                        >= 1.1        && < 1.2
                  , shakespeare-text              >= 1.0        && < 1.1
                  , wai-extra                 
@@ -129,3 +132,20 @@ executable         main.fcgi
     build-depends:     base
                      , battleships
                      , yesod
+
+executable img-gen
+    if flag(library-only)
+        Buildable: False
+
+    extensions:      CPP
+                     FlexibleContexts
+    main-is:         Main.hs
+    hs-source-dirs:  img-gen
+    build-depends:   base
+                   , mtl
+                   , battleships
+                   , bytestring
+                   , blaze-svg
+                   , diagrams-svg
+                   , diagrams-lib
+                   , filepath

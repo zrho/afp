@@ -5,7 +5,6 @@
 /battleships/play/#GameStateExt/place.svg           PlaceGridR     GET
 /battleships/play/#GameStateExt/view                PlayR          GET
 /battleships/play/#GameStateExt/fire                FireR          POST
-/battleships/legend/#LegendIcon/svg                 LegendR        GET
 /battleships/play/#GameStateExt/move                MoveR          POST
 /battleships/gameEnded/#GameStateExt                GameEndedR     GET
 /battleships/rules                                  RulesR         GET POST
