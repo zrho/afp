@@ -1,7 +1,0 @@
-<h1>_{MsgStartPlacing}
-
-<form action=@{PlaceShipsR gameE} method=post enctype=#{enctype} #placeShipsForm>
-  ^{formWidget}
-
-<form action=@{PlaceShipsR newGameE} method=get #resetShipsForm>
-  <button .linkButton .redButton type="submit">_{MsgReset}</button>

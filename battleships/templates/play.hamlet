@@ -1,57 +1,62 @@
-<div style="float: left">
-  <div .tabs>
-    <div .tab>
-      <input type="radio" id="tab-1" name="tab-group-1" checked>
-      <label for="tab-1">
-        _{MsgLegend}
-      <div .tabContent>
-        ^{legendWidget}
-    <div .tab>
-      <input type="radio" id="tab-2" name="tab-group-1" checked>
-      <label for="tab-2">
-        Hinweise
-      <div .tabContent>
-        ^{shipsOpponentWidget gameState}
-  
+<div .boards>
+  <div .leftBoard>
+    <div .boardContent>
+      <h3>
+        _{MsgYourFleet}
+      $case expectedAction
+        $of ActionFire
+          <embed .board
+              src="@{PlayerGridR gameE ActionFire}" 
+              type="image/svg+xml" />
+        $of ActionMove
+          <embed .board
+              src="@{PlayerGridR gameE ActionMove}" 
+              type="image/svg+xml" 
+              onload="clickableInit(this, '@{MoveR gameE}');" />
 
-<div #boards style="width: 1000px; margin: 0px auto">
-  <table>
-    <tr>
-      <td>
-        <h3>
-          Dein Spielfeld
-      <td>
-        <h3>
-          Gegnerisches Feld
-    <tr>
-      <td>
-        $case expectedAction
-          $of ActionFire
-            <embed 
-                src="@{PlayerGridR gameE ActionFire}" 
-                type="image/svg+xml" />
-          $of ActionMove
-            <embed 
-                src="@{PlayerGridR gameE ActionMove}" 
-                type="image/svg+xml" 
-                onload="clickableInit(this, '@{MoveR gameE}');" />
-      <td>
-        $case expectedAction
-          $of ActionFire
-            <embed
-                src="@{EnemyGridR gameE}"
-                type="image/svg+xml"
-                onload="clickableInit(this, '@{FireR gameE}');" />
-          $of ActionMove
-            <embed
-                src="@{EnemyGridR gameE}"
-                type="image/svg+xml" />
-    <tr>
-      <td>
+      <div .actionBox>
         $if expectedAction == ActionMove
           <form method="POST" action="@{MoveR gameE}">
             <span .expectedAction>_{MsgMoveShip}
             <input .linkButton .redButton type="submit" value=_{MsgSkipMove} />
-      <td>
+
+  <div .rightBoard>
+    <div .boardContent>
+      <h3>
+        _{MsgOpponentsFleet}
+      $case expectedAction
+        $of ActionFire
+          <embed .board
+              src="@{EnemyGridR gameE}"
+              type="image/svg+xml"
+              onload="clickableInit(this, '@{FireR gameE}');" />
+        $of ActionMove
+          <embed .board
+              src="@{EnemyGridR gameE}"
+              type="image/svg+xml" />
+
+      <div .actionBox>
         $if expectedAction == ActionFire
           <span .expectedAction>_{MsgFireShot}
+
+  <div .infoV>
+    <div .infoBoxV>
+      <h3>_{MsgHints}
+      ^{shipsOpponentWidget gameState Vertical}
+
+  <div .legendV>
+    <div .infoBoxV>
+      <h3>_{MsgLegend}
+      ^{legendWidget Vertical}
+
+<div .clear>
+
+<div .infoH>
+    <div .infoBoxH>
+      <h3>_{MsgHints}
+      ^{shipsOpponentWidget gameState Horizontal}
+
+<div .legendH>
+  <div .infoBoxH>
+    <h3>_{MsgLegend}
+    ^{legendWidget Horizontal}

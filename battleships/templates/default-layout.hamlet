@@ -9,9 +9,10 @@
        <script>
          setTimeout(function() {alert("#{msg}")}, 200);
     ^{widget}
-  
-$if (not isHome)
   <!-- Placeholder to prevent overlapping of page contents and footer -->
   <div style="clear: both; height: 100px">
+  
+  
+$if (not isHome)
   <div .footer>
     <a .linkButton .redButton href="@{HomeR}">_{MsgLinkHome}

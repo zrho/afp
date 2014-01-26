@@ -185,7 +185,8 @@ translateToPos (x,y) =
 -------------------------------------------------------------------------------
 
 renderGrid :: Int -> Int -> BattleDia
-renderGrid nx ny = gridLines <> labels where
+renderGrid nx ny = border <> gridLines <> labels where
+  border    = rect w h # alignTL # lw 1 # lc gridColor # value []
   gridLines = (innerLines <> outerLines)
   xnums     = colNumbers nx # translate (r2 (cellSize, 0))
   ynums     = rowNumbers ny
@@ -199,8 +200,8 @@ renderGrid nx ny = gridLines <> labels where
   outerOffsets n = [cellSize, (fromIntegral n + 1) * cellSize]
   innerOffsets n = [(fromIntegral i) * cellSize | i <- [2..n]]
 
-  innerLines = (xticks h (innerOffsets nx) <> yticks w (innerOffsets ny)) # innerGridLineStyle # value []
-  outerLines = (xticks h (outerOffsets nx) <> yticks w (outerOffsets ny)) # outerGridLineStyle # value []
+  innerLines = (xticks (h-1) (innerOffsets nx) <> yticks (w-1) (innerOffsets ny)) # innerGridLineStyle # value []
+  outerLines = (xticks (h-1) (outerOffsets nx) <> yticks (w-1) (outerOffsets ny)) # outerGridLineStyle # value []
 
 #if MIN_VERSION_diagrams_lib(0,7,0)
 xticks, yticks :: (Monoid a, TrailLike a, V a ~ R2) 

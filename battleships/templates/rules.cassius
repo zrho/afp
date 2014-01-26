@@ -1,0 +1,20 @@
+div.rulesContent
+  width: 400px
+  margin: 0px auto
+
+div.rulesBox h3
+  text-align: center
+
+div.rulesBox
+  box-shadow: 0 0 5px #36BBCE
+  background-color: rgba(1, 89, 101, 0.25)
+  width: 400px
+  height: 200px
+  text-align: center
+
+div.rulesFields
+  display: inline-block
+  text-align: left
+
+label[for=inputDevMode]
+  color: #FE3F44

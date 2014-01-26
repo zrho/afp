@@ -64,7 +64,7 @@ data Rules = Rules
   , rulesAgainWhenHit :: Bool
   , rulesMove         :: Bool
   , rulesDevMode      :: Bool
-  }
+  } deriving (Show, Eq)
 
 -- | Reponse sent to the AI after a shot.
 data HitResponse

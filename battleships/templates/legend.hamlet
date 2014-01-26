@@ -1,33 +1,63 @@
-<table .legend>
-  <tr>
-    <td>
-      <img src="@{legendStatic LIShipWithArrow }">
-    <td>_{MsgLegendShipWithArrow }
-  <tr>
-    <td>
-      <img src="@{legendStatic LIShipMovable}">
-    <td>_{MsgLegendShipMovable}
-  <tr>
-    <td>
-      <img src="@{legendStatic LIShipImmovable}">
-    <td>_{MsgLegendShipImmovable}
-  <tr>
-    <td>
-      <img src="@{legendStatic LIShipHit}">
-    <td>_{MsgLegendShipHit}
-  <tr>
-    <td>
-      <img src="@{legendStatic LIShipSunk}">
-    <td>_{MsgLegendShipSunk}
-  <tr>
-    <td>
-      <img src="@{legendStatic LIFogOfWar}">
-    <td>_{MsgLegendFogOfWar}
-  <tr>
-    <td>
-      <img src="@{legendStatic LIWater}">
-    <td>_{MsgLegendWater}
-  <tr>
-    <td>
-      <img src="@{legendStatic LILastShot}">
-    <td>_{MsgLegendLastShot}
+$case orientation
+  $of Horizontal
+    <table .legendH>
+      <tr>
+        <td>
+          <img src="@{legendStatic LIShipWithArrow }">
+        <td>_{MsgLegendShipWithArrow }
+        <td>
+          <img src="@{legendStatic LIShipMovable}">
+        <td>_{MsgLegendShipMovable}
+        <td>
+          <img src="@{legendStatic LIShipImmovable}">
+        <td>_{MsgLegendShipImmovable}
+        <td>
+          <img src="@{legendStatic LIShipHit}">
+        <td>_{MsgLegendShipHit}
+      <tr>
+        <td>
+          <img src="@{legendStatic LIShipSunk}">
+        <td>_{MsgLegendShipSunk}
+        <td>
+          <img src="@{legendStatic LIFogOfWar}">
+        <td>_{MsgLegendFogOfWar}
+        <td>
+          <img src="@{legendStatic LIWater}">
+        <td>_{MsgLegendWater}
+        <td>
+          <img src="@{legendStatic LILastShot}">
+        <td>_{MsgLegendLastShot}
+  $of Vertical
+    <table .legendV>
+      <tr>
+        <td>
+          <img src="@{legendStatic LIShipWithArrow }">
+        <td>_{MsgLegendShipWithArrow }
+      <tr>
+        <td>
+          <img src="@{legendStatic LIShipMovable}">
+        <td>_{MsgLegendShipMovable}
+      <tr>
+        <td>
+          <img src="@{legendStatic LIShipImmovable}">
+        <td>_{MsgLegendShipImmovable}
+      <tr>
+        <td>
+          <img src="@{legendStatic LIShipHit}">
+        <td>_{MsgLegendShipHit}
+      <tr>
+        <td>
+          <img src="@{legendStatic LIShipSunk}">
+        <td>_{MsgLegendShipSunk}
+      <tr>
+        <td>
+          <img src="@{legendStatic LIFogOfWar}">
+        <td>_{MsgLegendFogOfWar}
+      <tr>
+        <td>
+          <img src="@{legendStatic LIWater}">
+        <td>_{MsgLegendWater}
+      <tr>
+        <td>
+          <img src="@{legendStatic LILastShot}">
+        <td>_{MsgLegendLastShot}

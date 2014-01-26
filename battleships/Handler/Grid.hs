@@ -30,8 +30,8 @@ getPlaceGridR :: GameStateExt -> Handler TypedContent
 getPlaceGridR gameE = withGame gameE $ \(GameState {..}) -> return
   $ diagramContent $ renderWaterGrid (rulesSize gameRules)
 
-legendWidget :: Widget
-legendWidget = $(widgetFile "legend")
+legendWidget :: Orientation -> Widget
+legendWidget orientation = $(widgetFile "legend")
 
 diagramContent :: (Semigroup m, Monoid m) => QDiagram SVG R2 m -> TypedContent
 diagramContent

@@ -1,49 +1,116 @@
-div.legendSidebar
-  float: left
-  margin: 0px
-  padding: 0px
-
-div.board
-  float: left
-
 span.expectedAction
   font-size: 16px
   color: #FE3F44
 
-.tabs
-  position: relative;
-  clear: both;
-  margin: 25px 0;
-  min-height: 480px; /* This part sucks */
-  min-width: 250px;
+@media all and (max-width: 1329px)
+  div.boards
+    width: 1000px
 
-.tab
-  float: left;
+  div.rightBoard
+    width: 480px
+    float: right
 
-.tab label
-  background: #1F6B75; 
-  padding: 10px; 
-  border: 1px solid #ccc; 
-  margin-left: -1px; 
-  position: relative;
-  left: 1px; 
+  div.infoV
+    visibility: collapsed
+    display: none
 
-.tab [type=radio]
-  display: none;   
+  div.legendV
+    visibility: collapsed
+    display: none
 
-.tabContent
-  position: absolute;
-  top: 28px;
-  left: 0;
-  background: #03899C;
-  border: 1px solid #ccc; 
+  div.legendH, div.infoH
+    width: 1000px
+
+@media all and (max-width: 1629px) and (min-width: 1330px)
+  div.boards
+    width: 1300px
+
+  div.rightBoard
+    width: 480px
+    float: left
+
+  div.infoV
+    float: right
+
+  div.legendV
+    visibility: collapsed
+    display: none
+
+  div.legendH
+    width: 1300px
+
+  div.infoH
+    visibility: collapsed
+    display: none
+
+@media all and (min-width: 1630px)
+  div.boards
+    width: 1600px
+
+  div.rightBoard
+    width: 500px
+    float: left
+
+  div.infoV
+    float: left
+    width: 300px
+
+  div.legendV
+    float: right
+
+  div.infoH
+    visibility: collapsed
+    display: none
+
+  div.legendH
+    visibility: collapsed
+    display: none
+
+/* ===========================================================
+ * GENERAL STYLE
+ * =========================================================== 
+ */
+
+div.boards
+  margin: 0px auto
+
+div.actionBox
+  text-align: center
+  padding-top: 16px
+  height: 64px
+
+div.boards h3
+  text-align: center
+
+div.leftBoard
+  float: left
+  width: 500px
+
+div.infoBoxV, div.infoBoxH
+  box-shadow: 0 0 5px #36BBCE
+  background-color: rgba(1, 89, 101, 0.25)
+
+div.infoBoxV
+  width: 300px
+  height: 600px
+
+div.infoBoxH
   height: 100%
+  width: 100%
 
-[type=radio]:checked ~ label
-  background: #36BBCE;
-  color: #1F6B75
-  border-bottom: 1px solid white;
-  z-index: 2;
+div.legendH
+  height: 200px
 
-[type=radio]:checked ~ label ~ .tabContent
-  z-index: 1;
+div.infoH, div.legendH
+  margin: 0px auto
+  text-align: center
+
+div.boardContent
+  box-shadow: 0 0 5px #36BBCE
+  background-color: rgba(1, 89, 101, 0.25)
+  width: 480px
+  height: 600px
+
+embed.board
+  width: 480px
+  height: 480px

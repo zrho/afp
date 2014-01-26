@@ -7,25 +7,34 @@ import Logic.GameExt
 import Logic.CleverAI
 import Handler.Util
 import Data.Maybe
+import Data.Traversable
 
 getRulesR :: Handler Html
 getRulesR = renderRulePage 10 Nothing
 
+rulesForm :: (Monad m, RenderMessage (HandlerSite m) FormMessage) 
+          => FormInput m [Bool]
+rulesForm = sequenceA
+  [ fromMaybe False <$> iopt boolField "againWhenHit"
+  , fromMaybe False <$> iopt boolField "move"
+  , fromMaybe False <$> iopt boolField "devMode"
+  ]
+
 postRulesR :: Handler Html
 postRulesR = do
-  s <- runInputPost $ iopt intField "fieldSize"
-  let size = fromMaybe 10 s
-  if size >= 10
-    then do
-           game  <- liftIO $ (newGame (rules size) [] HumanPlayer :: IO (GameState CleverAI))
-           gameE <- expGame game
-           redirect (PlaceShipsR gameE)
-    else renderRulePage 10 $ Just MsgInvalidFieldSize
+  s <- runInputPost $ rulesForm
+  let
+    rules = defaultRules
+      { rulesAgainWhenHit = s!!0
+      , rulesMove         = s!!1
+      , rulesDevMode      = s!!2
+      }
+
+  game <- liftIO $ (newGame rules [] HumanPlayer)
+  gameE <- expGame (game :: GameState CleverAI)
+  redirect (PlaceShipsR gameE)
 
 renderRulePage :: Int -> Maybe AppMessage -> Handler Html
 renderRulePage fieldSize formError = defaultLayout $ do
   setNormalTitle
   $(widgetFile "rules")
-
-rules :: Int -> Rules 
-rules size = defaultRules { rulesSize = (size, size) }

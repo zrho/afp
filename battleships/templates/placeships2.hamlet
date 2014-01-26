@@ -1,31 +1,28 @@
-<h1>_{MsgStartPlacing}
-
-<div .content>
-    <table .center>
+<div .placeContent>
+  <div .left>
+    <div .boardBox>
+      <h3>_{MsgPlaceShips}
+      <div id="mapBackground">
+        <canvas id="map">
+  <div .right>
+    <div .toolBox>
+      <h3>_{MsgAvailableShips}
+      <table id="status">
+        <thead>
+          <tr>
+            <td>_{MsgShipLength}
+            <td># _{MsgShipsAvailable}
         <tbody>
-            <tr>
-                <td style="border-right: 0px solid black;">
-                    <div id="mapBackground">
-                        <canvas id="map">
-                <td width="100px">
-                <td>
-                    <div id="sidebar">
-                        <table id="status">
-                            <thead>
-                                <tr>
-                                    <td>_{MsgShipLength}
-                                    <td># _{MsgShipsAvailable}
-                            <tbody>
-                            <tfoot>
-                                <tr>
-                                    <td>_{MsgShipsTotal}
-                                    <td id="tdTotalShips">
-                        <hr>
-                        <div>
-                            <button .linkButton .blueButton id="btnReset">_{MsgResetFleet}
-                            <button .linkButton .blueButton id="btnRandom">_{MsgPlaceRandom}
-                        <hr>
-                        <div>
-                            <form id="fleetForm" action="" method="POST">
-                                <input id="fleetData" name="fleetData" type="hidden" >
-                                <input .linkButton .redButton id="btnSubmit" type="submit" value=_{MsgStartPlaying} disabled>
+        <tfoot>
+          <tr>
+            <td>_{MsgShipsTotal}
+            <td id="tdTotalShips">
+      <hr>
+      <div>
+        <button .linkButton .blueButton id="btnReset">_{MsgResetFleet}
+        <button .linkButton .blueButton id="btnRandom">_{MsgPlaceRandom}
+      <hr>
+      <div>
+        <form id="fleetForm" action="" method="POST">
+          <input id="fleetData" name="fleetData" type="hidden" >
+          <input .linkButton .redButton id="btnSubmit" type="submit" value=_{MsgStartPlaying} disabled>

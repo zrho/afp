@@ -21,13 +21,14 @@ header
   min-height: 100%
   height: auto !important
   height: 100%
-  margin: 0 auto -4em
+  margin: 0 auto -64px
 
 .footer
-  height: 4em;
+  height: 32px;
   clear: both
   background-color: #015965
   width: 100%
+  padding: 16px;
   text-align: center
   box-shadow: 0 0 5px #36BBCE
 
@@ -44,18 +45,6 @@ h2.credits
 
 a, input
   font-family: sans-serif
-
-fieldset
-  text-align: center
-  width: 800px
-  padding: 5px
-  border: solid 1px #20538D
-  -webkit-border-radius: 4px
-  -moz-border-radius: 4px
-  border-radius: 4px
-  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
-  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2)
 
 div.content
   min-height: 200px
@@ -138,3 +127,6 @@ div.content
 
 .halftransparent
   opacity: 0.6
+
+.clear
+  clear: both

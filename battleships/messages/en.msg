@@ -6,6 +6,8 @@ StartPlacing: Start placing your fleet
 FireShot: Fire a shot!
 Won: You Won!
 Lost: You Lost.
+PlaceShips: Place your Ships
+AvailableShips: Available Ships
 InsertShip: Insert a ship of size
 WithOrientation: with orientation
 AtPosition: at position (please click in the field)
@@ -27,8 +29,11 @@ PlaceRandom: Random
 StartPlaying: Ready!
 SkipMove: Skip moving
 MoveShip: Move one of your ships
+YourFleet: Your Fleet
+OpponentsFleet: Opponent's Fleet
 OpponentRemainingShips: These ships are yet to be found
 ShipsUnsunk: Not yet sunk
+Hints: Hints
 Legend: Legend
 LegendShipWithArrow: click to move the ship
 LegendShipMovable: movable ship

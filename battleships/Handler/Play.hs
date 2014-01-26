@@ -80,5 +80,5 @@ performAI game = do
     Next  -> continue game'
     Again -> error "impossible. `Again` is handled by aiTurn"
 
-shipsOpponentWidget :: GameState a -> WidgetT App IO ()
-shipsOpponentWidget gameState = $(widgetFile "shipsOpponent")
+shipsOpponentWidget :: GameState a -> Orientation -> WidgetT App IO ()
+shipsOpponentWidget gameState orientation = $(widgetFile "shipsOpponent")

@@ -1,15 +1,15 @@
 div.shipsOpponent thead tr td
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #D2F870;
   padding: 2px;
 
 div.shipsOpponent tfoot tr td
-  border-top: 1px solid black;
+  border-top: 1px solid #D2F870;
   padding: 2px;
 
 div.shipsOpponent 
   color: #EEE
   thead tr td:first-child, tbody tr td:first-child, tfoot tr td:first-child
-    border-right: 1px solid black;
+    border-right: 1px solid #D2F870;
     padding: 2px;
 
 #shipsOpponent

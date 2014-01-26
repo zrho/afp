@@ -1,26 +1,11 @@
-div.legend
-  background-color: #015965
-  color: #EEE
-  height: 100%
-
-div.legendCaption
-  font-weight: bold
-  font-size: 20px
-  padding: 5px
-
-table.legend
+table.legendV, table.legendH
   text-align: left
   border-spacing: 0px
   border-collapse: separate
+  width: 100%
 
-table.legend td
+table.legendV td, table.legendH td
   padding: 5px
   vertical-align: middle
   border-right-width: 0px
   color: #EEE
-
-table.legend tr:nth-child(odd)
-  background-color: #03899C
-
-table.legend tr:nth-child(even)
-  background-color:#015965

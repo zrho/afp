@@ -6,6 +6,8 @@ StartPlacing: Schiffe platzieren
 FireShot: Schuss abfeuern!
 Won: Du hast gewonnen!
 Lost: Du hast verloren.
+PlaceShips: Platziere deine Schiffe
+AvailableShips: Verfügbare Flotte
 InsertShip: Platziere ein Schiff der Größe 
 WithOrientation: mit der Orientierung
 AtPosition: an der Position (bitte ein Feld anklicken)
@@ -27,8 +29,11 @@ PlaceRandom: Zufällig
 StartPlaying: Los!
 SkipMove: Ziehen überspringen
 MoveShip: Bewege eins deiner Schiffe
+YourFleet: Deine Flotte
+OpponentsFleet: Gegnerische Flotte
 OpponentRemainingShips: Folgende Schiffe musst du noch finden
 ShipsUnsunk: Noch nicht gesunken
+Hints: Hinweise
 Legend: Legende
 LegendShipWithArrow: Schiff durch Klick bewegen
 LegendShipMovable: Bewegliches Schiff

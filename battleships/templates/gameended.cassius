@@ -6,15 +6,55 @@ div.banner
   z-index: 1000
 
 div.bannerLost
-  background-color: #FE7276
-  box-shadow: 0 0 2px 2px #A40004 inset
-  color: white
+  background-color: rgba(164, 0, 4, 0.25)
+  box-shadow: 0 0 2px 2px #FE3F44 inset
+  color: #FE7276
 
 div.bannerWon
-  background-color: #D2F870
-  box-shadow: 0 0 2px 2px #719D00 inset
-  color: #222
+  background-color: rgba(113, 157, 0, 0.25)
+  box-shadow: 0 0 2px 2px #C4F83E inset
+  color: #AEF100
 
 h3.bannerText
   display: inline-block
   font-size: 20px
+
+div.boards
+  width: 1000px
+  margin: 0px auto
+  opacity: 0.75
+
+div.actionBox
+  text-align: center
+  padding-top: 16px
+  height: 64px
+
+div.boards h3
+  text-align: center
+
+div.leftBoard
+  float: left
+  width: 500px
+
+div.rightBoard
+  width: 480px
+  float: right
+
+div.boardContent
+  box-shadow: 0 0 5px #36BBCE
+  background-color: rgba(1, 89, 101, 0.25)
+  width: 480px
+
+embed.board
+  width: 480px
+  height: 480px
+
+div.infoH
+  width: 1002px
+  margin: 0px auto
+  text-align: center
+  padding-top: 15px
+
+div.infoBoxH
+  height: 100%
+  width: 100%

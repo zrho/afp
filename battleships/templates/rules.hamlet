@@ -1,14 +1,23 @@
-<h1>_{MsgRules}
-
-<div .content>
-  <p>
+<div .rulesContent>
+  <div .rulesBox>
+    <h3>_{MsgRules}
     <form method="post" action="@{RulesR}">
-        <label for="inputSize">_{MsgInputFieldSize}
-        <input #inputSize type="number" name="fieldSize" value="#{fieldSize}">
+      <div .rulesFields>
+        <div .ruleEntry>
+          <input #inputAgain type="checkbox" name="againWhenHit" value="yes" checked>
+          <label for="inputAgain">Bei Treffer erneut schießen
+        <div .ruleEntry>
+          <input #inputMove type="checkbox" name="move" value="yes" checked>
+          <label for="inputMove">Schiffe verschiebbar
+        $if development
+          <div .ruleEntry>
+            <input #inputDevMode type="checkbox" name="devMode" value="yes" checked>
+            <label for="inputDevMode">Entwicklermodus
+
       $case formError
         $of Just err
           <p .error>
             _{err}
         $of Nothing
       <p .linkBlock>
-        <input .linkButton .redButton type="submit" value="_{MsgStartPlacing}">
+        <input .linkButton .blueButton type="submit" value="_{MsgStartPlacing}">

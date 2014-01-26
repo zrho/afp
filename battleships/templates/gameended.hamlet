@@ -1,12 +1,23 @@
-$if humanWon
-  <div .banner .bannerWon>
-    <h3 .bannerText>
-       _{MsgWon}
-$else
-  <div .banner .bannerLost>
-    <h3 .bannerText>
-       _{MsgLost}
+<div .boards>
+  <div .leftBoard>
+    <div .boardContent>
+      <h3>
+        _{MsgYourFleet}
+      <embed .board src="@{PlayerGridR gameE ActionFire}" type="image/svg+xml" />
+  <div .rightBoard>
+    <div .boardContent>
+      <h3>
+        _{MsgOpponentsFleet}
+      <embed .board src="@{EnemyGridR gameE}" type="image/svg+xml" />
 
-<div .content .halftransparent>
-  <embed src="@{PlayerGridR gameE ActionFire}" type="image/svg+xml" />
-  <embed src="@{EnemyGridR gameE}" type="image/svg+xml" />
+<div .clear>
+
+<div .infoH>
+  $if humanWon
+    <div .infoBoxH .bannerWon>
+      <h3 .bannerText>
+         _{MsgWon}
+  $else
+    <div .infoBoxH .bannerLost>
+      <h3 .bannerText>
+         _{MsgLost}
