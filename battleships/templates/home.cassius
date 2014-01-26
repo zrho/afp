@@ -1,3 +1,4 @@
 p.linkBlock
   text-align: center
-  margin: 30px auto
+  margin: 0px auto
+  padding: 30px

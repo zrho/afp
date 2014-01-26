@@ -1,3 +1,6 @@
+html, body
+  height: 100%
+
 body
   font-family: sans-serif
   margin: 0px
@@ -6,7 +9,6 @@ body
   background: #020402 url(@{StaticR img_dreadnought_png}) no-repeat
   background-position: 50% 100px
   color: #5FC0CE
-  height: 100%
 
 header
   background-color: #015965
@@ -15,12 +17,17 @@ header
   box-shadow: 0 0 5px #36BBCE
   text-align: center
 
+.wrapper
+  min-height: 100%
+  height: auto !important
+  height: 100%
+  margin: 0 auto -4em
+
 .footer
-  background-color: #015965
+  height: 4em;
   clear: both
-  padding: 10px
+  background-color: #015965
   width: 100%
-  height: 50px
   text-align: center
   box-shadow: 0 0 5px #36BBCE
 
@@ -32,8 +39,6 @@ h1.gameName
   color: #5FC0CE
 
 h2.credits
-  margin-bottom: 20px
-  margin: 0px 10px
   display: inline-block
   color: #5FC0CE
 
@@ -42,7 +47,6 @@ a, input
 
 fieldset
   text-align: center
-  margin: 10px auto
   width: 800px
   padding: 5px
   border: solid 1px #20538D
@@ -55,12 +59,10 @@ fieldset
 
 div.content
   min-height: 200px
-  margin: 5px auto
+  margin: 0px auto
 
 .controlBox
   text-align: center
-  margin-bottom: 30px
-  margin-top: 20px
 
 .error
   color: #700
@@ -73,7 +75,7 @@ div.content
   -webkit-border-radius: 4px
   -moz-border-radius: 4px
   border-radius: 4px
-  margin: 10px auto
+  margin: 0px auto
   width: 800px
 
 .linkButton

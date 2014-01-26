@@ -1,14 +1,17 @@
-<header>
-  <h1 .gameName>_{MsgGameName}
-  $if isHome
-    <h2 .credits>_{MsgCredits}
+<div .wrapper>
+  <header>
+    <h1 .gameName>_{MsgGameName}
+    $if isHome
+      <h2 .credits>_{MsgCredits}
 
-<div .content>
-  $maybe msg <- mmsg
-     <script>
-       setTimeout(function() {alert("#{msg}")}, 200);
-  ^{widget}
+  <div .content>
+    $maybe msg <- mmsg
+       <script>
+         setTimeout(function() {alert("#{msg}")}, 200);
+    ^{widget}
   
 $if (not isHome)
+  <!-- Placeholder to prevent overlapping of page contents and footer -->
+  <div style="clear: both; height: 100px">
   <div .footer>
     <a .linkButton .redButton href="@{HomeR}">_{MsgLinkHome}
