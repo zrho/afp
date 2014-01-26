@@ -31,7 +31,6 @@ library
                      Settings.Development
                      Settings.StaticFiles
                      Handler.Home
-                     Handler.Favicon
                      Handler.PlaceShips
                      Handler.Play
                      Handler.Util
