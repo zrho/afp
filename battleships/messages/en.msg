@@ -25,7 +25,7 @@ ShipsTotal: Total
 ResetFleet: Reset Fleet 
 PlaceRandom: Random
 StartPlaying: Ready!
-SkipMove: Skip move
+SkipMove: Skip moving
 MoveShip: Move one of your ships
 OpponentRemainingShips: These ships are yet to be found
 ShipsUnsunk: Not yet sunk
