@@ -3,6 +3,7 @@ module Handler.Play where
 
 import Import
 import Control.Monad.State
+import Data.Map ((!))
 import Data.Serialize (Serialize)
 import Logic.Game
 import Logic.GameExt
@@ -29,13 +30,20 @@ postMoveR gameE = withGame gameE $ \game -> do
         Nothing  -> invalidMove gameE
         -- valid click
         Just pos -> do 
+          let humanFleet = playerFleet $ currentPlayer game
           case expectedAction game of
             ActionFire -> invalidMove gameE
-            ActionMove -> performMove game (Just pos) >>= performAI
+            ActionMove -> case desiredMove pos humanFleet of
+              Just (ship,movement) 
+                | canBeMoved (humanFleet!ship) movement (gameRules game) humanFleet 
+                  -> performMove game (Just pos)
+              _   -> invalidMove gameE
       -- player skips moving
-      _ -> performMove game Nothing >>= performAI
+      _ -> performMove game Nothing
   where
-    performMove game pos = liftIO $ execStateT (executeMove $ moveHuman pos) game
+    performMove game pos = do
+      game' <- liftIO $ execStateT (executeMove $ moveHuman pos) game
+      performAI game'
 
 postFireR :: GameStateExt -> Handler Html
 postFireR gameE = withGame gameE $ \game -> do

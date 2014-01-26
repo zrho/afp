@@ -93,4 +93,4 @@ turn shots fleet sunk count = do
                   (count + 1)
 
 rules :: Rules
-rules = Rules (10, 10) [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ] 1 False True
+rules = Rules (10, 10) [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ] 1 False True False

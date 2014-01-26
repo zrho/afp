@@ -68,9 +68,10 @@ renderReferenceGrid (nx, ny) = renderGrid nx ny
 renderWaterGrid :: (Int,Int) -> BattleDia
 renderWaterGrid (nx, ny) = renderGrid nx ny `atop` contentSquare nx ny # fc waterColor
 
-renderEnemyGrid :: (Int,Int) -> TrackingList -> BattleDia
-renderEnemyGrid (nx,ny) shots = mconcat
+renderEnemyGrid :: (Int,Int) -> Fleet -> TrackingList -> Rules -> BattleDia
+renderEnemyGrid (nx,ny) fleet shots Rules{..} = mconcat
   [ renderGrid nx ny
+  , if rulesDevMode then renderFleetHints else mempty
   , mconcat (fmap renderShot shots)
   , contentSquare nx ny # fc fogColor
   ]
@@ -80,6 +81,13 @@ renderEnemyGrid (nx,ny) shots = mconcat
         Water -> waterSquare
         Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
         Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
+    renderFleetHints = fold $ fmap renderFleetHint fleet
+    renderFleetHint Ship{shipShape = ShipShape{shipPosition=(x,y),..}} =
+      let
+        (w,h) = case shipOrientation of
+          Horizontal -> (realToFrac shipSize, 1)
+          Vertical   -> (1, realToFrac shipSize)
+      in rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # lc red # lw 1 # value []
 
 renderPlayerGrid :: (Int,Int) -> Fleet -> TrackingList -> Action -> Rules -> BattleDia
 renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
@@ -166,7 +174,7 @@ renderArrow arrType = arrowShape # rotateBy circleFraction # arrowStyle  where
                                 , p2 (0.8 * halfCellSize,  0)
                                 , p2 (0,  0.8 * halfCellSize)]
 
-translateToPos :: Pos -> BattleDia -> BattleDia
+translateToPos :: (Transformable t, V t ~ R2) => Pos -> t -> t
 translateToPos (x,y) = 
   let 
     (nx, ny) = (cellSize + realToFrac x * cellSize, - cellSize - realToFrac y * cellSize)

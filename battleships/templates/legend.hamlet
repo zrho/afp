@@ -1,33 +1,33 @@
 <table .legend>
   <tr>
     <td>
-      <img src="@{LegendR LIShipWithArrow }">
+      <img src="@{legendStatic LIShipWithArrow }">
     <td>_{MsgLegendShipWithArrow }
   <tr>
     <td>
-      <img src="@{LegendR LIShipMovable}">
+      <img src="@{legendStatic LIShipMovable}">
     <td>_{MsgLegendShipMovable}
   <tr>
     <td>
-      <img src="@{LegendR LIShipImmovable}">
+      <img src="@{legendStatic LIShipImmovable}">
     <td>_{MsgLegendShipImmovable}
   <tr>
     <td>
-      <img src="@{LegendR LIShipHit}">
+      <img src="@{legendStatic LIShipHit}">
     <td>_{MsgLegendShipHit}
   <tr>
     <td>
-      <img src="@{LegendR LIShipSunk}">
+      <img src="@{legendStatic LIShipSunk}">
     <td>_{MsgLegendShipSunk}
   <tr>
     <td>
-      <img src="@{LegendR LIFogOfWar}">
+      <img src="@{legendStatic LIFogOfWar}">
     <td>_{MsgLegendFogOfWar}
   <tr>
     <td>
-      <img src="@{LegendR LIWater}">
+      <img src="@{legendStatic LIWater}">
     <td>_{MsgLegendWater}
   <tr>
     <td>
-      <img src="@{LegendR LILastShot}">
+      <img src="@{legendStatic LILastShot}">
     <td>_{MsgLegendLastShot}

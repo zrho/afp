@@ -25,7 +25,7 @@ ShipsTotal: Total
 ResetFleet: Flotte zurücksetzen
 PlaceRandom: Zufällig
 StartPlaying: Los!
-SkipMove: Zug überspringen
+SkipMove: Ziehen überspringen
 MoveShip: Bewege eins deiner Schiffe
 OpponentRemainingShips: Folgende Schiffe musst du noch finden
 ShipsUnsunk: Noch nicht gesunken

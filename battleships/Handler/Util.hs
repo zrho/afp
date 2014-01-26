@@ -8,6 +8,7 @@ import Logic.Game
 import Logic.GameExt
 import Logic.CleverAI
 import Logic.Render
+import Yesod.Routes.Class
 
 withGame :: GameStateExt -> (GameState CleverAI -> Handler a) -> Handler a
 withGame gameE act = impGame gameE >>= \g -> case g of
@@ -32,3 +33,15 @@ translateMessage msg = do
 -- | Set a default html title.
 setNormalTitle :: Widget 
 setNormalTitle = setTitleI MsgGameName
+
+-- | Returns the static route pointing to the specified legend icon
+legendStatic :: LegendIcon -> Route App
+legendStatic ico = StaticR $ case ico of
+  LIShipWithArrow -> img_LIShipWithArrow_svg
+  LIShipMovable   -> img_LIShipMovable_svg
+  LIShipImmovable -> img_LIShipImmovable_svg
+  LIShipHit       -> img_LIShipHit_svg
+  LIShipSunk      -> img_LIShipSunk_svg
+  LIFogOfWar      -> img_LIFogOfWar_svg
+  LIWater         -> img_LIWater_svg
+  LILastShot      -> img_LILastShot_svg

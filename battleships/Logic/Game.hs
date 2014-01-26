@@ -63,6 +63,7 @@ data Rules = Rules
   , rulesSafetyMargin :: Int
   , rulesAgainWhenHit :: Bool
   , rulesMove         :: Bool
+  , rulesDevMode      :: Bool
   }
 
 -- | Reponse sent to the AI after a shot.
@@ -191,6 +192,7 @@ defaultRules = Rules
   , rulesSafetyMargin = 1
   , rulesAgainWhenHit = True
   , rulesMove  = True
+  , rulesDevMode = False
   }
 
 -- | Helper: Creates a grid, filled with one value.
@@ -310,7 +312,7 @@ aiTurn = do
 
 -- | This function executes the fire-part of the human's turn
 -- It updates the "expectedAction" field of the state appropriately
-humanTurnFire :: (MonadState (GameState a) m, MonadRandom m)
+humanTurnFire :: (MonadState (GameState a) m)
         => Pos -> m Turn
 humanTurnFire target = do
   -- assert, that the human is allowed to fire a shot
@@ -381,7 +383,7 @@ aiShot = do
   return result
 
 -- | Executes the supplied turn.
-executeShot :: (MonadState (GameState a) m, MonadRandom m)
+executeShot :: (MonadState (GameState a) m)
             => (m HitResponse) -> m Turn
 executeShot turn = do
   result <- turn
@@ -412,7 +414,7 @@ data Movement
 
 -- | Tries to move the human player's ship if pos is one of its endings.
 -- Assumes that the human player is the currentPlayer
-moveHuman :: (MonadState (GameState a) m, MonadRandom m) 
+moveHuman :: (MonadState (GameState a) m) 
      => Maybe Pos -> m (Maybe (ShipID, Movement))
 moveHuman pos = do
   -- assert the human is really expected to move a ship
@@ -528,13 +530,14 @@ fromPlayerShots8 = fmap conv where
   conv ((x,y),r) = ((fromIntegral x, fromIntegral y),r)
 
 instance Serialize Rules where
-  get = Rules <$> get <*> get <*> get <*> get <*> get
+  get = Rules <$> get <*> get <*> get <*> get <*> get <*> get
   put Rules {..} = do
     put rulesSize
     put rulesShips
     put rulesSafetyMargin
     put rulesAgainWhenHit
     put rulesMove
+    put rulesDevMode
 
 instance Serialize HitResponse where
   get = fromByte <$> get
