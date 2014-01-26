@@ -310,7 +310,7 @@ aiTurn = do
 
 -- | This function executes the fire-part of the human's turn
 -- It updates the "expectedAction" field of the state appropriately
-humanTurnFire :: (MonadState (GameState a) m, MonadRandom m)
+humanTurnFire :: (MonadState (GameState a) m)
         => Pos -> m Turn
 humanTurnFire target = do
   -- assert, that the human is allowed to fire a shot
@@ -381,7 +381,7 @@ aiShot = do
   return result
 
 -- | Executes the supplied turn.
-executeShot :: (MonadState (GameState a) m, MonadRandom m)
+executeShot :: (MonadState (GameState a) m)
             => (m HitResponse) -> m Turn
 executeShot turn = do
   result <- turn
@@ -412,7 +412,7 @@ data Movement
 
 -- | Tries to move the human player's ship if pos is one of its endings.
 -- Assumes that the human player is the currentPlayer
-moveHuman :: (MonadState (GameState a) m, MonadRandom m) 
+moveHuman :: (MonadState (GameState a) m) 
      => Maybe Pos -> m (Maybe (ShipID, Movement))
 moveHuman pos = do
   -- assert the human is really expected to move a ship
