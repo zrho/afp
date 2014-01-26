@@ -24,7 +24,7 @@ getPlayerGridR gameE requiredAction = withGame gameE $ \(GameState {..}) -> retu
 -- | renders the otherPlayer's grid
 getEnemyGridR :: GameStateExt -> Handler TypedContent
 getEnemyGridR gameE = withGame gameE $ \(GameState {..}) -> return
-  $ diagramContent $ renderEnemyGrid (rulesSize gameRules) (playerShots currentPlayer)
+  $ diagramContent $ renderEnemyGrid (rulesSize gameRules) (playerFleet otherPlayer) (playerShots currentPlayer) gameRules
 
 getPlaceGridR :: GameStateExt -> Handler TypedContent
 getPlaceGridR gameE = withGame gameE $ \(GameState {..}) -> return

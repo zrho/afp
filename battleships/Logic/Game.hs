@@ -63,6 +63,7 @@ data Rules = Rules
   , rulesSafetyMargin :: Int
   , rulesAgainWhenHit :: Bool
   , rulesMove         :: Bool
+  , rulesDevMode      :: Bool
   }
 
 -- | Reponse sent to the AI after a shot.
@@ -191,6 +192,7 @@ defaultRules = Rules
   , rulesSafetyMargin = 1
   , rulesAgainWhenHit = True
   , rulesMove  = True
+  , rulesDevMode = False
   }
 
 -- | Helper: Creates a grid, filled with one value.
@@ -528,13 +530,14 @@ fromPlayerShots8 = fmap conv where
   conv ((x,y),r) = ((fromIntegral x, fromIntegral y),r)
 
 instance Serialize Rules where
-  get = Rules <$> get <*> get <*> get <*> get <*> get
+  get = Rules <$> get <*> get <*> get <*> get <*> get <*> get
   put Rules {..} = do
     put rulesSize
     put rulesShips
     put rulesSafetyMargin
     put rulesAgainWhenHit
     put rulesMove
+    put rulesDevMode
 
 instance Serialize HitResponse where
   get = fromByte <$> get
