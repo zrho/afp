@@ -81,6 +81,7 @@ library
                  , yesod-routes
                  , hamlet                        >= 1.1        && < 1.2
                  , shakespeare-text              >= 1.0        && < 1.1
+                 , shakespeare-css               >= 1.0.6.4
                  , wai-extra                 
                  , wai-logger    
                  , cookie
