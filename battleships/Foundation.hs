@@ -17,7 +17,6 @@ import Yesod.Core.Types (Logger)
 #else
 import System.Log.FastLogger (Logger)
 #endif
-import Control.Monad
 import Web.Cookie (setCookiePath)
 import Logic.GameExt
 import Logic.Game
@@ -68,8 +67,6 @@ instance Yesod App where
                 Just HomeR -> True
                 _          -> False
         pc <- widgetToPageContent $ do
-            langs <- languages
-            when (head langs == "la") (toWidget [lucius|body, input {font-variant:small-caps}|])
             $(widgetFile "default-layout")
         giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
 
