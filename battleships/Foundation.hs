@@ -19,6 +19,7 @@ import Control.Monad
 import Web.Cookie (setCookiePath)
 import Logic.GameExt
 import Logic.Game
+import Yesod.Routes.Class ()
 
 data App = App
     { settings :: AppConfig DefaultEnv ()
