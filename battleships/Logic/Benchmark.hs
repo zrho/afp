@@ -68,7 +68,7 @@ turn shots fleet sunk count = do
              then (Sunk, newFleet, Map.insert (shipID ship) newShip sunk)
              else (Hit, newFleet, sunk)
     -- update the tracking list
-    let shots'   = (pos, response):shots
+    let shots'   = Shot pos response count:shots
     -- notify the AI
     aiResponse pos response
     -- should any ships be moved?
@@ -93,4 +93,7 @@ turn shots fleet sunk count = do
                   (count + 1)
 
 rules :: Rules
-rules = Rules (10, 10) [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ] 1 False True False
+rules = defaultRules
+  { rulesAgainWhenHit = False
+  , rulesMove         = True
+  }

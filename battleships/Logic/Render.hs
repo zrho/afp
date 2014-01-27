@@ -67,7 +67,7 @@ renderEnemyGrid (nx,ny) fleet shots Rules{..} = mconcat
   , contentSquare nx ny # fc fogColor
   ]
   where
-    renderShot (pos, val) = translateToPos pos $ value [] $ alignTL $
+    renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
       case val of
         Water -> waterSquare
         Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
@@ -85,14 +85,14 @@ renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
     [ renderGrid nx ny
     , markLastShot
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
-    , fold $ fmap renderShot $ filter ((/=Water) . snd) shots
+    , fold $ fmap renderShot $ filter ((/=Water) . shotResult) shots
     , fold $ fmap renderShip $ Map.filter isDamaged fleet         -- ... damaged ones below
-    , fold $ fmap renderShot $ filter ((==Water) . snd) shots
+    , fold $ fmap renderShot $ filter ((==Water) . shotResult) shots
     , contentSquare nx ny # fc waterColor
     ]
   where
   markLastShot = case shots of
-    (lastShotPos,_):_ 
+    (Shot lastShotPos _ _):_ 
       -> lastShotMarker # value [] # translateToPos lastShotPos
     _ -> mempty # value []
 
@@ -106,7 +106,7 @@ renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
           then maybe mempty renderArrow (movementArrowAt ship i fleet rules) <> movableSquare
           else movableSquare
       
-  renderShot (pos, val) = translateToPos pos $ value [] $ alignTL $
+  renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
     case val of
       Water -> marker # lc markerWaterColor # lw 3 <> waterSquare
       Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
