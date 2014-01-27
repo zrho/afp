@@ -1,11 +1,15 @@
+{-# LANGUAGE RecordWildCards #-}
 module Logic.AIUtil where
 
 import           Prelude
 import           Logic.Game
 import           Logic.Random
 import           Data.Array
+import           Data.List
+import           Data.Function
 import           Data.Maybe (isJust)
 import qualified Data.Map as Map
+import           Control.Arrow
 import           Control.Monad
 import           Control.Monad.Trans
 import           Control.Monad.Trans.List
@@ -26,9 +30,9 @@ type TrackingGrid = Grid (Maybe HitResponse)
 -- * Placing ships
 --------------------------------------------------------------------------------
 
-initShips :: MonadRandom m => Rules -> m FleetPlacement
-initShips r = do
-  fleets <- runRandM $ runListT $ foldM (initShips' r) [] (rulesShips r)
+initShips :: MonadRandom m => Rules -> FleetPlacement -> m FleetPlacement
+initShips r fleet = do
+  fleets <- runRandM $ runListT $ foldM (initShips' r) fleet (rulesShips r)
   return $ head $ fleets
 
 -- | returns a random fleet, if one exists
@@ -40,21 +44,25 @@ initShips'
   -> ListT m FleetPlacement
 
 initShips' r fleet len = do
-  let admissible = admissibleShipPlacements r fleet len
+  let admissible = admissibleShips r fleet len
   shuffled  <- lift $ shuffleRandom admissible
   placement <- choose shuffled
   return $ placement : fleet
 
 -- | calculates all possible placements for a ship of the given lengths
-admissibleShipPlacements :: Rules -> FleetPlacement -> Int -> [ShipShape]
-admissibleShipPlacements r fleet len = filter (shipAdmissible r fleet) allPlacements where
-  (width, height) = rulesSize r
-  allPlacements =
-    [ ShipShape (x,y) len orient
-    | x <- [0..width-1]
-    , y <- [0..height-1]
-    , orient <- [Horizontal, Vertical]
-    ]
+admissibleShips :: Rules -> FleetPlacement -> Int -> [ShipShape]
+admissibleShips r@(Rules {..}) fleet len = do
+  let (w, h) = rulesSize
+  x <- [0 .. w - 1]
+  y <- [0 .. h - 1]
+  o <- [Horizontal, Vertical]
+  let ship = ShipShape (x, y) len o
+  guard $ shipAdmissible r fleet ship
+  return ship
+
+{-admissibleFleets :: Rules -> FleetPlacement -> [Int] -> [FleetPlacement]
+admissibleFleets r = foldM alg where
+  alg fleet len = (:fleet) <$> admissibleShips r fleet len-}
 
 --------------------------------------------------------------------------------
 -- * Helper functions
@@ -93,6 +101,19 @@ fromBool False = 0
 maximum' :: (Ord a, Num a) => [a] -> a
 maximum' [] = 0
 maximum' xs = maximum xs
+
+--------------------------------------------------------------------------------
+-- * Array Utilities
+--------------------------------------------------------------------------------
+
+maximumIx :: (Ix i, Ord e) => Array i e -> i
+maximumIx = fst . maximumBy (compare `on` snd) . assocs
+
+traverseArray :: (Ix i, Monad m) => (a -> m b) -> Array i a -> m (Array i b)
+traverseArray f a = liftM (listArray (bounds a)) $ mapM f $ elems a
+
+buildArray :: Ix i => (i, i) -> (i -> a) -> Array i a
+buildArray bs f = array bs $ fmap (id &&& f) $ range bs
 
 --------------------------------------------------------------------------------
 -- * Debugging

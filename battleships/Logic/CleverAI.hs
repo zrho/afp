@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards, ScopedTypeVariables #-}
+{-# LANGUAGE RecordWildCards, ScopedTypeVariables, TemplateHaskell #-}
 module Logic.CleverAI (CleverAI) where
 
 import           Prelude
@@ -8,8 +8,8 @@ import           Data.Maybe (fromMaybe)
 import           Data.Word8
 import qualified Data.Map as Map
 import           Logic.Game
-import           Logic.Debug
 import           Logic.AIUtil
+import           Logic.Random
 import           Control.Monad.Random
 import           Control.Monad.Reader
 import           Control.Monad.State
@@ -17,61 +17,54 @@ import           Control.Applicative
 import           Data.Serialize (Serialize)
 import qualified Data.Serialize as S
 
-data CleverAI = CleverAI { rules    :: Rules          -- ^ rules of this game
-                         , tracking :: TrackingGrid   -- ^ stores what was hit the last time at each position
-                         , shots    :: [Pos]          -- ^ AI's previous shots
-                         , sunk     :: [ShipShape]    -- ^ ships of the user's fleet that are already sunk
-                         , sunkTime :: [Int]          -- ^ what was the number of shots fired when the respective ship was sunk
-                         }
+data CleverAI = CleverAI
+  { rules    :: Rules          -- ^ rules of this game
+  , tracking :: TrackingGrid   -- ^ stores what was hit the last time at each position
+  , shots    :: [Pos]          -- ^ AI's previous shots
+  , sunk     :: [ShipShape]    -- ^ ships of the user's fleet that are already sunk
+  , sunkTime :: [Int]          -- ^ what was the number of shots fired when the respective ship was sunk
+  }
+
+-- | Constructs an initial AI instance.
+cleverAI :: Rules -> CleverAI
+cleverAI r = CleverAI
+  { rules    = r
+  , tracking = newGrid (rulesSize r) Nothing
+  , shots    = []
+  , sunk     = []
+  , sunkTime = []
+  }
 
 instance AI CleverAI where
+  aiInit r = do
+    fleet <- initShips r []
+    return (cleverAI r, fleet)
 
-  aiInit r       = liftM2 (,)
-                     (return CleverAI { rules    = r
-                                      , tracking = newGrid (rulesSize r) Nothing
-                                      , shots    = []
-                                      , sunk     = []
-                                      , sunkTime = []
-                                      }
-                     )
-                     (initShips r)
+  aiFire         = liftM maximumIx $ scoreGrid >>= randomize
+  aiResponse p r = modify (cleverResponse p r)
+  aiMove fleet _ = gets rules >>= \rls -> chooseRandom $ do
+    ship <- Map.elems fleet
+    mvmt <- [Forward, Backward]
+    guard $ canBeMoved ship mvmt rls fleet
+    return (shipID ship, mvmt)
 
-  aiFire         = scoreGrid >>= randomize >>= return . chooseMaximum where
-    chooseMaximum :: ScoreGrid -> Pos
-    chooseMaximum arr = foldl1 (\maxP p -> if arr ! p > arr ! maxP then p else maxP) (indices arr)
-
-  aiResponse p r = modify update where
-    update ai =
-      let tracking' = (tracking ai) // [(p, Just r)]
-          shots'    = p:(shots ai)
-          (sunk', sunkTime', tracking'') = case r of
-            Sunk -> let sunkShip  = fromMaybe (error $ "No sunk ship found: " ++ show p
-                                                        ++ "\n" ++ showTracking tracking')
-                                              $ findSunkShip tracking' p in
-                    ( sunkShip:sunk ai -- add sunk ship
-                    , (length shots'):sunkTime ai -- add time for sinking
-                    -- remove this ship from the tracking; otherwise it will confuse other functions:
-                    , tracking' // [(pos, Nothing) | pos <- shipArea sunkShip tracking']
-                    )
-            _    -> (sunk ai, sunkTime ai, tracking')
-      in ai { tracking = debug' (\t -> "Tracking:\n" ++ showTracking t) tracking''
-            , shots    = shots'
-            , sunk     =  {- debug' (\f -> "AI sunk:\n" ++ showFleetPlacement (rules ai) f) -} sunk'
-            , sunkTime = sunkTime'
-            } where
-      shipArea s t = shipCoordinates (rulesSafetyMargin (rules ai)) s `intersect` indices t
-
-  aiMove fleet _ = gets rules >>= \rls -> chooseRandom $ generateMoves rls fleet where
-    chooseRandom :: MonadRandom m => [Maybe a] -> m (Maybe a)
-    chooseRandom [] = return Nothing
-    chooseRandom xs = (xs !!) `liftM` getRandomR (0, length xs - 1)
-    generateMoves :: Rules -> Fleet -> [Maybe (ShipID, Movement)]
-    generateMoves r f = map (\(s, m) -> Just (shipID s, m))
-                      . filter (isMovable r f)
-                      $ liftM2 (,) (Map.elems f) [Forward, Backward]
-    isMovable :: Rules -> Fleet -> (Ship, Movement) -> Bool
-    isMovable r f (s, m) = canBeMoved s m r f
-
+cleverResponse :: Pos -> HitResponse -> CleverAI -> CleverAI
+cleverResponse p r ai = case r of
+  Sunk -> ai'
+    { sunk     = sunkShip           : sunk ai'      -- add sunk ship
+    , sunkTime = length (shots ai') : sunkTime ai'  -- add time for sinking
+      -- remove this ship from the tracking; otherwise it will confuse other functions:
+    , tracking = tracking ai' // [(pos, Nothing) | pos <- shipArea sunkShip (tracking ai')]
+    } where
+      sunkShip = fromMaybe err $ findSunkShip (tracking ai') p
+      err      = error $ "No sunk ship found: " ++ show p ++ "\n" ++ showTracking (tracking ai')
+  _    -> ai'
+  where
+    shipArea s t = shipCoordinates (rulesSafetyMargin (rules ai)) s `intersect` indices t
+    ai' = ai
+      { tracking = tracking ai // [(p, Just r)]
+      , shots    = p : (shots ai)
+      }    
 
 --------------------------------------------------------------------------------
 -- * Firing shots
@@ -107,32 +100,21 @@ Finally:
 Some randomness is added to the scores. The heighest one is then chosen.
 -}
 
--- | Add some randomness to the scores.
+-- | Add some randomness to the scores: Multiplies each score with a
+-- | random number near 1.
 randomize :: MonadRandom m => ScoreGrid -> m ScoreGrid
-randomize grid = do
-  newList <- mapM addRandom (elems grid)
-  return $ listArray (bounds grid) newList where
-    -- | Multiply score by a random number between 0.95 and 1.05
-    addRandom :: MonadRandom m => Score -> m Score
-    addRandom x = (x *) `liftM` (getRandomR (0.95,1.05))
+randomize = traverseArray $ \r -> liftM (r *) $ getRandomR (0.95,1.05)
 
 -- | Assigns each cell a score. If it's high, it means that it's beneficial
 -- | to attack this cell. On how this is calculated, see below.
 scoreGrid :: (MonadRandom m, MonadState CleverAI m) => m ScoreGrid
-scoreGrid = do
-  CleverAI { .. } <- get
-  return $ debug' showScoreGrid $ scoreGrid' rules tracking shots sunk sunkTime
+scoreGrid = liftM (scoreGrid') get
 
-scoreGrid' :: Rules -> TrackingGrid -> [Pos] -> FleetPlacement -> [Int] -> ScoreGrid
-scoreGrid' rules tracking shots sunk sunkTime = array
-  ((0, 0), (width-1, height-1))
-  [(pos, scorePosition rules tracking shots sunk sunkTime remaining pos)
-  | x <- [0..width-1]
-  , y <-[0..height-1]
-  , let pos = (x,y)] where
-    (width, height) = rulesSize rules
-    remaining = rulesShips rules \\ map shipSize sunk
-
+scoreGrid' :: CleverAI -> ScoreGrid
+scoreGrid' ai@(CleverAI {..}) = buildArray bs $ scorePosition ai remaining where
+  (w, h)    = rulesSize rules
+  bs        = ((0, 0), (w - 1, h - 1))
+  remaining = rulesShips rules \\ map shipSize sunk
 
 -- | Given a position, look in all directions to find out whether it's part of a sunk ship.
 findSunkShip :: TrackingGrid    -- ^ AI's tracking array
@@ -160,15 +142,11 @@ findSunkShip t p = findHorizontal `mplus` findVertical where
 
 -- | Given a position pos, assign it a score. How this is calculated
 -- | depends on whether the ships are movable or not. (See comment above.)
-scorePosition :: Rules          -- ^ rules of this game
-              -> TrackingGrid   -- ^ AI's tracking array
-              -> [Pos]          -- ^ previous AI shots
-              -> FleetPlacement -- ^ already sunk fleet
-              -> [Int]          -- ^ times when the above ships were sunk, respectively
+scorePosition :: CleverAI
               -> [Int]          -- ^ lengths of the remaining ships
               -> Pos            -- ^ position to be scored
               -> Score
-scorePosition rules tracking shots sunk sunkTime remaining pos@(x,y) =
+scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
   if rulesMove rules then scoreMovable else scoreImmovable where
 
   -- | Score position when ships are immovable.
@@ -265,7 +243,7 @@ scorePosition rules tracking shots sunk sunkTime remaining pos@(x,y) =
                     ++ [ShipShape (x, y-dy) len Vertical | dy <- [0..len-1]]
 
   probBlocked :: ScoreGrid
-  probBlocked = probBlockedGrid rules tracking shots sunk sunkTime
+  probBlocked = probBlockedGrid ai
 
   -- | Compute the probability for the given ship to exist.
   probNotBlocked :: ShipShape -> Score
@@ -279,8 +257,8 @@ scorePosition rules tracking shots sunk sunkTime remaining pos@(x,y) =
 -- | Or say, few attacks ago, we hit water, then this will stay the same for some time.
 -- | Put the probablity for that will decline over time. (E.g. a ship can move on a (former) water cell.)
 -- | It is modeled as exponential decay.
-probBlockedGrid :: Rules -> TrackingGrid -> [Pos] -> FleetPlacement -> [Int] -> ScoreGrid
-probBlockedGrid rules tracking shots sunk sunkTime = array ((0, 0), (width - 1, height - 1))
+probBlockedGrid :: CleverAI -> ScoreGrid
+probBlockedGrid (CleverAI {..}) = array ((0, 0), (width - 1, height - 1))
   [(pos, probBlocked pos)
   | x <- [0..width-1]
   , y <-[0..height-1]
