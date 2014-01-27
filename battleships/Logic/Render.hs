@@ -16,8 +16,6 @@ import           Diagrams.Prelude
 import           Diagrams.Backend.SVG
 import           Data.Colour.SRGB
 import           Data.Foldable (fold)
-import qualified Data.Text as T hiding (find, zip, map)
-import           Yesod (PathPiece (..))
 
 type BattleDia = QDiagram SVG R2 [Pos]
 
@@ -35,13 +33,6 @@ data LegendIcon
   | LIWater
   | LILastShot
   deriving (Show, Read, Eq, Ord, Enum, Bounded)
-
-instance PathPiece LegendIcon where
-  fromPathPiece = convert . T.unpack where
-    convert s = case reads s of
-      [(foo,"")] -> Just foo
-      _          -> Nothing
-  toPathPiece = T.pack . show
 
 -------------------------------------------------------------------------------
 -- * Legend Rendering
@@ -76,7 +67,7 @@ renderEnemyGrid (nx,ny) fleet shots Rules{..} = mconcat
   , contentSquare nx ny # fc fogColor
   ]
   where
-    renderShot (pos, val) = translateToPos pos $ value [] $ alignTL $
+    renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
       case val of
         Water -> waterSquare
         Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
@@ -94,13 +85,14 @@ renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
     [ renderGrid nx ny
     , markLastShot
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
-    , fold (fmap renderShot shots)
+    , fold $ fmap renderShot $ filter ((/=Water) . shotResult) shots
     , fold $ fmap renderShip $ Map.filter isDamaged fleet         -- ... damaged ones below
+    , fold $ fmap renderShot $ filter ((==Water) . shotResult) shots
     , contentSquare nx ny # fc waterColor
     ]
   where
   markLastShot = case shots of
-    (lastShotPos,_):_ 
+    (Shot lastShotPos _ _):_ 
       -> lastShotMarker # value [] # translateToPos lastShotPos
     _ -> mempty # value []
 
@@ -114,7 +106,7 @@ renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
           then maybe mempty renderArrow (movementArrowAt ship i fleet rules) <> movableSquare
           else movableSquare
       
-  renderShot (pos, val) = translateToPos pos $ value [] $ alignTL $
+  renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
     case val of
       Water -> marker # lc markerWaterColor # lw 3 <> waterSquare
       Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare

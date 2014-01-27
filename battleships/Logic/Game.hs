@@ -64,6 +64,7 @@ data Rules = Rules
   , rulesAgainWhenHit :: Bool
   , rulesMove         :: Bool
   , rulesDevMode      :: Bool
+  , rulesMaximumTurns :: Int
   } deriving (Show, Eq)
 
 -- | Reponse sent to the AI after a shot.
@@ -111,6 +112,7 @@ data GameState a = GameState
   , aiState        :: a           -- ^ state of the AI
   , gameRules      :: Rules
   , expectedAction :: Action
+  , turnNumber     :: Int
   }
 
 -- | The state belonging to one player
@@ -132,6 +134,13 @@ data Action
   | ActionMove
   deriving (Show, Read, Eq, Ord, Enum, Bounded)
 
+-- | keeps track of all relevant information for a fired shot
+data Shot = Shot
+  { shotPos    :: Pos
+  , shotResult :: HitResponse
+  , shotTime   :: Int
+  } deriving (Show, Eq)
+
 instance PathPiece Action where
   fromPathPiece "ActionFire" = Just ActionFire
   fromPathPiece "ActionMove" = Just ActionMove
@@ -151,7 +160,7 @@ type Pos = (Int,Int)
 type Grid a = Array Pos a
 
 -- | A list of all shots. Easier to handle, because no index lookup is needed.
-type TrackingList = [(Pos, HitResponse)]
+type TrackingList = [Shot]
 
 -- | Used for identifying a ship.
 type ShipID = Int
@@ -178,6 +187,7 @@ newGame r pFleet begin = do
       , aiState        = ai
       , gameRules      = r
       , expectedAction = ActionFire -- the human is expected to fire a shot
+      , turnNumber     = 0
       }
     gameState = case begin of
       HumanPlayer -> template { currentPlayer = humanPlayer, otherPlayer = aiPlayer }
@@ -193,6 +203,7 @@ defaultRules = Rules
   , rulesAgainWhenHit = True
   , rulesMove  = True
   , rulesDevMode = False
+  , rulesMaximumTurns = maxBound
   }
 
 -- | Helper: Creates a grid, filled with one value.
@@ -278,7 +289,7 @@ sizesOfShips = map (shipSize . shipShape)
 -------------------------------------------------------------------------------
 
 -- | Result of the turn with respect to the current player
-data Turn = Won | Again | Next
+data Turn = Won | Again | Next deriving (Show, Eq, Ord, Enum, Bounded)
 
 -- | Performs a full AI turn. 
 -- This function takes care of swapping the current player.
@@ -291,13 +302,7 @@ aiTurn = do
     switchRoles
     result <- shots
     rules <- gets gameRules
-    case result of
-      -- AI has won, no need to move ships
-      Won -> return ()
-      -- AI may move its ship
-      _
-        | rulesMove rules -> executeMove moveAI
-        | otherwise -> return ()
+    when (result /= Won && rulesMove rules) $ executeMove moveAI
     switchRoles
     return result
   where
@@ -365,7 +370,8 @@ fireAt pos = do
         then Sunk
         else Hit
   -- add this shot to history
-  let self' = self { playerShots = (pos, result) : playerShots self }
+  time <- gets turnNumber
+  let self' = self { playerShots = Shot pos result time : playerShots self }
   modify (\gs -> gs{currentPlayer = self'})
   return result
 
@@ -398,11 +404,20 @@ executeShot turn = do
       | otherwise                -> return Again
 
 
+-- | Switches the roles of active and passive player.
+-- Every time the roles are switched, the turn number is increased.
 switchRoles :: (MonadState (GameState a) m) => m ()
-switchRoles = modify(\g -> g
-  { currentPlayer = otherPlayer g
-  , otherPlayer = currentPlayer g
-  })
+switchRoles = do
+  modify(\g -> g
+    { currentPlayer = otherPlayer g
+    , otherPlayer = currentPlayer g
+    })
+  increaseTurnNumber
+
+-- | increases the turn number. This function is called by `switchRoles`
+-- and is not meant to be called directly.
+increaseTurnNumber :: (MonadState (GameState a) m) => m ()
+increaseTurnNumber = modify $ \gs -> gs {turnNumber = turnNumber gs + 1}
 
 -------------------------------------------------------------------------------
 -- * Move a ship
@@ -508,31 +523,24 @@ movedShipShape movement ship = case (shipOrientation ship, movement) of
 -------------------------------------------------------------------------------
 
 instance Serialize a => Serialize (GameState a) where
-  get = GameState <$> get <*> get <*> get <*> get <*> get
+  get = GameState <$> get <*> get <*> get <*> get <*> get <*> get
   put GameState {..} = do
     put currentPlayer
     put otherPlayer
     put aiState
     put gameRules
     put expectedAction
+    put turnNumber
 
 instance Serialize PlayerState where
-  get = PlayerState <$> (fmap fromPlayerShots8 get) <*> get <*> get
+  get = PlayerState <$> get <*> get <*> get
   put PlayerState{..} = do
-    put (toPlayerShots8 playerShots)
+    put playerShots
     put playerFleet
     put playerType
 
-toPlayerShots8 :: [(Pos,HitResponse)] -> [((Word8,Word8), HitResponse)]
-toPlayerShots8 = fmap conv where
-  conv ((x,y),r) = ((fromIntegral x, fromIntegral y),r)
-
-fromPlayerShots8 :: [((Word8,Word8), HitResponse)] -> [(Pos,HitResponse)]
-fromPlayerShots8 = fmap conv where
-  conv ((x,y),r) = ((fromIntegral x, fromIntegral y),r)
-
 instance Serialize Rules where
-  get = Rules <$> get <*> get <*> get <*> get <*> get <*> get
+  get = Rules <$> get <*> get <*> get <*> get <*> get <*> get <*> get
   put Rules {..} = do
     put rulesSize
     put rulesShips
@@ -540,6 +548,7 @@ instance Serialize Rules where
     put rulesAgainWhenHit
     put rulesMove
     put rulesDevMode
+    put rulesMaximumTurns
 
 instance Serialize HitResponse where
   get = fromByte <$> get
@@ -570,6 +579,18 @@ instance Serialize Ship where
     put shipID
     put shipShape
     put shipDamage
+
+instance Serialize Shot where
+  get = Shot <$> fmap fromPos8 get <*> get <*> get
+  put Shot{..} = do
+    put (toPos8 shotPos)
+    put shotResult
+    put shotTime
+
+toPos8 :: Pos -> (Word8, Word8)
+toPos8 (x,y) = (fromIntegral x, fromIntegral y)
+fromPos8 :: (Word8, Word8) -> Pos
+fromPos8 (x,y) = (fromIntegral x, fromIntegral y)
 
 toByte :: Enum a => a -> Int8
 toByte = fromIntegral . fromEnum
