@@ -16,8 +16,6 @@ import           Diagrams.Prelude
 import           Diagrams.Backend.SVG
 import           Data.Colour.SRGB
 import           Data.Foldable (fold)
-import qualified Data.Text as T hiding (find, zip, map)
-import           Yesod (PathPiece (..))
 
 type BattleDia = QDiagram SVG R2 [Pos]
 
@@ -35,13 +33,6 @@ data LegendIcon
   | LIWater
   | LILastShot
   deriving (Show, Read, Eq, Ord, Enum, Bounded)
-
-instance PathPiece LegendIcon where
-  fromPathPiece = convert . T.unpack where
-    convert s = case reads s of
-      [(foo,"")] -> Just foo
-      _          -> Nothing
-  toPathPiece = T.pack . show
 
 -------------------------------------------------------------------------------
 -- * Legend Rendering
