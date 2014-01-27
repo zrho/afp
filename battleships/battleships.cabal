@@ -83,6 +83,7 @@ library
                  , wai-extra                 
                  , wai-logger    
                  , cookie
+                 , hjsmin
                 -- * more monads!!!
                  , mtl
                  , MonadRandom

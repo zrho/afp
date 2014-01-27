@@ -5,11 +5,13 @@ import Prelude
 import Yesod
 import Yesod.Static
 import Yesod.Default.Config
+import Yesod.Default.Util
 import qualified Settings
 import Settings.Development (development)
 import Settings (widgetFile)
 import Settings.StaticFiles
 import Text.Hamlet (hamletFile)
+import Text.Jasmine (minifym)
 #if MIN_VERSION_fast_logger(2,1,0)
 import Yesod.Core.Types (Logger)
 #else
@@ -91,13 +93,16 @@ instance Yesod App where
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    --addStaticContent =
-    --    addStaticContentExternal minifym genFileName Settings.staticDir (StaticR . flip StaticRoute [])
-    --  where
-    --    -- Generate a unique filename based on the content itself
-    --    genFileName lbs
-    --        | development = "autogen-" ++ base64md5 lbs
-    --        | otherwise   = base64md5 lbs
+    addStaticContent =
+        addStaticContentExternal mini genFileName Settings.staticDir (StaticR . flip StaticRoute [])
+      where
+        -- Generate a unique filename based on the content itself
+        genFileName lbs
+            | development = "autogen-" ++ base64md5 lbs
+            | otherwise   = base64md5 lbs
+        mini
+            | development = Right 
+            | otherwise   = minifym
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.

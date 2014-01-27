@@ -2,6 +2,7 @@
 /*/dist/
 /*/yesod-devel/
 /*/main.cgi
+/*/static/tmp
 client_session_key.aes
 Setup.hs
 # Objekt- und Interface-Dateien werden vom Compiler erzeugt
