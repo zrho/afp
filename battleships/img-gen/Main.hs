@@ -10,6 +10,7 @@ import           Text.Blaze.Svg.Renderer.Utf8 (renderSvg)
 import           System.Environment
 import           System.FilePath
 import           System.IO
+import qualified Settings (staticDir)
 
 
 data ImgGenOpt = ImgGenOpt
@@ -17,7 +18,7 @@ data ImgGenOpt = ImgGenOpt
   } deriving (Show)
 
 defaultOptions = ImgGenOpt
-  { optOutputDir = "static"</>"img"
+  { optOutputDir = Settings.staticDir</>"img"
   }
 
 main :: IO ()
