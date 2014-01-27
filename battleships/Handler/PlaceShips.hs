@@ -2,10 +2,12 @@
 module Handler.PlaceShips
   ( getPlaceShipsR
   , postPlaceShipsR
+  , postPlaceShipsRndR
   ) where
 
 import Import
-import Data.Aeson (decode)
+import Data.Aeson (encode, decode)
+import Data.Maybe
 --import Data.Maybe
 import qualified Data.Text.Encoding as TE
 import qualified Data.ByteString.Lazy as BL
@@ -37,6 +39,12 @@ postPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
       let fleet = generateFleet fleetPlacement
       g <- expGame game { currentPlayer = currentPlayer { playerFleet = fleet } }
       redirect $ PlayR g
+
+postPlaceShipsRndR :: GameStateExt -> Handler TypedContent
+postPlaceShipsRndR gameE = withGame gameE $ \(GameState {..}) -> do
+  fleet  <- fmap (fromMaybe []) getPostedFleet
+  fleet' <- liftIO $ initShips gameRules fleet
+  return $ jsonFleet fleet'
   
 getX :: ShipShape -> Int 
 getX s = fst $ shipPosition s
@@ -52,3 +60,8 @@ getPostedFleet = do
   jsonStr <- runInputPost $ ireq textField "fleetData"
   return $ decode (BL.fromChunks [TE.encodeUtf8 jsonStr])
   
+jsonFleet :: FleetPlacement -> TypedContent
+jsonFleet
+  = TypedContent typeJson
+  . toContent
+  . encode
