@@ -85,8 +85,9 @@ renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
     [ renderGrid nx ny
     , markLastShot
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
-    , fold (fmap renderShot shots)
+    , fold $ fmap renderShot $ filter ((/=Water) . snd) shots
     , fold $ fmap renderShip $ Map.filter isDamaged fleet         -- ... damaged ones below
+    , fold $ fmap renderShot $ filter ((==Water) . snd) shots
     , contentSquare nx ny # fc waterColor
     ]
   where
