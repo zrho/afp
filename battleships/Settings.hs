@@ -33,7 +33,7 @@ staticDir = "static"
 --
 -- To see how this value is used, see urlRenderOverride in Foundation.hs
 staticRoot :: AppConfig DefaultEnv x -> Text
-staticRoot conf = [st|#{appRoot conf}/battleships/static|]
+staticRoot conf = [st|#{appRoot conf}/static-battleships|]
 
 -- | Settings for 'widgetFile', such as which template languages to support and
 -- default Hamlet settings.

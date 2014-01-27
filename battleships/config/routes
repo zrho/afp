@@ -8,4 +8,4 @@
 /battleships/play/#GameStateExt/move                MoveR          POST
 /battleships/gameEnded/#GameStateExt                GameEndedR     GET
 /battleships/rules                                  RulesR         GET POST
-/battleships/static                                 StaticR        Static getStatic
+/static-battleships                                 StaticR        Static getStatic
