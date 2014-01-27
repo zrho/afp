@@ -25,7 +25,7 @@ getPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
     addScript $ StaticR js_jquery_js
     addScript $ StaticR js_json2_js
     addScript $ StaticR js_map_js
-    fleet <- liftIO $ initShips defaultRules
+    fleet <- liftIO $ initShips defaultRules []
     $(widgetFile "placeships2")
 
 postPlaceShipsR :: GameStateExt -> Handler Html

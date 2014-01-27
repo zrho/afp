@@ -14,7 +14,7 @@ import qualified Data.Serialize as S
 data StupidAI = StupidAI { rules :: Rules }
 
 instance AI StupidAI where
-  aiInit r       = liftM2 (,) (return (StupidAI r)) (initShips r)
+  aiInit r       = liftM2 (,) (return (StupidAI r)) (initShips r [])
   aiFire         = gets (rulesSize . rules) >>= getRandomPos
   aiResponse _ _ = return ()
 

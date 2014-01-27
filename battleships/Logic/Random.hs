@@ -18,6 +18,9 @@ shuffleRandom xs = extractRandom xs >>= \r -> case r of
   Nothing      -> return []
   Just (y, ys) -> liftM (y :) $ shuffleRandom ys
 
+chooseRandom :: MonadRandom m => [a] -> m (Maybe a)
+chooseRandom = (liftM . liftM) fst . extractRandom
+
 runRandM :: MonadRandom m => Rand StdGen a -> m a
 runRandM rand = do
   i <- getRandom
