@@ -14,7 +14,7 @@ Extra-Source-Files:
                 static/img/*.svg
                 static/img/*.ico
                 static/img/*.png
-                make
+                key.aes
 
 Flag dev
     Description:   Turn on development settings, like auto-reload templates.

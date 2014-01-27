@@ -1,2 +1,0 @@
-#!/bin/bash          
-ghc -O2 --make app/main.hs -o main.cgi
