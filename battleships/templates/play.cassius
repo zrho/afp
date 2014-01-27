@@ -66,11 +66,6 @@ span.expectedAction
     visibility: collapsed
     display: none
 
-/* ===========================================================
- * GENERAL STYLE
- * =========================================================== 
- */
-
 div.boards
   margin: 0px auto
 

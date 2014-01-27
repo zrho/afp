@@ -7,14 +7,13 @@ Extra-Source-Files:
                 messages/*.msg
                 config/routes
                 config/settings.yml
-                config/favicon.ico
                 templates/*.cassius
                 templates/*.hamlet
-                templates/*.lucius
                 templates/*.julius
                 static/js/*.js
                 static/img/*.svg
                 static/img/*.ico
+                static/img/*.png
                 make
 
 Flag dev
