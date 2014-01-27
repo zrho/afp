@@ -290,12 +290,14 @@ aiTurn :: (MonadState (GameState a) m, MonadRandom m, AI a)
 aiTurn = do
     switchRoles
     result <- shots
+    rules <- gets gameRules
     case result of
       -- AI has won, no need to move ships
       Won -> return ()
       -- AI may move its ship
-      _   -> do
-        executeMove moveAI
+      _
+        | rulesMove rules -> executeMove moveAI
+        | otherwise -> return ()
     switchRoles
     return result
   where
