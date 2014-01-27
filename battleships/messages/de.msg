@@ -8,19 +8,13 @@ Won: Du hast gewonnen!
 Lost: Du hast verloren.
 PlaceShips: Platziere deine Schiffe
 AvailableShips: Verfügbare Flotte
-InsertShip: Platziere ein Schiff der Größe 
-WithOrientation: mit der Orientierung
-AtPosition: an der Position (bitte ein Feld anklicken)
-InvalidPlacement: Hier kannst du kein Schiff platzieren!
-NoForm: Das Eingabeformular fehlt.
-NoCell: Bitte klick ein Feld an.
-ShipOption size@Int remaining@Int: #{show size} (#{show remaining} übrig)
-Horizontal: Horizontal
-Vertical: Vertikal
-InputFieldSize: Spielfeldgröße
+
+InputAgainWhenHit: bei Treffer erneut schießen
+InputMove: Schiffe verschiebbar
+InputDevMode: Entwicklermodus
 AdjustRules: Die Regeln anpassen
 Rules: Regeln
-InvalidFieldSize: Die Spielfeldgröße muss mindestens 10 sein.
+
 ShipLength: Länge
 ShipsAvailable: Verfügbar
 ShipsTotal: Total
@@ -34,6 +28,7 @@ OpponentsFleet: Gegnerische Flotte
 OpponentRemainingShips: Folgende Schiffe musst du noch finden
 ShipsUnsunk: Noch nicht gesunken
 Hints: Hinweise
+
 Legend: Legende
 LegendShipWithArrow: Schiff durch Klick bewegen
 LegendShipMovable: Bewegliches Schiff

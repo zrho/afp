@@ -8,19 +8,13 @@ Won: You Won!
 Lost: You Lost.
 PlaceShips: Place your Ships
 AvailableShips: Available Ships
-InsertShip: Insert a ship of size
-WithOrientation: with orientation
-AtPosition: at position (please click in the field)
-InvalidPlacement: Ship cannot be placed there.
-NoForm: Form missing.
-NoCell: Please click in a cell.
-ShipOption size@Int remaining@Int: #{show size} (#{show remaining} remaining)
-Horizontal: Horizontal
-Vertical: Vertical
-InputFieldSize: Desired field size
+
+InputAgainWhenHit: shoot again when hit
+InputMove: allow ship movement
+InputDevMode: enable developer mode
 AdjustRules: Adjust the rules
 Rules: Rules
-InvalidFieldSize: You have to enter a number of at least 10.
+
 ShipLength: Length
 ShipsAvailable: Available
 ShipsTotal: Total
@@ -34,6 +28,7 @@ OpponentsFleet: Opponent's Fleet
 OpponentRemainingShips: These ships are yet to be found
 ShipsUnsunk: Not yet sunk
 Hints: Hints
+
 Legend: Legend
 LegendShipWithArrow: click to move the ship
 LegendShipMovable: movable ship

@@ -5,14 +5,14 @@
       <div .rulesFields>
         <div .ruleEntry>
           <input #inputAgain type="checkbox" name="againWhenHit" value="yes" checked>
-          <label for="inputAgain">Bei Treffer erneut schießen
+          <label for="inputAgain">_{MsgInputAgainWhenHit}
         <div .ruleEntry>
           <input #inputMove type="checkbox" name="move" value="yes" checked>
-          <label for="inputMove">Schiffe verschiebbar
+          <label for="inputMove">_{MsgInputMove}
         $if development
           <div .ruleEntry>
             <input #inputDevMode type="checkbox" name="devMode" value="yes" checked>
-            <label for="inputDevMode">Entwicklermodus
+            <label for="inputDevMode">_{MsgInputDevMode}
 
       $case formError
         $of Just err
