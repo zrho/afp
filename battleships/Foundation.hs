@@ -91,7 +91,7 @@ instance Yesod App where
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
     addStaticContent =
-        addStaticContentExternal mini genFileName Settings.staticDir (StaticR . flip StaticRoute [])
+        addStaticContentExternal mini genFileName staticContentPath (StaticR . flip StaticRoute [])
       where
         -- Generate a unique filename based on the content itself
         genFileName lbs
@@ -100,6 +100,9 @@ instance Yesod App where
         mini
             | development = Right 
             | otherwise   = minifym
+        staticContentPath
+            | development = Settings.staticDir
+            | otherwise   = "/srv/www/vhosts/www-pg-data/battleships"
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
