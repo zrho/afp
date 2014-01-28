@@ -326,23 +326,23 @@ humanTurnFire target = do
   ActionFire <- gets expectedAction
   -- setup common actions
   rules <- gets gameRules
-  let 
-    -- update the action to "move". this function respects the game rules
-    expectMove = when (rulesMove rules) $
-      modify (\gs -> gs { expectedAction = ActionMove})
   -- fire
   result <- executeShot $ fireAt target
   case result of
     -- human has won, no further action needed
     Won -> return Won
     -- expect a move of the human player first
-    Next -> expectMove >> return Next
     -- human may fire again
     Again
       -- expected move is still "fire"
+      -- otherwise: firing again not allowed, proceeding to default case
       | rulesAgainWhenHit rules -> return Again
-      -- firing again not allowed
-      | otherwise               -> expectMove >> return Next
+    _ -> do
+      -- update the action to "move" if appropriate
+      humanFleet <- gets $ playerFleet . currentPlayer
+      when (rulesMove rules && anyShipMovable rules humanFleet) $
+        modify (\gs -> gs { expectedAction = ActionMove})
+      return Next
 
 
 -- | The current player fires at the other player
@@ -493,21 +493,30 @@ desiredMove pos fleet = do
 -- | Only moves the ship if it complies with the given rules.
 moveShip :: Ship -> Movement -> Rules -> Fleet -> Fleet
 moveShip ship movement rules fleet = 
-  if canBeMoved ship movement rules fleet
+  if isMovable movement rules fleet ship
     then Map.adjust (\s -> s{shipShape = newShape}) (shipID ship) fleet
     else fleet
   where newShape = movedShipShape movement (shipShape ship)
-
 -- | Checks whether a ship can be moved.
-canBeMoved :: Ship -> Movement -> Rules -> Fleet -> Bool
-canBeMoved ship movement rules fleet =  shipAdmissible rules otherShips newShape
-                                     && not (isDamaged ship) where
-  newShape = movedShipShape movement (shipShape ship)
-  otherShips = map (shipShape . snd)
-             . Map.toAscList
-             . Map.filter (not . isShipSunk) -- this ship can move over sunk ships
-             . Map.delete (shipID ship)
-             $ fleet
+isMovable :: Movement -> Rules -> Fleet -> Ship -> Bool
+isMovable movement rules fleet ship =
+       shipAdmissible rules otherShips newShape
+    && not (isDamaged ship) 
+  where
+    newShape = movedShipShape movement (shipShape ship)
+    otherShips = map (shipShape . snd)
+               . Map.toAscList
+               . Map.filter (not . isShipSunk) -- this ship can move over sunk ships
+               . Map.delete (shipID ship)
+               $ fleet
+
+-- | Returns whether any ship in the given fleet is movable.
+anyShipMovable :: Rules -> Fleet -> Bool
+anyShipMovable rules fleet = rulesMove rules 
+    && (anyForward || anyBackward)
+  where
+    anyForward  = or $ fmap (isMovable Forward rules fleet) fleet
+    anyBackward = or $ fmap (isMovable Backward rules fleet) fleet
 
 -- | Ship after movement was made.
 movedShipShape :: Movement -> ShipShape -> ShipShape

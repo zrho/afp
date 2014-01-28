@@ -45,7 +45,7 @@ instance AI CleverAI where
   aiMove fleet _ = gets rules >>= \rls -> chooseRandom $ do
     ship <- Map.elems fleet
     mvmt <- [Forward, Backward]
-    guard $ canBeMoved ship mvmt rls fleet
+    guard $ isMovable mvmt rls fleet ship
     return (shipID ship, mvmt)
 
 cleverResponse :: Pos -> HitResponse -> CleverAI -> CleverAI

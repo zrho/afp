@@ -157,7 +157,7 @@ movementArrowAt ship@Ship{..} i fleet rules =
       | i == shipSize shipShape - 1 && canMove Backward -> Just ArrowDown
     _ -> Nothing
     where 
-      canMove dir = canBeMoved ship dir rules fleet
+      canMove dir = isMovable dir rules fleet ship
 
 renderArrow :: MoveArrow -> QDiagram SVG R2 Any
 renderArrow arrType = arrowShape # rotateBy circleFraction # arrowStyle  where 

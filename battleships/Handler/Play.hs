@@ -35,7 +35,7 @@ postMoveR gameE = withGame gameE $ \game -> do
             ActionFire -> invalidMove gameE
             ActionMove -> case desiredMove pos humanFleet of
               Just (ship,movement) 
-                | canBeMoved (humanFleet!ship) movement (gameRules game) humanFleet 
+                | isMovable movement (gameRules game) humanFleet (humanFleet!ship)
                   -> performMove game (Just pos)
               _   -> invalidMove gameE
       -- player skips moving
@@ -64,7 +64,7 @@ postFireR gameE = withGame gameE $ \game -> do
             Again -> continue game'
             -- either perform AI turn or let human move
             Next
-              | rulesMove $ gameRules game -> continue game'
+              | expectedAction game' == ActionMove -> continue game'
               | otherwise -> performAI game'
 
 invalidMove :: GameStateExt -> Handler Html
