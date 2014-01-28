@@ -10,6 +10,8 @@ import           Data.Foldable
 import           Data.Function (on)
 import           Control.Monad
 import           Data.Serialize (Serialize (..))
+import           Data.Serialize.Get
+import           Data.Serialize.Put
 import           Data.Int
 import           Data.Word8
 import qualified Data.Map as Map
@@ -576,25 +578,25 @@ instance Serialize Action where
   put = put . toByte
 
 instance Serialize ShipShape where
-  get = ShipShape <$> get <*> get <*> get
+  get = ShipShape <$> fmap fromPos8 get <*> fmap fromIntegral getWord8 <*> get
   put ShipShape{..} = do
-    put shipPosition
-    put shipSize
+    put $ toPos8 shipPosition
+    putWord8 $ fromIntegral shipSize
     put shipOrientation
 
 instance Serialize Ship where
-  get = Ship <$> get <*> get <*> get
+  get = Ship <$> fmap fromIntegral getWord8 <*> get <*> get
   put Ship{..} = do
-    put shipID
+    putWord8 (fromIntegral shipID)
     put shipShape
     put shipDamage
 
 instance Serialize Shot where
-  get = Shot <$> fmap fromPos8 get <*> get <*> get
+  get = Shot <$> fmap fromPos8 get <*> get <*> fmap fromIntegral getWord16le
   put Shot{..} = do
     put (toPos8 shotPos)
     put shotResult
-    put shotTime
+    putWord16le $ fromIntegral shotTime
 
 toPos8 :: Pos -> (Word8, Word8)
 toPos8 (x,y) = (fromIntegral x, fromIntegral y)
