@@ -47,7 +47,7 @@ renderLegend icon = case icon of
   LIShipSunk      -> marker # lc markerSunkColor # lw 3 <> shipSquare
   LIFogOfWar      -> square cellSize # fc fogColor
   LIWater         -> waterSquare
-  LILastShot      -> lastShotMarker
+  LILastShot      -> square cellSize # alignTL <> lastShotMarker
 
 -------------------------------------------------------------------------------
 -- * High-Level Rendering for Grids
