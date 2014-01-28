@@ -1,5 +1,6 @@
 /battleships                                        HomeR          GET
 /battleships/place/#GameStateExt                    PlaceShipsR    GET POST
+/battleships/place/#GameStateExt/random             PlaceShipsRndR POST
 /battleships/play/#GameStateExt/#Action/player.svg  PlayerGridR    GET
 /battleships/play/#GameStateExt/enemy.svg           EnemyGridR     GET
 /battleships/play/#GameStateExt/place.svg           PlaceGridR     GET

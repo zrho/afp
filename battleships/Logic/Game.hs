@@ -615,6 +615,7 @@ instance Random Movement where
 -------------------------------------------------------------------------------
 -- * JSON
 -------------------------------------------------------------------------------
+
 instance FromJSON ShipShape where
    parseJSON (Object v) = curry ShipShape <$>
                           v .: "X" <*>
@@ -623,7 +624,19 @@ instance FromJSON ShipShape where
                           v .: "Orientation"
    -- A non-Object value is of the wrong type, so fail.
    parseJSON _          = mzero
+
 instance FromJSON Orientation where
   parseJSON (Number (I i)) = return $ toEnum $ fromIntegral i
   parseJSON (Number (D d)) = return $ toEnum $ floor d
   parseJSON _              = mzero
+
+instance ToJSON Orientation where
+  toJSON = Number . I . fromIntegral . fromEnum
+
+instance ToJSON ShipShape where
+  toJSON (ShipShape {..}) = object 
+    [ "X"           .= fst shipPosition
+    , "Y"           .= snd shipPosition
+    , "Size"        .= shipSize
+    , "Orientation" .= shipOrientation
+    ]

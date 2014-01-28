@@ -38,23 +38,28 @@ $(window).load(function() {
 });
 
 function placeRandom() {
-	map.reset();
-	// Extract relevant data (x,y,size, orientation) from the fleet that was randomly generated when loading this page 
-	// and turn them into ship objects:
-	var shipData = #{toJSON (map getX fleet, map getY fleet, map shipSize fleet, map getOrientation fleet)};
-	for(var i = 0; i < shipData[0].length; i++) {
-		var ship = new Ship (shipData[0][i], shipData[1][i], shipData[2][i], shipData[3][i]);
-		map.ships.push(ship);
-		map.shipDef.takeShip(ship.Size);
-	}
-	// Fill in the form so we can use the fleet in the game, then update screen:
-	$("#fleetData").val(JSON.stringify(map.ships));
-	shipDefChanged();
-	map.redraw();
-	// You cannot generate another random fleet before reloading the page.
-	$("#btnRandom").attr('disabled' , true);
-	$("#btnReset").click(function() {
-		window.location.reload();
+	
+	$.ajax({
+		url: "@{PlaceShipsRndR gameE}",
+		type: "POST",
+		dataType: "json",
+		data: { fleetData: JSON.stringify(map.ships) }
+	}).done(function(shipData) {
+		map.reset();
+		// Extract relevant data (x,y,size, orientation) from the fleet
+		for(var i = 0; i < shipData.length; i++) {
+			var ship = new Ship (
+				shipData[i].X,
+				shipData[i].Y,
+				shipData[i].Size,
+				shipData[i].Orientation);
+			map.ships.push(ship);
+			map.shipDef.takeShip(ship.Size);
+		}
+		// Fill in the form so we can use the fleet in the game, then update screen:
+		$("#fleetData").val(JSON.stringify(map.ships));
+		shipDefChanged();
+		map.redraw();
 	});
 }
 
