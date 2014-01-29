@@ -1,19 +1,19 @@
 {-# LANGUAGE RecordWildCards, TupleSections, OverloadedStrings #-}
 module Logic.Game where
 
-import           Prelude hiding (and, or, foldl, foldr)
+import           Prelude hiding (and, or, foldl, foldr, mapM_)
 import           Data.Array
 import           Data.Aeson hiding (Array)
 import           Data.Attoparsec.Number
 import           Data.Maybe
 import           Data.Foldable
 import           Data.Function (on)
-import           Control.Monad
+import           Control.Monad hiding (forM_, mapM_)
+import           Data.Bits
 import           Data.Serialize (Serialize (..))
 import           Data.Serialize.Get
 import           Data.Serialize.Put
-import           Data.Int
-import           Data.Word8
+import           Data.Word
 import qualified Data.Map as Map
 import           Data.List as L hiding (and, or, foldl, foldr, find)
 import           Control.Applicative
@@ -205,7 +205,7 @@ defaultRules = Rules
   , rulesAgainWhenHit = True
   , rulesMove  = True
   , rulesDevMode = False
-  , rulesMaximumTurns = maxBound
+  , rulesMaximumTurns = 255
   }
 
 -- | Helper: Creates a grid, filled with one value.
@@ -534,81 +534,113 @@ movedShipShape movement ship = case (shipOrientation ship, movement) of
 -------------------------------------------------------------------------------
 
 instance Serialize a => Serialize (GameState a) where
-  get = GameState <$> get <*> get <*> get <*> get <*> get <*> get
+  get = GameState <$> get <*> get <*> get <*> get <*> get <*> getIntegral8
   put GameState {..} = do
     put currentPlayer
     put otherPlayer
     put aiState
     put gameRules
     put expectedAction
-    put turnNumber
+    putIntegral8 turnNumber
 
 instance Serialize PlayerState where
-  get = PlayerState <$> get <*> get <*> get
+  get = PlayerState <$> getList8 get <*> get <*> get
   put PlayerState{..} = do
-    put playerShots
+    putList8 put playerShots
     put playerFleet
     put playerType
 
 instance Serialize Rules where
-  get = Rules <$> get <*> get <*> get <*> get <*> get <*> get <*> get
+  get = Rules <$> getPos <*> getList8 getIntegral8 <*> getIntegral8 <*> get <*> get <*> get <*> getIntegral8
   put Rules {..} = do
-    put rulesSize
-    put rulesShips
-    put rulesSafetyMargin
+    putPos rulesSize
+    putList8 putIntegral8 rulesShips
+    putIntegral8 rulesSafetyMargin
     put rulesAgainWhenHit
     put rulesMove
     put rulesDevMode
-    put rulesMaximumTurns
+    putIntegral8 rulesMaximumTurns
 
 instance Serialize HitResponse where
-  get = fromByte <$> get
-  put = put . toByte
+  get = getEnum8
+  put = putEnum8
 
 instance Serialize Orientation where
-  get = fromByte <$> get
-  put = put . toByte
+  get = getEnum8
+  put = putEnum8
 
 instance Serialize Player where
-  get = fromByte <$> get
-  put = put . toByte
+  get = getEnum8
+  put = putEnum8
 
 instance Serialize Action where
-  get = fromByte <$> get
-  put = put . toByte
+  get = getEnum8
+  put = putEnum8
 
 instance Serialize ShipShape where
-  get = ShipShape <$> fmap fromPos8 get <*> fmap fromIntegral getWord8 <*> get
+  get = ShipShape <$> getPos <*> getIntegral8 <*> get
   put ShipShape{..} = do
-    put $ toPos8 shipPosition
-    putWord8 $ fromIntegral shipSize
+    putPos shipPosition
+    putIntegral8 shipSize
     put shipOrientation
 
 instance Serialize Ship where
-  get = Ship <$> fmap fromIntegral getWord8 <*> get <*> get
+  get = Ship <$> getIntegral8 <*> get <*> get
   put Ship{..} = do
-    putWord8 (fromIntegral shipID)
+    putIntegral8 shipID
     put shipShape
     put shipDamage
 
 instance Serialize Shot where
-  get = Shot <$> fmap fromPos8 get <*> get <*> fmap fromIntegral getWord16le
+  get = Shot <$> getPos <*> get <*> getIntegral8
   put Shot{..} = do
-    put (toPos8 shotPos)
+    putPos shotPos
     put shotResult
-    putWord16le $ fromIntegral shotTime
+    putIntegral8 shotTime
 
-toPos8 :: Pos -> (Word8, Word8)
-toPos8 (x,y) = (fromIntegral x, fromIntegral y)
-fromPos8 :: (Word8, Word8) -> Pos
-fromPos8 (x,y) = (fromIntegral x, fromIntegral y)
+putPos :: Putter Pos
+putPos (x,y) = put (hi .|. lo :: Word8) where
+  hi = (fromIntegral x .&. 0x0F) `shiftL` 4
+  lo =  fromIntegral y .&. 0x0F
 
-toByte :: Enum a => a -> Int8
-toByte = fromIntegral . fromEnum
+getPos :: Get Pos
+getPos = fromB <$> getWord8 where
+  fromB b = ( fromIntegral $ b `shiftR` 4
+            , fromIntegral $ b .&. 0x0F   )
 
-fromByte :: Enum a => Int8 -> a
-fromByte = toEnum . fromIntegral
+putEnum8 :: Enum a => Putter a
+putEnum8 = putWord8 . fromIntegral . fromEnum
 
+getEnum8 :: Enum a => Get a
+getEnum8 = toEnum . fromIntegral <$> getWord8
+
+putIntegral8 :: Integral a => Putter a
+putIntegral8 = putWord8 . fromIntegral
+
+getIntegral8 :: Integral a => Get a
+getIntegral8 = fromIntegral <$> getWord8
+
+putList8 :: Putter a -> Putter [a]
+putList8 pel xs = do
+  putIntegral8 $ length xs
+  forM_ xs pel
+
+getList8 :: Get a -> Get [a]
+getList8 gel = getIntegral8 >>= getList where
+  getList len = replicateM len gel
+
+putSmallGrid :: Putter a -> Putter (Grid a)
+putSmallGrid pel grid = do
+  let (_, upper) = bounds grid
+  putPos upper
+  mapM_ pel (elems grid)
+
+getSmallGrid :: Get a -> Get (Grid a)
+getSmallGrid gel = do
+  upper <- getPos
+  let count = rangeSize ((0,0), upper)
+  xs <- replicateM count gel
+  return $ listArray ((0,0), upper) xs
 -------------------------------------------------------------------------------
 -- * Random
 -------------------------------------------------------------------------------

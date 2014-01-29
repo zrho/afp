@@ -5,7 +5,6 @@ import           Prelude
 import           Data.Array
 import           Data.List ((\\), elemIndex, intersect, delete)
 import           Data.Maybe (fromMaybe)
-import           Data.Word8
 import qualified Data.Map as Map
 import           Logic.Game
 import           Logic.AIUtil
@@ -309,15 +308,10 @@ decay = 0.98
 -------------------------------------------------------------------------------
 
 instance Serialize CleverAI where
-  get = CleverAI <$> S.get <*> S.get <*> (fmap fromWord8s S.get) <*> S.get <*> S.get
-  put CleverAI {..} = S.put rules
-                    >> S.put tracking
-                    >> S.put (toWord8s shots)
-                    >> S.put sunk
-                    >> S.put sunkTime
-
-fromWord8s :: [(Word8,Word8)] -> [Pos]
-fromWord8s = map (\(x,y) -> (fromIntegral x, fromIntegral y))
-
-toWord8s :: [Pos] -> [(Word8,Word8)]
-toWord8s  = map (\(x,y) -> (fromIntegral x, fromIntegral y))
+  get = CleverAI <$> S.get <*> getSmallGrid S.get <*> getList8 getPos <*> getList8 S.get <*> getList8 getIntegral8
+  put CleverAI {..} = do
+    S.put rules
+    putSmallGrid S.put tracking
+    putList8 putPos shots
+    putList8 S.put sunk
+    putList8 putIntegral8 sunkTime
