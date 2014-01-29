@@ -12,10 +12,13 @@ module Logic.Render
 import           Prelude
 import           Logic.Game
 import qualified Data.Map as Map
+import qualified Data.List as L
 import           Diagrams.Prelude
 import           Diagrams.Backend.SVG
+import           Diagrams.TwoD.Text
 import           Data.Colour.SRGB
-import           Data.Foldable (fold)
+import           Data.Foldable (fold, foldMap)
+import           Data.Function (on)
 
 type BattleDia = QDiagram SVG R2 [Pos]
 
@@ -47,7 +50,7 @@ renderLegend icon = case icon of
   LIShipSunk      -> marker # lc markerSunkColor # lw 3 <> shipSquare
   LIFogOfWar      -> square cellSize # fc fogColor
   LIWater         -> waterSquare
-  LILastShot      -> square cellSize # alignTL <> lastShotMarker
+  LILastShot      -> square cellSize # alignTL <> lastShotMarker 1
 
 -------------------------------------------------------------------------------
 -- * High-Level Rendering for Grids
@@ -83,7 +86,7 @@ renderEnemyGrid (nx,ny) fleet shots Rules{..} = mconcat
 renderPlayerGrid :: (Int,Int) -> Fleet -> TrackingList -> Action -> Rules -> BattleDia
 renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
     [ renderGrid nx ny
-    , markLastShot
+    , markLastShots
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
     , fold $ fmap renderShot $ filter ((/=Water) . shotResult) shots
     , fold $ fmap renderShip $ Map.filter isDamaged fleet         -- ... damaged ones below
@@ -91,9 +94,10 @@ renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
     , contentSquare nx ny # fc waterColor
     ]
   where
-  markLastShot = case shots of
-    (Shot lastShotPos _ _):_ 
-      -> lastShotMarker # value [] # translateToPos lastShotPos
+  markLastShots = case L.groupBy ((==) `on` shotTime) shots of
+    shotsLastRound:_ 
+      -> flip foldMap (zip [1::Int ..] (reverse shotsLastRound)) $ \(idx, Shot lastShotPos _ _) ->
+               lastShotMarker idx # translateToPos lastShotPos # value []
     _ -> mempty # value []
 
   renderShip ship@Ship{shipShape = ShipShape{shipPosition=(x,y),..},..} = 
@@ -127,11 +131,11 @@ colNumbers n = hcat [num i | i <- [0..n-1]] # value [] where
   strNum i = [toEnum $ fromEnum 'A' + i]
 
 #if MIN_VERSION_diagrams_lib(0,7,0)
-marker, waterSquare, shipSquare, movableSquare, lastShotMarker
+marker, waterSquare, shipSquare, movableSquare
   :: (Alignable b, HasOrigin b, TrailLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #else
-marker, waterSquare, shipSquare, movableSquare, lastShotMarker
+marker, waterSquare, shipSquare, movableSquare
   :: (Alignable b, HasOrigin b, PathLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #endif
@@ -139,9 +143,15 @@ marker         = drawX (markerRadius * sqrt 2) <> circle markerRadius where
   drawX s      = p2 (-0.5 * s, -0.5 * s) ~~ p2 (0.5 * s, 0.5 * s)
                <> p2 (-0.5 * s, 0.5 * s) ~~ p2 (0.5 * s, -0.5 * s)
 waterSquare    = square cellSize # fc waterColor
-shipSquare     = roundedRect cellSize cellSize 0 # fc shipColor
-movableSquare  = roundedRect cellSize cellSize 0 # fc movableColor
-lastShotMarker = roundedRect (cellSize - 4) (cellSize - 4) 0  # alignTL # translate (r2 (2,-2)) # lc lastShotColor # lw 3
+shipSquare     = rect cellSize cellSize # fc shipColor
+movableSquare  = rect cellSize cellSize # fc movableColor
+
+lastShotMarker :: (Renderable (Path R2) b, Renderable Text b) 
+               => Int -> Diagram b R2
+lastShotMarker idx = 
+    (   rect (cellSize - 4) (cellSize - 4) # lc lastShotColor # lw 3
+     <> text (show idx) # numberStyle # fc white
+    ) # alignTL # translate (r2 (2,-2))
 
 contentSquare :: Int -> Int -> BattleDia
 contentSquare nx ny = rect (cellSize * realToFrac nx) (cellSize * realToFrac ny) # alignTL # value [] # translateToPos (0,0)
