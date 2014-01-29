@@ -41,6 +41,7 @@ h1.gameName
 
 h2.credits
   display: inline-block
+  margin: 0px auto
   color: #5FC0CE
 
 a, input

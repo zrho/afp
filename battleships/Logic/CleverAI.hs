@@ -17,27 +17,30 @@ import           Data.Serialize (Serialize)
 import qualified Data.Serialize as S
 
 data CleverAI = CleverAI
-  { rules    :: Rules          -- ^ rules of this game
-  , tracking :: TrackingGrid   -- ^ stores what was hit the last time at each position
-  , shots    :: [Pos]          -- ^ AI's previous shots
-  , sunk     :: [ShipShape]    -- ^ ships of the user's fleet that are already sunk
-  , sunkTime :: [Int]          -- ^ what was the number of shots fired when the respective ship was sunk
+  { rules            :: Rules        -- ^ rules of this game
+  , tracking         :: TrackingGrid -- ^ stores what was hit the last time at each position
+  , shots            :: [Pos]        -- ^ AI's previous shots
+  , sunk             :: [ShipShape]  -- ^ ships of the user's fleet that are already sunk
+  , sunkTime         :: [Int]        -- ^ what was the number of shots fired when the respective ship was sunk
+  , checkerboardEven :: Bool
   }
 
 -- | Constructs an initial AI instance.
-cleverAI :: Rules -> CleverAI
-cleverAI r = CleverAI
-  { rules    = r
-  , tracking = newGrid (rulesSize r) Nothing
-  , shots    = []
-  , sunk     = []
-  , sunkTime = []
+cleverAI :: Rules -> Bool -> CleverAI
+cleverAI r checkerboardEven = CleverAI
+  { rules            = r
+  , tracking         = newGrid (rulesSize r) Nothing
+  , shots            = []
+  , sunk             = []
+  , sunkTime         = []
+  , checkerboardEven = checkerboardEven
   }
 
 instance AI CleverAI where
   aiInit r = do
     fleet <- initShips r []
-    return (cleverAI r, fleet)
+    checkerboardEven <- getRandom
+    return (cleverAI r checkerboardEven, fleet)
 
   aiFire         = liftM maximumIx $ scoreGrid >>= randomize
   aiResponse p r = modify (cleverResponse p r)
@@ -202,7 +205,9 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
   checkerboard :: Double -- ^ how should "black" fields be weighted? (between 0 and 1)
                -> Score
                -> Score
-  checkerboard p = if even (x + y) then id else (*) p
+  checkerboard p 
+    | checkerboardEven = if even (x + y) then id else (*) p
+    | otherwise        = if odd (x + y) then id else (*) p
 
   -- | Assign a score to a list of ships. Hit ships are scored higher.
   scoreShips :: [ShipShape] -> Score
@@ -308,10 +313,11 @@ decay = 0.98
 -------------------------------------------------------------------------------
 
 instance Serialize CleverAI where
-  get = CleverAI <$> S.get <*> getSmallGrid S.get <*> getList8 getPos <*> getList8 S.get <*> getList8 getIntegral8
+  get = CleverAI <$> S.get <*> getSmallGrid S.get <*> getList8 getPos <*> getList8 S.get <*> getList8 getIntegral8 <*> S.get
   put CleverAI {..} = do
     S.put rules
     putSmallGrid S.put tracking
     putList8 putPos shots
     putList8 S.put sunk
     putList8 putIntegral8 sunkTime
+    S.put checkerboardEven
