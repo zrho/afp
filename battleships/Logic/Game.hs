@@ -122,6 +122,7 @@ data PlayerState = PlayerState
   { playerShots :: TrackingList -- ^ the player's shots
   , playerFleet :: Fleet        -- ^ the player's fleet
   , playerType  :: Player
+  , playerMoves :: [ShipMove]   -- ^ the player's moves
   } deriving (Show, Eq)
 
 -- | type to distinguish between human and AI player
@@ -141,6 +142,13 @@ data Shot = Shot
   { shotPos    :: Pos
   , shotResult :: HitResponse
   , shotTime   :: Int
+  } deriving (Show, Eq)
+
+-- | a ship movement
+data ShipMove = ShipMove
+  { shipMoveID        :: ShipID
+  , shipMoveDirection :: Movement
+  , shipMoveTime      :: Int
   } deriving (Show, Eq)
 
 instance PathPiece Action where
@@ -181,8 +189,8 @@ newGame
 newGame r pFleet begin = do 
   (ai, eFleet) <- aiInit r
   let
-    humanPlayer = PlayerState [] (generateFleet pFleet) HumanPlayer
-    aiPlayer    = PlayerState [] (generateFleet eFleet) AIPlayer
+    humanPlayer = PlayerState [] (generateFleet pFleet) HumanPlayer []
+    aiPlayer    = PlayerState [] (generateFleet eFleet) AIPlayer []
     template    = GameState
       { currentPlayer  = undefined
       , otherPlayer    = undefined
@@ -469,9 +477,13 @@ executeMove moveAction = do
     Nothing               -> return ()
     Just (shipID, movement) -> case Map.lookup shipID fleet of
       Just ship -> when (not $ isDamaged ship) $ do
+        time <- gets turnNumber
         let
           newFleet   = moveShip ship movement rules fleet
-          curPlayer' = curPlayer { playerFleet = newFleet }
+          curPlayer' = curPlayer 
+            { playerFleet = newFleet
+            , playerMoves = ShipMove shipID movement time : playerMoves curPlayer 
+            }
         modify (\gs -> gs { currentPlayer = curPlayer' })
       Nothing -> return ()
 
@@ -544,11 +556,12 @@ instance Serialize a => Serialize (GameState a) where
     putIntegral8 turnNumber
 
 instance Serialize PlayerState where
-  get = PlayerState <$> getList8 get <*> get <*> get
+  get = PlayerState <$> getList8 get <*> get <*> get <*> get
   put PlayerState{..} = do
     putList8 put playerShots
     put playerFleet
     put playerType
+    put playerMoves
 
 instance Serialize Rules where
   get = Rules <$> getPos <*> getList8 getIntegral8 <*> getIntegral8 <*> get <*> get <*> get <*> getIntegral8
@@ -577,6 +590,10 @@ instance Serialize Action where
   get = getEnum8
   put = putEnum8
 
+instance Serialize Movement where
+  get = getEnum8
+  put = putEnum8
+
 instance Serialize ShipShape where
   get = ShipShape <$> getPos <*> getIntegral8 <*> get
   put ShipShape{..} = do
@@ -597,6 +614,13 @@ instance Serialize Shot where
     putPos shotPos
     put shotResult
     putIntegral8 shotTime
+
+instance Serialize ShipMove where
+  get = ShipMove <$> getIntegral8 <*> get <*> getIntegral8
+  put ShipMove{..} = do
+    putIntegral8 shipMoveID
+    put shipMoveDirection
+    putIntegral8 shipMoveTime
 
 putPos :: Putter Pos
 putPos (x,y) = put (hi .|. lo :: Word8) where
