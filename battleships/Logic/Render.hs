@@ -1,10 +1,11 @@
-{-# LANGUAGE RecordWildCards, TypeFamilies #-}
+{-# LANGUAGE RecordWildCards, TypeFamilies, FunctionalDependencies #-}
 module Logic.Render
   ( renderReferenceGrid
   , renderWaterGrid
   , renderEnemyGrid
   , renderPlayerGrid
   , renderLegend
+  , renderGrid
   , LegendIcon (..)
   , BattleDia
   ) where

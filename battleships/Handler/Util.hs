@@ -45,3 +45,6 @@ legendStatic ico = StaticR $ case ico of
   LIFogOfWar      -> img_LIFogOfWar_svg
   LIWater         -> img_LIWater_svg
   LILastShot      -> img_LILastShot_svg
+
+gridStatic :: Route App
+gridStatic = StaticR img_grid_svg
