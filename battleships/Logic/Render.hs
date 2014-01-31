@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards, TypeFamilies, FunctionalDependencies #-}
+{-# LANGUAGE RecordWildCards, TypeFamilies #-}
 module Logic.Render
   ( renderReferenceGrid
   , renderWaterGrid
