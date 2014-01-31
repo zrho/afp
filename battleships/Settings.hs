@@ -7,10 +7,10 @@ import Settings.Development (development)
 import Text.Hamlet
 
 import Prelude
-import Text.Shakespeare.Text (st)
 import Language.Haskell.TH.Syntax
-import Yesod.Default.Config
-import Data.Text (Text)
+-- import Text.Shakespeare.Text (st)
+-- import Yesod.Default.Config
+-- import Data.Text (Text)
 
 -- Static setting below. Changing these requires a recompile
 
@@ -32,8 +32,8 @@ staticDir = "static"
 -- have to make a corresponding change here.
 --
 -- To see how this value is used, see urlRenderOverride in Foundation.hs
-staticRoot :: AppConfig DefaultEnv x -> Text
-staticRoot conf = [st|#{appRoot conf}/static-battleships|]
+-- staticRoot :: AppConfig DefaultEnv x -> Text
+-- staticRoot conf = [st|#{appRoot conf}/cgi-bin/battleships/static|]
 
 -- | Settings for 'widgetFile', such as which template languages to support and
 -- default Hamlet settings.
