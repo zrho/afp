@@ -28,7 +28,6 @@ getPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
     addScript $ StaticR js_jquery_js
     addScript $ StaticR js_json2_js
     addScript $ StaticR js_map_js
-    fleet <- liftIO $ initShips defaultRules []
     $(widgetFile "board")
     $(widgetFile "placeships2")
 
