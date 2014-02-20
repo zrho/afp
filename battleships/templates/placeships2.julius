@@ -1,5 +1,6 @@
 var cellSize = 40;
-var nx = #{toJSON $ fst $ rulesSize gameRules}, ny = #{toJSON $ snd $ rulesSize gameRules};
+var nx = #{toJSON $ fst boardSize};
+var ny = #{toJSON $ snd boardSize};
 var map;
 var safetyMargin = 1;
 

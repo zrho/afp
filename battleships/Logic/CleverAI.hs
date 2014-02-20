@@ -29,7 +29,7 @@ data CleverAI = CleverAI
 cleverAI :: Rules -> Bool -> CleverAI
 cleverAI r checkerboardEven = CleverAI
   { rules            = r
-  , tracking         = newGrid (rulesSize r) Nothing
+  , tracking         = newGrid boardSize Nothing
   , shots            = []
   , sunk             = []
   , sunkTime         = []
@@ -62,7 +62,7 @@ cleverResponse p r ai = case r of
       err      = error $ "No sunk ship found: " ++ show p ++ "\n" ++ showTracking (tracking ai')
   _    -> ai'
   where
-    shipArea s t = shipCoordinates (rulesSafetyMargin (rules ai)) s `intersect` indices t
+    shipArea s t = shipCoordinates 1 s `intersect` indices t
     ai' = ai
       { tracking = tracking ai // [(p, Just r)]
       , shots    = p : (shots ai)
@@ -114,7 +114,7 @@ scoreGrid = liftM (scoreGrid') get
 
 scoreGrid' :: CleverAI -> ScoreGrid
 scoreGrid' ai@(CleverAI {..}) = buildArray bs $ scorePosition ai remaining where
-  (w, h)    = rulesSize rules
+  (w, h)    = boardSize
   bs        = ((0, 0), (w - 1, h - 1))
   remaining = rulesShips rules \\ map shipSize sunk
 
@@ -267,7 +267,7 @@ probBlockedGrid (CleverAI {..}) = array ((0, 0), (width - 1, height - 1))
   | x <- [0..width-1]
   , y <-[0..height-1]
   , let pos = (x,y)] where
-    (width, height)     = rulesSize rules
+    (width, height)     = boardSize
     probBlocked p       = maximum [probWater p, probNearSunk p,  diagonalHit p]
     numMovesAgo p       = fromMaybe (error $ "numMovesAgo with invalid position " ++ show p
                                            ++ ", shots " ++ show shots)
@@ -280,7 +280,7 @@ probBlockedGrid (CleverAI {..}) = array ((0, 0), (width - 1, height - 1))
     -- | Probability for a ship to be within the safety zone of a sunk ship.
     probNearSunk p      = maximum'
                         . map (\(_,c) -> decayFactor ^ (length shots - c))
-                        . filter (\(s,_) -> p `elem` shipCoordinates (rulesSafetyMargin rules) s)
+                        . filter (\(s,_) -> p `elem` shipCoordinates 1 s)
                         $ zip sunk sunkTime where
     -- | If the diagonal cells are hit, there can't be a ship.
     -- | Illustration:

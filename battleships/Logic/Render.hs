@@ -57,19 +57,20 @@ renderLegend icon = case icon of
 -- * High-Level Rendering for Grids
 -------------------------------------------------------------------------------
 
-renderReferenceGrid :: (Int,Int) -> BattleDia
-renderReferenceGrid (nx, ny) = renderGrid nx ny
+renderReferenceGrid :: BattleDia
+renderReferenceGrid = renderGrid nx ny where (nx, ny) = boardSize
 
-renderWaterGrid :: (Int,Int) -> BattleDia
-renderWaterGrid (nx, ny) = contentSquare nx ny # fc waterColor
+renderWaterGrid :: BattleDia
+renderWaterGrid = contentSquare nx ny # fc waterColor where (nx, ny) = boardSize
 
-renderEnemyGrid :: (Int,Int) -> Fleet -> TrackingList -> Rules -> BattleDia
-renderEnemyGrid (nx,ny) fleet shots Rules{..} = mconcat
+renderEnemyGrid :: Fleet -> TrackingList -> Rules -> BattleDia
+renderEnemyGrid fleet shots Rules{..} = mconcat
   [ if rulesDevMode then renderFleetHints else mempty
   , mconcat (fmap renderShot shots)
   , contentSquare nx ny # fc fogColor
   ]
   where
+    (nx, ny) = boardSize
     renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
       case val of
         Water -> waterSquare
@@ -83,8 +84,8 @@ renderEnemyGrid (nx,ny) fleet shots Rules{..} = mconcat
           Vertical   -> (1, realToFrac shipSize)
       in rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # lc red # lw 1 # value []
 
-renderPlayerGrid :: (Int,Int) -> Fleet -> TrackingList -> Action -> Rules -> BattleDia
-renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
+renderPlayerGrid :: Fleet -> TrackingList -> Action -> Rules -> BattleDia
+renderPlayerGrid fleet shots requiredAction rules = mconcat
     [ markLastShots
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
     , fold $ fmap renderShot $ filter ((/=Water) . shotResult) shots
@@ -93,27 +94,28 @@ renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
     , contentSquare nx ny # fc waterColor
     ]
   where
-  markLastShots = case L.groupBy ((==) `on` shotTime) shots of
-    shotsLastRound:_ 
-      -> flip foldMap (zip [1::Int ..] (reverse shotsLastRound)) $ \(idx, Shot lastShotPos _ _) ->
-               lastShotMarker idx # translateToPos lastShotPos # value []
-    _ -> mempty # value []
+    (nx,ny) = boardSize
+    markLastShots = case L.groupBy ((==) `on` shotTime) shots of
+      shotsLastRound:_ 
+        -> flip foldMap (zip [1::Int ..] (reverse shotsLastRound)) $ \(idx, Shot lastShotPos _ _) ->
+                 lastShotMarker idx # translateToPos lastShotPos # value []
+      _ -> mempty # value []
 
-  renderShip ship@Ship{shipShape = ShipShape{shipPosition=(x,y),..},..} = 
-    translateToPos (x,y) $ value [] $ case shipOrientation of
-      Horizontal -> hcat [shipCell i | i <- [0..shipSize-1]] # alignTL
-      Vertical   -> vcat [shipCell i | i <- [0..shipSize-1]] # alignTL
-    where
-      shipCell = if isDamaged ship then const shipSquare else movableShipCell
-      movableShipCell i = if requiredAction == ActionMove
-          then maybe mempty renderArrow (movementArrowAt ship i fleet rules) <> movableSquare
-          else movableSquare
-      
-  renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
-    case val of
-      Water -> marker # lc markerWaterColor # lw 3 <> waterSquare
-      Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
-      Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
+    renderShip ship@Ship{shipShape = ShipShape{shipPosition=(x,y),..},..} = 
+      translateToPos (x,y) $ value [] $ case shipOrientation of
+        Horizontal -> hcat [shipCell i | i <- [0..shipSize-1]] # alignTL
+        Vertical   -> vcat [shipCell i | i <- [0..shipSize-1]] # alignTL
+      where
+        shipCell = if isDamaged ship then const shipSquare else movableShipCell
+        movableShipCell i = if requiredAction == ActionMove
+            then maybe mempty renderArrow (movementArrowAt ship i fleet rules) <> movableSquare
+            else movableSquare
+        
+    renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
+      case val of
+        Water -> marker # lc markerWaterColor # lw 3 <> waterSquare
+        Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
+        Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
 
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering

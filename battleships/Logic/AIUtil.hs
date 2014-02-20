@@ -52,7 +52,7 @@ initShips' r fleet len = do
 -- | calculates all possible placements for a ship of the given lengths
 admissibleShips :: Rules -> FleetPlacement -> Int -> [ShipShape]
 admissibleShips r@(Rules {..}) fleet len = do
-  let (w, h) = rulesSize
+  let (w, h) = boardSize
   x <- [0 .. w - 1]
   y <- [0 .. h - 1]
   o <- [Horizontal, Vertical]
@@ -149,14 +149,13 @@ showTracking grid = concat
   ] where
     ((0,0), (width', height')) = bounds grid
 
-showFleetPlacement :: Rules -> FleetPlacement -> String
-showFleetPlacement r fleet = tail $ concat
+showFleetPlacement :: FleetPlacement -> String
+showFleetPlacement fleet = tail $ concat
   [ (if x == 0 then "\n" else "") ++
     (if isJust . shipAt fleet $ (x,y) then "O" else "~")
   | y <- [0..height - 1]
   , x <- [0..width - 1]
-  ] where
-     (width, height) = rulesSize r
+  ] where (width, height) = boardSize
 
-showFleet :: Rules -> Fleet -> String
-showFleet r = showFleetPlacement r . map shipShape . Map.elems
+showFleet :: Fleet -> String
+showFleet = showFleetPlacement . map shipShape . Map.elems

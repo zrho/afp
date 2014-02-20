@@ -42,7 +42,7 @@ benchmark repetitions = do
 playGame :: IO Int
 playGame = do
   (ai, fleetPlacement) <- aiInit rules
-  putStrLn $ showFleetPlacement rules fleetPlacement
+  putStrLn $ showFleetPlacement fleetPlacement
   let fleet = generateFleet fleetPlacement
   (count, _newAi) <- runStateT (turn [] fleet Map.empty 0) (ai :: CleverAI)
   return count 
@@ -88,8 +88,8 @@ turn shots fleet sunk count = do
       True  -> return (count + 1)
       False -> turn
                   shots'
-                  ( debug' (\f -> "Fleet:\n" ++ showFleet rules f) fleet'')
-                  ( debug' (\f -> "Sunk:\n" ++ showFleet rules f) sunk'  )
+                  ( debug' (\f -> "Fleet:\n" ++ showFleet f) fleet'')
+                  ( debug' (\f -> "Sunk:\n" ++ showFleet f) sunk'  )
                   (count + 1)
 
 rules :: Rules

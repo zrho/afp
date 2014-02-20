@@ -6,7 +6,6 @@ import           Logic.Game
 import           Logic.AIUtil
 import           Control.Monad.Random
 import           Control.Monad.Reader
-import           Control.Monad.State
 import           Control.Applicative
 import           Data.Maybe (fromJust)
 import           Data.Serialize (Serialize)
@@ -18,7 +17,7 @@ instance AI StupidAI where
   aiInit r       = do
     ships <- liftM fromJust $ initShips r []
     return $ (StupidAI r, ships)
-  aiFire         = gets (rulesSize . rules) >>= getRandomPos
+  aiFire         = getRandomPos boardSize
   aiResponse _ _ = return ()
 
 instance Serialize StupidAI where

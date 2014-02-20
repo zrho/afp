@@ -24,6 +24,13 @@ import           Yesod (PathPiece (..))
 import qualified Data.Text as T hiding (find, zip, map)
 
 -------------------------------------------------------------------------------
+-- * Constants
+-------------------------------------------------------------------------------
+
+boardSize :: (Int, Int)
+boardSize = (10, 10)
+
+-------------------------------------------------------------------------------
 -- * AI
 -------------------------------------------------------------------------------
 
@@ -60,9 +67,7 @@ class AI a where
 -------------------------------------------------------------------------------
 
 data Rules = Rules
-  { rulesSize         :: (Int, Int)
-  , rulesShips        :: [Int]
-  , rulesSafetyMargin :: Int
+  { rulesShips        :: [Int]
   , rulesAgainWhenHit :: Bool
   , rulesMove         :: Bool
   , rulesDevMode      :: Bool
@@ -207,9 +212,7 @@ newGame r pFleet begin = do
 -- | The battleship default rules
 defaultRules :: Rules 
 defaultRules = Rules
-  { rulesSize  = (10, 10)
-  , rulesShips = [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ]
-  , rulesSafetyMargin = 1
+  { rulesShips = [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ]
   , rulesAgainWhenHit = True
   , rulesMove  = True
   , rulesDevMode = False
@@ -236,8 +239,8 @@ shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
                  $ shipCoordinates 0 ship
   -- check if ship is not overlapping the safety margin of other ships
   freeCheck      = L.all (isNothing . shipAt fleet)
-                 $ shipCoordinates rulesSafetyMargin ship
-  (w, h)         = rulesSize
+                 $ shipCoordinates 1 ship
+  (w, h)         = boardSize
   gridRange      = ((0, 0), (w - 1, h - 1))
 
 -- | Calculates the position occupied by a ship including safety margin.
@@ -564,11 +567,9 @@ instance Serialize PlayerState where
     put playerMoves
 
 instance Serialize Rules where
-  get = Rules <$> getPos <*> getList8 getIntegral8 <*> getIntegral8 <*> get <*> get <*> get <*> getIntegral8
+  get = Rules <$> getList8 getIntegral8 <*> get <*> get <*> get <*> getIntegral8
   put Rules {..} = do
-    putPos rulesSize
     putList8 putIntegral8 rulesShips
-    putIntegral8 rulesSafetyMargin
     put rulesAgainWhenHit
     put rulesMove
     put rulesDevMode

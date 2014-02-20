@@ -19,16 +19,16 @@ import           Handler.Util
 -- | renders the currentPlayer's grid
 getPlayerGridR :: GameStateExt -> Action-> Handler TypedContent
 getPlayerGridR gameE requiredAction = withGame gameE $ \(GameState {..}) -> return
-  $ diagramContent $ renderPlayerGrid (rulesSize gameRules) (playerFleet currentPlayer) (playerShots otherPlayer) requiredAction gameRules
+  $ diagramContent $ renderPlayerGrid (playerFleet currentPlayer) (playerShots otherPlayer) requiredAction gameRules
 
 -- | renders the otherPlayer's grid
 getEnemyGridR :: GameStateExt -> Handler TypedContent
 getEnemyGridR gameE = withGame gameE $ \(GameState {..}) -> return
-  $ diagramContent $ renderEnemyGrid (rulesSize gameRules) (playerFleet otherPlayer) (playerShots currentPlayer) gameRules
+  $ diagramContent $ renderEnemyGrid (playerFleet otherPlayer) (playerShots currentPlayer) gameRules
 
 getPlaceGridR :: GameStateExt -> Handler TypedContent
 getPlaceGridR gameE = withGame gameE $ \(GameState {..}) -> return
-  $ diagramContent $ renderWaterGrid (rulesSize gameRules)
+  $ diagramContent $ renderWaterGrid
 
 legendWidget :: Orientation -> Widget
 legendWidget orientation = $(widgetFile "legend")
