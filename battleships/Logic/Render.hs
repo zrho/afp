@@ -61,12 +61,11 @@ renderReferenceGrid :: (Int,Int) -> BattleDia
 renderReferenceGrid (nx, ny) = renderGrid nx ny
 
 renderWaterGrid :: (Int,Int) -> BattleDia
-renderWaterGrid (nx, ny) = renderGrid nx ny `atop` contentSquare nx ny # fc waterColor
+renderWaterGrid (nx, ny) = contentSquare nx ny # fc waterColor
 
 renderEnemyGrid :: (Int,Int) -> Fleet -> TrackingList -> Rules -> BattleDia
 renderEnemyGrid (nx,ny) fleet shots Rules{..} = mconcat
-  [ renderGrid nx ny
-  , if rulesDevMode then renderFleetHints else mempty
+  [ if rulesDevMode then renderFleetHints else mempty
   , mconcat (fmap renderShot shots)
   , contentSquare nx ny # fc fogColor
   ]
@@ -86,8 +85,7 @@ renderEnemyGrid (nx,ny) fleet shots Rules{..} = mconcat
 
 renderPlayerGrid :: (Int,Int) -> Fleet -> TrackingList -> Action -> Rules -> BattleDia
 renderPlayerGrid (nx,ny) fleet shots requiredAction rules = mconcat
-    [ renderGrid nx ny
-    , markLastShots
+    [ markLastShots
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
     , fold $ fmap renderShot $ filter ((/=Water) . shotResult) shots
     , fold $ fmap renderShip $ Map.filter isDamaged fleet         -- ... damaged ones below
@@ -155,7 +153,11 @@ lastShotMarker idx =
     ) # alignTL # translate (r2 (2,-2))
 
 contentSquare :: Int -> Int -> BattleDia
-contentSquare nx ny = rect (cellSize * realToFrac nx) (cellSize * realToFrac ny) # alignTL # value [] # translateToPos (0,0)
+contentSquare nx ny
+  = rect (cellSize * realToFrac nx) (cellSize * realToFrac ny)
+  # alignTL
+  # value []
+  # translateToPos (0,0)
 
 movementArrowAt :: Ship -> Int -> Fleet -> Rules -> Maybe MoveArrow
 movementArrowAt ship@Ship{..} i fleet rules =
@@ -220,14 +222,15 @@ yticks w ys = mconcat [fromVertices [p2 (0, -y), p2 (w, -y) ] | y <- ys]
 -- * Style Constants
 -------------------------------------------------------------------------------
 
-cellSize, halfCellSize, markerRadius :: Double
-cellSize     = 40
-halfCellSize = cellSize / 2
-markerRadius = cellSize / 2 - 3
+cellSize, halfCellSize, markerRadius, innerGridWidth :: Double
+cellSize       = 40
+halfCellSize   = cellSize / 2
+markerRadius   = cellSize / 2 - 3
+innerGridWidth = 1
 
 innerGridLineStyle, outerGridLineStyle, arrowStyle :: HasStyle c => c -> c
-innerGridLineStyle = lw 1 . lc gridColor . dashing [3, 3] 0
-outerGridLineStyle = lw 1 . lc gridColor
+innerGridLineStyle = lw (innerGridWidth) . lc gridColor . dashing [3, 3] 0
+outerGridLineStyle = lw (innerGridWidth) . lc gridColor
 arrowStyle         = lw 3 . lc gray
 
 numberStyle :: HasStyle c => c -> c

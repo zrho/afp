@@ -5,14 +5,17 @@
         _{MsgYourFleet}
       $case expectedAction
         $of ActionFire
-          <embed .board
-              src="@{PlayerGridR gameE ActionFire}" 
-              type="image/svg+xml" />
+          <div .board>
+            <embed
+                src="@{PlayerGridR gameE ActionFire}" 
+                type="image/svg+xml" />
+            <div>&nbsp;
         $of ActionMove
-          <embed .board
-              src="@{PlayerGridR gameE ActionMove}" 
-              type="image/svg+xml" 
-              onload="clickableInit(this, '@{MoveR gameE}');" />
+          <div .board>
+            <embed
+                src="@{PlayerGridR gameE ActionMove}" 
+                type="image/svg+xml" />
+            <div .actionMove>&nbsp;
 
       <div .actionBox>
         $if expectedAction == ActionMove
@@ -26,14 +29,17 @@
         _{MsgOpponentsFleet}
       $case expectedAction
         $of ActionFire
-          <embed .board
-              src="@{EnemyGridR gameE}"
-              type="image/svg+xml"
-              onload="clickableInit(this, '@{FireR gameE}');" />
+          <div .board>
+            <embed
+                src="@{EnemyGridR gameE}"
+                type="image/svg+xml" />
+            <div .actionFire>&nbsp;
         $of ActionMove
-          <embed .board
-              src="@{EnemyGridR gameE}"
-              type="image/svg+xml" />
+          <div .board>
+            <embed
+                src="@{EnemyGridR gameE}"
+                type="image/svg+xml" />
+            <div>&nbsp;
 
       <div .actionBox>
         $if expectedAction == ActionFire

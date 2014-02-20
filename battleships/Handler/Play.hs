@@ -19,6 +19,7 @@ moveForm = (,) <$> iopt doubleField "X" <*> iopt doubleField "Y"
 getPlayR :: GameStateExt -> Handler Html
 getPlayR gameE = withGame gameE $ \(gameState@GameState {..}) -> defaultLayout $ do
   setNormalTitle
+  addScript $ StaticR js_jquery_js
   $(widgetFile "play")
 
 postMoveR :: GameStateExt -> Handler Html

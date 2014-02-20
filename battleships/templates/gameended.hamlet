@@ -3,12 +3,16 @@
     <div .boardContent>
       <h3>
         _{MsgYourFleet}
-      <embed .board src="@{PlayerGridR gameE ActionFire}" type="image/svg+xml" />
+      <div .board>
+        <embed src="@{PlayerGridR gameE ActionFire}" type="image/svg+xml" />
+        <div>&nbsp;
   <div .rightBoard>
     <div .boardContent>
       <h3>
         _{MsgOpponentsFleet}
-      <embed .board src="@{EnemyGridR gameE}" type="image/svg+xml" />
+      <div .board>
+        <embed src="@{EnemyGridR gameE}" type="image/svg+xml" />
+        <div>&nbsp;
 
 <div .clear>
 

@@ -11,4 +11,5 @@ getGameEndedR gameE = withGame gameE $ \game -> do
   let humanWon = allSunk (playerFleet $ otherPlayer $ game)
   defaultLayout $ do
     setNormalTitle
+    $(widgetFile "board")
     $(widgetFile "gameended")

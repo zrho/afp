@@ -106,6 +106,28 @@ div.boardContent
   width: 480px
   height: 600px
 
-embed.board
+div.board
   width: 480px
   height: 480px
+  position: relative
+
+div.board embed
+  margin: 0px
+  padding: 0px
+  position: absolute
+  top: 40px
+  left: 40px
+
+div.board div
+  position: absolute
+  margin: 0px
+  padding: 0px
+  top: 0px
+  left: 0px
+  width: 480px
+  height: 480px
+  background-image: url(@{gridStatic})
+
+.red
+  border: 3px solid #F00
+  background: #F00

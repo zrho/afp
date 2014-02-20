@@ -1,7 +1,7 @@
-function clickableInit(svg, target, move) {
-    svg.getSVGDocument().onclick = function (event) {
-        clickableEvent(event, target, move);
-    }
+function clickableInit(elem, target) {
+    elem.click(function (event) {
+        clickableEvent(event, target);
+    });
 }
 
 function clickableEvent(event, target) {
@@ -12,15 +12,20 @@ function clickableEvent(event, target) {
     var hiddenField = document.createElement('input');
     hiddenField.setAttribute('type','hidden');
     hiddenField.setAttribute('name','X');
-    hiddenField.setAttribute('value',event.clientX);
+    hiddenField.setAttribute('value',event.offsetX);
     form.appendChild(hiddenField);
 
     hiddenField = document.createElement('input');
     hiddenField.setAttribute('type','hidden');
     hiddenField.setAttribute('name','Y');
-    hiddenField.setAttribute('value',-event.clientY);
+    hiddenField.setAttribute('value',-event.offsetY);
     form.appendChild(hiddenField);
 
     document.body.appendChild(form);
     form.submit();
 }
+
+$(function() {
+    clickableInit($(".actionMove"), '@{MoveR gameE}');
+    clickableInit($(".actionFire"), '@{FireR gameE}');    
+});
