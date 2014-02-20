@@ -6,6 +6,7 @@ module Logic.Render
   , renderPlayerGrid
   , renderLegend
   , renderGrid
+  , waterColor
   , LegendIcon (..)
   , BattleDia
   ) where
@@ -58,10 +59,13 @@ renderLegend icon = case icon of
 -------------------------------------------------------------------------------
 
 renderReferenceGrid :: BattleDia
-renderReferenceGrid = renderGrid nx ny where (nx, ny) = boardSize
+renderReferenceGrid = renderGrid
 
 renderWaterGrid :: BattleDia
-renderWaterGrid = contentSquare nx ny # fc waterColor where (nx, ny) = boardSize
+renderWaterGrid = mconcat
+  [ renderGrid
+  , contentSquare nx ny # fc waterColor
+  ] where (nx, ny) = boardSize
 
 renderEnemyGrid :: Fleet -> TrackingList -> Rules -> BattleDia
 renderEnemyGrid fleet shots Rules{..} = mconcat
@@ -191,8 +195,8 @@ translateToPos (x,y) =
 -- * Grid Rendering
 -------------------------------------------------------------------------------
 
-renderGrid :: Int -> Int -> BattleDia
-renderGrid nx ny = border <> gridLines <> labels where
+renderGrid :: BattleDia
+renderGrid  = border <> gridLines <> labels where
   border    = rect w h # alignTL # lw 1 # lc gridColor # value []
   gridLines = (innerLines <> outerLines)
   xnums     = colNumbers nx # translate (r2 (cellSize, 0))
@@ -206,9 +210,9 @@ renderGrid nx ny = border <> gridLines <> labels where
   h = (fromIntegral ny + 2) * cellSize
   outerOffsets n = [cellSize, (fromIntegral n + 1) * cellSize]
   innerOffsets n = [(fromIntegral i) * cellSize | i <- [2..n]]
-
   innerLines = (xticks (h-1) (innerOffsets nx) <> yticks (w-1) (innerOffsets ny)) # innerGridLineStyle # value []
   outerLines = (xticks (h-1) (outerOffsets nx) <> yticks (w-1) (outerOffsets ny)) # outerGridLineStyle # value []
+  (nx, ny)   = boardSize
 
 #if MIN_VERSION_diagrams_lib(0,7,0)
 xticks, yticks :: (Monoid a, TrailLike a, V a ~ R2) 

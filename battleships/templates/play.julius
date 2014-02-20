@@ -9,16 +9,20 @@ function clickableEvent(event, target) {
     form.setAttribute('method', 'post');
     form.setAttribute('action', target);
 
+    var offset = $(event.target).offset();
+    var x = event.pageX - offset.left;
+    var y = event.pageY - offset.top;
+
     var hiddenField = document.createElement('input');
     hiddenField.setAttribute('type','hidden');
     hiddenField.setAttribute('name','X');
-    hiddenField.setAttribute('value',event.offsetX);
+    hiddenField.setAttribute('value',x);
     form.appendChild(hiddenField);
 
     hiddenField = document.createElement('input');
     hiddenField.setAttribute('type','hidden');
     hiddenField.setAttribute('name','Y');
-    hiddenField.setAttribute('value',-event.offsetY);
+    hiddenField.setAttribute('value',-y);
     form.appendChild(hiddenField);
 
     document.body.appendChild(form);

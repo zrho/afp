@@ -20,13 +20,10 @@ data GameStateExt = GameStateExt
 -------------------------------------------------------------------------------
 
 -- | Imports a game, given the key.
-impGame
-  :: (MonadIO m, Serialize a)
-  => Key -> GameStateExt -> m (Maybe (GameState a))
-impGame key game = liftIO $ do
-  let enc = fromStateExt game
-  let dec = toStrict $ decryptMsg CBC key enc
-  return $ eitherToMaybe $ decode dec
+impGame :: Serialize a => Key -> GameStateExt -> Maybe (GameState a)
+impGame key game = eitherToMaybe $ decode dec where
+  enc = fromStateExt game
+  dec = toStrict $ decryptMsg CBC key enc
 
 -- | Exports a game, given the key.
 expGame

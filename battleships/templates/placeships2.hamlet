@@ -3,6 +3,8 @@
     <div .boardBox>
       <h3>_{MsgPlaceShips}
       <div id="mapBackground">
+        <div .water>&nbsp;
+        <div .grid>&nbsp;
         <canvas id="map">
   <div .right>
     <div .toolBox>

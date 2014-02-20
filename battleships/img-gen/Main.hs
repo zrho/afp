@@ -61,7 +61,7 @@ data GridBG = GridBG
 
 instance ImageFile GridBG where
   imageName _   = "grid"
-  imageRender _ = fmap (const $ Any True) $ renderGrid 10 10
+  imageRender _ = fmap (const $ Any True) renderGrid
 
 -------------------------------------------------------------------------------
 -- * Icons

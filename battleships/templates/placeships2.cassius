@@ -47,7 +47,27 @@ thead tr td:first-child, tbody tr td:first-child, tfoot tr td:first-child
   padding: 2px;
 
 #mapBackground
-  padding: 40px
+  width: 480px
+  height: 480px
+  position: relative
+
+#mapBackground .grid
+  width: 480px
+  height: 480px
+  top: 0px
+  left: 0px
+  position: absolute
+  background-image: url(@{gridStatic})
+
+#mapBackground .water
+  background: #36BBCE
   width: 400px
   height: 400px
-  background-image: url(@{gridStatic})
+  top: 40px
+  left: 40px
+  position: absolute
+
+#mapBackground canvas
+  top: 40px
+  left: 40px
+  position: absolute  

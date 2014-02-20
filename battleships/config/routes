@@ -3,7 +3,6 @@
 /battleships/place/#GameStateExt/random             PlaceShipsRndR POST
 /battleships/play/#GameStateExt/#Action/player.svg  PlayerGridR    GET
 /battleships/play/#GameStateExt/enemy.svg           EnemyGridR     GET
-/battleships/play/#GameStateExt/place.svg           PlaceGridR     GET
 /battleships/play/#GameStateExt/view                PlayR          GET
 /battleships/play/#GameStateExt/fire                FireR          POST
 /battleships/play/#GameStateExt/move                MoveR          POST

@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards, ViewPatterns #-}
 module Handler.Util where
 
 import Import
@@ -16,14 +16,11 @@ withGame gameE act = impGameH gameE >>= \g -> case g of
   Nothing   -> redirect HomeR
   Just game -> act game
 
-fieldPos :: GameState a -> (Double, Double) -> Maybe Pos
-fieldPos (GameState {..}) p = fieldPos' renderReferenceGrid p
+fieldPos :: (Double, Double) -> Maybe Pos
+fieldPos p = fieldPos' renderReferenceGrid p
 
 fieldPos' :: BattleDia -> (Double, Double) -> Maybe Pos
-fieldPos' dia (px, py)
-  = listToMaybe
-  $ sample dia
-  $ p2 (px, py)
+fieldPos' dia (px, py) = listToMaybe $ sample dia $ p2 (px, py)
 
 -- | Translates a message of the current application to the current target language.
 translateMessage :: MonadHandler m => AppMessage -> m Text
@@ -53,7 +50,7 @@ gridStatic = StaticR img_grid_svg
 impGameH :: Serialize a => GameStateExt -> Handler (Maybe (GameState a))
 impGameH game = do
   key <- appKey <$> getYesod
-  impGame key game
+  return $ impGame key game
 
 expGameH :: Serialize a => GameState a -> Handler GameStateExt
 expGameH game = do

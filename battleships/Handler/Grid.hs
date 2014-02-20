@@ -2,7 +2,6 @@
 module Handler.Grid
   ( getPlayerGridR
   , getEnemyGridR
-  , getPlaceGridR
   , legendWidget
   ) where
 
@@ -25,10 +24,6 @@ getPlayerGridR gameE requiredAction = withGame gameE $ \(GameState {..}) -> retu
 getEnemyGridR :: GameStateExt -> Handler TypedContent
 getEnemyGridR gameE = withGame gameE $ \(GameState {..}) -> return
   $ diagramContent $ renderEnemyGrid (playerFleet otherPlayer) (playerShots currentPlayer) gameRules
-
-getPlaceGridR :: GameStateExt -> Handler TypedContent
-getPlaceGridR gameE = withGame gameE $ \(GameState {..}) -> return
-  $ diagramContent $ renderWaterGrid
 
 legendWidget :: Orientation -> Widget
 legendWidget orientation = $(widgetFile "legend")

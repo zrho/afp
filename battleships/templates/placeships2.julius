@@ -39,7 +39,6 @@ $(window).load(function() {
 });
 
 function placeRandom() {
-	
 	$.ajax({
 		url: "@{PlaceShipsRndR gameE}",
 		type: "POST",

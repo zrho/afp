@@ -26,7 +26,7 @@ postMoveR :: GameStateExt -> Handler Html
 postMoveR gameE = withGame gameE $ \game -> do
     mpos <- runInputPost moveForm
     case mpos of 
-      (Just x, Just y) -> case fieldPos game (x,y) of
+      (Just x, Just y) -> case fieldPos (x,y) of
         -- invalid click
         Nothing  -> invalidMove gameE
         -- valid click
@@ -49,7 +49,7 @@ postMoveR gameE = withGame gameE $ \game -> do
 postFireR :: GameStateExt -> Handler Html
 postFireR gameE = withGame gameE $ \game -> do
   (x,y) <- runInputPost fireForm
-  case fieldPos game (x,y) of
+  case fieldPos (x,y) of
     -- invalid click
     Nothing  -> invalidMove gameE
     -- valid click
