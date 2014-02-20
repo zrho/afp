@@ -21,11 +21,13 @@ import Web.Cookie (setCookiePath)
 import Logic.GameExt
 import Logic.Game
 import Yesod.Routes.Class ()
+import qualified Codec.Crypto.SimpleAES as AES
 
 data App = App
     { settings :: AppConfig DefaultEnv ()
     , getStatic :: Static -- ^ Settings for static file serving.
     , appLogger :: Logger
+    , appKey    :: AES.Key
     }
 
 -- Set up i18n messages. See the messages folder.

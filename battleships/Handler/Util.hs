@@ -9,9 +9,10 @@ import Logic.GameExt
 import Logic.CleverAI
 import Logic.Render
 import Yesod.Routes.Class
+import Data.Serialize (Serialize)
 
 withGame :: GameStateExt -> (GameState CleverAI -> Handler a) -> Handler a
-withGame gameE act = impGame gameE >>= \g -> case g of
+withGame gameE act = impGameH gameE >>= \g -> case g of
   Nothing   -> redirect HomeR
   Just game -> act game
 
@@ -48,3 +49,13 @@ legendStatic ico = StaticR $ case ico of
 
 gridStatic :: Route App
 gridStatic = StaticR img_grid_svg
+
+impGameH :: Serialize a => GameStateExt -> Handler (Maybe (GameState a))
+impGameH game = do
+  key <- appKey <$> getYesod
+  impGame key game
+
+expGameH :: Serialize a => GameState a -> Handler GameStateExt
+expGameH game = do
+  key <- appKey <$> getYesod
+  expGame key game

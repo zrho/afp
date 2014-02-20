@@ -39,7 +39,7 @@ postPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
     Nothing             -> redirect $ PlaceShipsR gameE
     Just fleetPlacement -> do
       let fleet = generateFleet fleetPlacement
-      g <- expGame game { currentPlayer = currentPlayer { playerFleet = fleet } }
+      g <- expGameH game { currentPlayer = currentPlayer { playerFleet = fleet } }
       redirect $ PlayR g
 
 postPlaceShipsRndR :: GameStateExt -> Handler TypedContent

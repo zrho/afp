@@ -72,8 +72,8 @@ invalidMove :: GameStateExt -> Handler Html
 invalidMove gameE = redirect $ PlayR gameE
 
 gameEnded, continue, performAI :: (Serialize a, AI a) => GameState a -> Handler Html
-gameEnded game = expGame game >>= redirect . GameEndedR
-continue game = expGame game >>= redirect . PlayR
+gameEnded game = expGameH game >>= redirect . GameEndedR
+continue game = expGameH game >>= redirect . PlayR
 performAI game = do
   (result, game') <- liftIO $ runStateT aiTurn game
   case result of

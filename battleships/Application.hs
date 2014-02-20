@@ -33,6 +33,8 @@ import Handler.PlaceShips
 import Handler.GameEnded
 import Handler.Rules
 
+import Logic.GameExt
+
 mkYesodDispatch "App" resourcesApp
 
 makeApplication :: AppConfig DefaultEnv () -> IO Application
@@ -63,7 +65,8 @@ makeFoundation conf = do
     logger <- mkLogger True stdout
 #endif
     s <- staticSite
-    let foundation = App conf s logger
+    key <- loadKey
+    let foundation = App conf s logger key
     return foundation
 
 -- for yesod devel

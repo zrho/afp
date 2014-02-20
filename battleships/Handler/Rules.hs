@@ -3,7 +3,6 @@ module Handler.Rules (getRulesR, postRulesR) where
 
 import Import
 import Logic.Game
-import Logic.GameExt
 import Logic.CleverAI
 import Handler.Util
 import Data.Maybe
@@ -31,7 +30,7 @@ postRulesR = do
       }
 
   game <- liftIO $ (newGame rules [] HumanPlayer)
-  gameE <- expGame (game :: GameState CleverAI)
+  gameE <- expGameH (game :: GameState CleverAI)
   redirect (PlaceShipsR gameE)
 
 renderRulePage :: Int -> Maybe AppMessage -> Handler Html

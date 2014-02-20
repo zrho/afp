@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies, RecordWildCards #-}
 module Logic.GameExt where
 
 import           Prelude
@@ -18,18 +19,20 @@ data GameStateExt = GameStateExt
 -- * Conversions
 -------------------------------------------------------------------------------
 
--- | Imports a game.
-impGame :: (MonadIO m, Serialize a) => GameStateExt -> m (Maybe (GameState a))
-impGame game = liftIO $ do
-  key <- loadKey
+-- | Imports a game, given the key.
+impGame
+  :: (MonadIO m, Serialize a)
+  => Key -> GameStateExt -> m (Maybe (GameState a))
+impGame key game = liftIO $ do
   let enc = fromStateExt game
   let dec = toStrict $ decryptMsg CBC key enc
   return $ eitherToMaybe $ decode dec
 
--- | Exports a game.
-expGame :: (MonadIO m, Serialize a) => GameState a -> m GameStateExt
-expGame game = liftIO $ do
-  key <- loadKey
+-- | Exports a game, given the key.
+expGame
+  :: (MonadIO m, Serialize a)
+  => Key -> GameState a -> m GameStateExt
+expGame key game = liftIO $ do
   let dec = fromStrict $ encode game
   enc <- encryptMsg CBC key dec
   return $ GameStateExt enc
