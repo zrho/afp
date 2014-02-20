@@ -45,6 +45,11 @@ function placeRandom() {
 		dataType: "json",
 		data: { fleetData: JSON.stringify(map.ships) }
 	}).done(function(shipData) {
+		if (0 == shipData.length) {
+			alert(#{toJSON $ messageRender MsgNoPossiblePlacement});
+			return;
+		}
+
 		map.reset();
 		// Extract relevant data (x,y,size, orientation) from the fleet
 		for(var i = 0; i < shipData.length; i++) {

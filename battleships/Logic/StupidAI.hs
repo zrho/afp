@@ -8,13 +8,16 @@ import           Control.Monad.Random
 import           Control.Monad.Reader
 import           Control.Monad.State
 import           Control.Applicative
+import           Data.Maybe (fromJust)
 import           Data.Serialize (Serialize)
 import qualified Data.Serialize as S
 
 data StupidAI = StupidAI { rules :: Rules }
 
 instance AI StupidAI where
-  aiInit r       = liftM2 (,) (return (StupidAI r)) (initShips r [])
+  aiInit r       = do
+    ships <- liftM fromJust $ initShips r []
+    return $ (StupidAI r, ships)
   aiFire         = gets (rulesSize . rules) >>= getRandomPos
   aiResponse _ _ = return ()
 

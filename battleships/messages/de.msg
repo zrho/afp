@@ -8,6 +8,7 @@ Won: Du hast gewonnen!
 Lost: Du hast verloren.
 PlaceShips: Platziere deine Schiffe
 AvailableShips: Verfügbare Flotte
+NoPossiblePlacement: Es ist keine vollständige Flottenbelegung möglich.
 
 InputAgainWhenHit: bei Treffer erneut schießen
 InputMove: Schiffe verschiebbar

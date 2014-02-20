@@ -24,6 +24,7 @@ getPlaceShipsR :: GameStateExt -> Handler Html
 getPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
   defaultLayout $ do
     setNormalTitle
+    messageRender <- getMessageRender
     addScript $ StaticR js_jquery_js
     addScript $ StaticR js_json2_js
     addScript $ StaticR js_map_js
@@ -45,7 +46,7 @@ postPlaceShipsRndR :: GameStateExt -> Handler TypedContent
 postPlaceShipsRndR gameE = withGame gameE $ \(GameState {..}) -> do
   fleet  <- fmap (fromMaybe []) getPostedFleet
   fleet' <- liftIO $ initShips gameRules fleet
-  return $ jsonFleet fleet'
+  return $ jsonFleet $ fromMaybe [] $ fleet'
   
 getX :: ShipShape -> Int 
 getX s = fst $ shipPosition s

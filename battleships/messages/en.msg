@@ -8,6 +8,7 @@ Won: You Won!
 Lost: You Lost.
 PlaceShips: Place your Ships
 AvailableShips: Available Ships
+NoPossiblePlacement: There is no possible ship placement.
 
 InputAgainWhenHit: shoot again when hit
 InputMove: allow ship movement

@@ -7,7 +7,7 @@ import           Logic.Random
 import           Data.Array
 import           Data.List
 import           Data.Function
-import           Data.Maybe (isJust)
+import           Data.Maybe (isJust, listToMaybe)
 import qualified Data.Map as Map
 import           Control.Arrow
 import           Control.Monad
@@ -30,10 +30,10 @@ type TrackingGrid = Grid (Maybe HitResponse)
 -- * Placing ships
 --------------------------------------------------------------------------------
 
-initShips :: MonadRandom m => Rules -> FleetPlacement -> m FleetPlacement
+initShips :: MonadRandom m => Rules -> FleetPlacement -> m (Maybe FleetPlacement)
 initShips r fleet = do
   fleets <- runRandM $ runListT $ foldM (initShips' r) fleet (rulesShips r)
-  return $ head $ fleets
+  return $ listToMaybe fleets
 
 -- | returns a random fleet, if one exists
 initShips'

@@ -4,7 +4,7 @@ module Logic.CleverAI (CleverAI) where
 import           Prelude
 import           Data.Array
 import           Data.List ((\\), elemIndex, intersect, delete)
-import           Data.Maybe (fromMaybe)
+import           Data.Maybe (fromMaybe, fromJust)
 import qualified Data.Map as Map
 import           Logic.Game
 import           Logic.AIUtil
@@ -38,7 +38,7 @@ cleverAI r checkerboardEven = CleverAI
 
 instance AI CleverAI where
   aiInit r = do
-    fleet <- initShips r []
+    fleet <- liftM fromJust $ initShips r []
     checkerboardEven <- getRandom
     return (cleverAI r checkerboardEven, fleet)
 
