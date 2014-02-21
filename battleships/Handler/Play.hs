@@ -36,7 +36,7 @@ postMoveR gameE = withGame gameE $ \game -> do
             ActionFire -> invalidMove gameE
             ActionMove -> case desiredMove pos humanFleet of
               Just (ship,movement) 
-                | isMovable movement (gameRules game) humanFleet (humanFleet!ship)
+                | isMovable movement humanFleet (humanFleet!ship)
                   -> performMove game (Just pos)
               _   -> invalidMove gameE
       -- player skips moving

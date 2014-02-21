@@ -33,32 +33,31 @@ type TrackingGrid = Grid (Maybe HitResponse)
 initShips :: MonadRandom m => Rules -> FleetPlacement -> m (Maybe FleetPlacement)
 initShips r fleet = do
   let ships = rulesShips r \\ (fmap shipSize fleet)
-  fleets <- runRandM $ runListT $ foldM (initShips' r) fleet ships
+  fleets <- runRandM $ runListT $ foldM initShips' fleet ships
   return $ listToMaybe fleets
 
 -- | returns a random fleet, if one exists
 initShips'
   :: (MonadRandom m)
-  => Rules
-  -> FleetPlacement
+  => FleetPlacement
   -> Int
   -> ListT m FleetPlacement
 
-initShips' r fleet len = do
-  let admissible = admissibleShips r fleet len
+initShips' fleet len = do
+  let admissible = admissibleShips fleet len
   shuffled  <- lift $ shuffleRandom admissible
   placement <- choose shuffled
   return $ placement : fleet
 
--- | calculates all possible placements for a ship of the given lengths
-admissibleShips :: Rules -> FleetPlacement -> Int -> [ShipShape]
-admissibleShips r@(Rules {..}) fleet len = do
+-- | calculates all possible placements for a ship of the given length
+admissibleShips :: FleetPlacement -> Int -> [ShipShape]
+admissibleShips fleet len = do
   let (w, h) = boardSize
   x <- [0 .. w - 1]
   y <- [0 .. h - 1]
   o <- [Horizontal, Vertical]
   let ship = ShipShape (x, y) len o
-  guard $ shipAdmissible r fleet ship
+  guard $ shipAdmissible fleet ship
   return ship
 
 --------------------------------------------------------------------------------

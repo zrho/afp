@@ -232,8 +232,8 @@ newGrid (w, h) a
 gridSize :: Grid a -> (Int, Int)
 gridSize grid = let ((x1,y1),(x2,y2)) = bounds grid in (x2 - x1 + 1, y2 - y1 + 1)
 
-shipAdmissible :: Rules -> FleetPlacement -> ShipShape -> Bool
-shipAdmissible (Rules {..}) fleet ship = rangeCheck && freeCheck where
+shipAdmissible :: FleetPlacement -> ShipShape -> Bool
+shipAdmissible fleet ship = rangeCheck && freeCheck where
   -- check if ship is completely inside grid
   rangeCheck     = L.all (inRange gridRange)
                  $ shipCoordinates 0 ship
@@ -474,7 +474,6 @@ executeMove :: (MonadState (GameState a) m, MonadRandom m, AI a)
 executeMove moveAction = do
   move <- moveAction
   curPlayer <- gets currentPlayer
-  rules <- gets gameRules
   let fleet = playerFleet curPlayer
   case move of
     Nothing               -> return ()
@@ -482,7 +481,7 @@ executeMove moveAction = do
       Just ship -> when (not $ isDamaged ship) $ do
         time <- gets turnNumber
         let
-          newFleet   = moveShip ship movement rules fleet
+          newFleet   = moveShip ship movement fleet
           curPlayer' = curPlayer 
             { playerFleet = newFleet
             , playerMoves = ShipMove shipID movement time : playerMoves curPlayer 
@@ -508,16 +507,16 @@ desiredMove pos fleet = do
   where remainingFleet = Map.filter (not . isDamaged) fleet
 
 -- | Only moves the ship if it complies with the given rules.
-moveShip :: Ship -> Movement -> Rules -> Fleet -> Fleet
-moveShip ship movement rules fleet = 
-  if isMovable movement rules fleet ship
+moveShip :: Ship -> Movement -> Fleet -> Fleet
+moveShip ship movement fleet = 
+  if isMovable movement fleet ship
     then Map.adjust (\s -> s{shipShape = newShape}) (shipID ship) fleet
     else fleet
   where newShape = movedShipShape movement (shipShape ship)
 -- | Checks whether a ship can be moved.
-isMovable :: Movement -> Rules -> Fleet -> Ship -> Bool
-isMovable movement rules fleet ship =
-       shipAdmissible rules otherShips newShape
+isMovable :: Movement -> Fleet -> Ship -> Bool
+isMovable movement fleet ship =
+       shipAdmissible otherShips newShape
     && not (isDamaged ship) 
   where
     newShape = movedShipShape movement (shipShape ship)
@@ -532,8 +531,8 @@ anyShipMovable :: Rules -> Fleet -> Bool
 anyShipMovable rules fleet = rulesMove rules 
     && (anyForward || anyBackward)
   where
-    anyForward  = or $ fmap (isMovable Forward rules fleet) fleet
-    anyBackward = or $ fmap (isMovable Backward rules fleet) fleet
+    anyForward  = or $ fmap (isMovable Forward fleet) fleet
+    anyBackward = or $ fmap (isMovable Backward fleet) fleet
 
 -- | Ship after movement was made.
 movedShipShape :: Movement -> ShipShape -> ShipShape
