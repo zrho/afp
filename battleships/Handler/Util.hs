@@ -1,4 +1,3 @@
-{-# LANGUAGE RecordWildCards, ViewPatterns #-}
 module Handler.Util where
 
 import Import
@@ -17,10 +16,7 @@ withGame gameE act = impGameH gameE >>= \g -> case g of
   Just game -> act game
 
 fieldPos :: (Double, Double) -> Maybe Pos
-fieldPos p = fieldPos' renderReferenceGrid p
-
-fieldPos' :: BattleDia -> (Double, Double) -> Maybe Pos
-fieldPos' dia (px, py) = listToMaybe $ sample dia $ p2 (px, py)
+fieldPos p = listToMaybe $ sample renderReferenceGrid $ p2 p
 
 -- | Translates a message of the current application to the current target language.
 translateMessage :: MonadHandler m => AppMessage -> m Text

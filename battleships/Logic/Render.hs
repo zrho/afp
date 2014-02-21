@@ -1,12 +1,10 @@
 {-# LANGUAGE RecordWildCards, TypeFamilies #-}
 module Logic.Render
   ( renderReferenceGrid
-  , renderWaterGrid
   , renderEnemyGrid
   , renderPlayerGrid
   , renderLegend
   , renderGrid
-  , waterColor
   , LegendIcon (..)
   , BattleDia
   ) where
@@ -61,20 +59,13 @@ renderLegend icon = case icon of
 renderReferenceGrid :: BattleDia
 renderReferenceGrid = renderGrid
 
-renderWaterGrid :: BattleDia
-renderWaterGrid = mconcat
-  [ renderGrid
-  , contentSquare nx ny # fc waterColor
-  ] where (nx, ny) = boardSize
-
 renderEnemyGrid :: Fleet -> TrackingList -> Rules -> BattleDia
 renderEnemyGrid fleet shots Rules{..} = mconcat
   [ if rulesDevMode then renderFleetHints else mempty
   , mconcat (fmap renderShot shots)
-  , contentSquare nx ny # fc fogColor
+  , contentSquare # fc fogColor
   ]
   where
-    (nx, ny) = boardSize
     renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
       case val of
         Water -> waterSquare
@@ -88,17 +79,16 @@ renderEnemyGrid fleet shots Rules{..} = mconcat
           Vertical   -> (1, realToFrac shipSize)
       in rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # lc red # lw 1 # value []
 
-renderPlayerGrid :: Fleet -> TrackingList -> Action -> Rules -> BattleDia
-renderPlayerGrid fleet shots requiredAction rules = mconcat
+renderPlayerGrid :: Fleet -> TrackingList -> Action -> BattleDia
+renderPlayerGrid fleet shots requiredAction = mconcat
     [ markLastShots
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
     , fold $ fmap renderShot $ filter ((/=Water) . shotResult) shots
     , fold $ fmap renderShip $ Map.filter isDamaged fleet         -- ... damaged ones below
     , fold $ fmap renderShot $ filter ((==Water) . shotResult) shots
-    , contentSquare nx ny # fc waterColor
+    , contentSquare # fc waterColor
     ]
   where
-    (nx,ny) = boardSize
     markLastShots = case L.groupBy ((==) `on` shotTime) shots of
       shotsLastRound:_ 
         -> flip foldMap (zip [1::Int ..] (reverse shotsLastRound)) $ \(idx, Shot lastShotPos _ _) ->
@@ -112,7 +102,7 @@ renderPlayerGrid fleet shots requiredAction rules = mconcat
       where
         shipCell = if isDamaged ship then const shipSquare else movableShipCell
         movableShipCell i = if requiredAction == ActionMove
-            then maybe mempty renderArrow (movementArrowAt ship i fleet rules) <> movableSquare
+            then maybe mempty renderArrow (movementArrowAt ship i fleet) <> movableSquare
             else movableSquare
         
     renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
@@ -158,15 +148,17 @@ lastShotMarker idx =
      <> text (show idx) # numberStyle # fc white
     ) # alignTL # translate (r2 (2,-2))
 
-contentSquare :: Int -> Int -> BattleDia
-contentSquare nx ny
+contentSquare :: BattleDia
+contentSquare
   = rect (cellSize * realToFrac nx) (cellSize * realToFrac ny)
   # alignTL
   # value []
   # translateToPos (0,0)
+  where
+    (nx, ny) = boardSize
 
-movementArrowAt :: Ship -> Int -> Fleet -> Rules -> Maybe MoveArrow
-movementArrowAt ship@Ship{..} i fleet rules =
+movementArrowAt :: Ship -> Int -> Fleet -> Maybe MoveArrow
+movementArrowAt ship@Ship{..} i fleet =
   case shipOrientation shipShape of
     Horizontal
       | i == 0                      && canMove Forward  -> Just ArrowLeft
@@ -176,7 +168,7 @@ movementArrowAt ship@Ship{..} i fleet rules =
       | i == shipSize shipShape - 1 && canMove Backward -> Just ArrowDown
     _ -> Nothing
     where 
-      canMove dir = isMovable dir rules fleet ship
+      canMove dir = isMovable dir fleet ship
 
 renderArrow :: MoveArrow -> QDiagram SVG R2 Any
 renderArrow arrType = arrowShape # rotateBy circleFraction # arrowStyle  where 

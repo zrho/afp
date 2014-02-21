@@ -79,7 +79,7 @@ turn shots fleet sunk count = do
                         Nothing -> fleet'
                         Just (shipID, movement) -> case Map.lookup shipID fleet' of
                           Just ship -> if not $ isDamaged ship
-                                       then moveShip ship movement rules fleet'
+                                       then moveShip ship movement fleet'
                                        else fleet'
                           Nothing   -> fleet'
                else return fleet'

@@ -44,10 +44,10 @@ instance AI CleverAI where
 
   aiFire         = liftM maximumIx $ scoreGrid >>= randomize
   aiResponse p r = modify (cleverResponse p r)
-  aiMove fleet _ = gets rules >>= \rls -> chooseRandom $ do
+  aiMove fleet _ = chooseRandom $ do
     ship <- Map.elems fleet
     mvmt <- [Forward, Backward]
-    guard $ isMovable mvmt rls fleet ship
+    guard $ isMovable mvmt fleet ship
     return (shipID ship, mvmt)
 
 cleverResponse :: Pos -> HitResponse -> CleverAI -> CleverAI
@@ -241,7 +241,7 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
   -- | boundaries of the field.
   allShips :: [Int] -- ^ the lengths of the ships to be generated
            -> [ShipShape]
-  allShips lens = filter (shipAdmissible rules [])
+  allShips lens = filter (shipAdmissible [])
                 $ lens >>= \len ->
                     [ShipShape (x-dx, y) len Horizontal | dx <- [0..len-1]]
                     ++ [ShipShape (x, y-dy) len Vertical | dy <- [0..len-1]]
