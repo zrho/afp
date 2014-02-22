@@ -40,7 +40,7 @@ $(window).load(function() {
 
 function placeRandom() {
 	$.ajax({
-		url: "@{PlaceShipsRndR gameE}",
+		url: "@{PlaceShipsRndR gameRules}",
 		type: "POST",
 		dataType: "json",
 		data: { fleetData: JSON.stringify(map.ships) }

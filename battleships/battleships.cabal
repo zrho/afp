@@ -39,6 +39,7 @@ library
                      Handler.GameEnded
                      Handler.Rules
                      Logic.Random
+                     Logic.Binary
                      Logic.Game
                      Logic.GameExt
                      Logic.CleverAI

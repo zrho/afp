@@ -3,7 +3,6 @@ module Handler.Rules (getRulesR, postRulesR) where
 
 import Import
 import Logic.Game
-import Logic.CleverAI
 import Handler.Util
 import Data.Maybe
 import Data.Traversable
@@ -29,9 +28,7 @@ postRulesR = do
       , rulesDevMode      = s!!2
       }
 
-  game <- liftIO $ (newGame rules [] HumanPlayer)
-  gameE <- expGameH (game :: GameState CleverAI)
-  redirect (PlaceShipsR gameE)
+  redirect $ PlaceShipsR rules
 
 renderRulePage :: Int -> Maybe AppMessage -> Handler Html
 renderRulePage fieldSize formError = defaultLayout $ do

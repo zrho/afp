@@ -2,15 +2,16 @@
 module Logic.Game where
 
 import           Prelude hiding (and, or, foldl, foldr, mapM_)
+import           Logic.Binary
 import           Data.Array
-import           Data.Aeson hiding (Array)
+import           Data.Aeson hiding (Array, encode, decode)
 import           Data.Attoparsec.Number
 import           Data.Maybe
 import           Data.Foldable
 import           Data.Function (on)
 import           Control.Monad hiding (forM_, mapM_)
 import           Data.Bits
-import           Data.Serialize (Serialize (..))
+import           Data.Serialize (Serialize (..), encode, decode)
 import           Data.Serialize.Get
 import           Data.Serialize.Put
 import           Data.Word
@@ -72,7 +73,7 @@ data Rules = Rules
   , rulesMove         :: Bool
   , rulesDevMode      :: Bool
   , rulesMaximumTurns :: Int
-  } deriving (Show, Eq)
+  } deriving (Show, Eq, Read)
 
 -- | Reponse sent to the AI after a shot.
 data HitResponse
@@ -542,6 +543,14 @@ movedShipShape movement ship = case (shipOrientation ship, movement) of
   (Vertical, Forward)    -> ship {shipPosition = (x, y - 1)}
   (Vertical, Backward)   -> ship {shipPosition = (x, y + 1)}
   where (x,y) = shipPosition ship
+
+-------------------------------------------------------------------------------
+-- * Path Pieces
+-------------------------------------------------------------------------------
+
+instance PathPiece Rules where
+  fromPathPiece = impBinary >=> eitherToMaybe . decode . toStrict
+  toPathPiece   = expBinary . fromStrict . encode
 
 -------------------------------------------------------------------------------
 -- * Serialization

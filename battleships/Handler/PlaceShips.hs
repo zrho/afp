@@ -12,39 +12,41 @@ import Data.Maybe
 import qualified Data.Text.Encoding as TE
 import qualified Data.ByteString.Lazy as BL
 import Logic.Game
-import Logic.GameExt
 import Logic.AIUtil
+import Logic.CleverAI
 import Handler.Util
 
 -------------------------------------------------------------------------------
 -- * Handler
 -------------------------------------------------------------------------------
 
-getPlaceShipsR :: GameStateExt -> Handler Html
-getPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
-  defaultLayout $ do
-    setNormalTitle
-    messageRender <- getMessageRender
-    addScript $ StaticR js_jquery_js
-    addScript $ StaticR js_json2_js
-    addScript $ StaticR js_map_js
-    $(widgetFile "board")
-    $(widgetFile "placeships2")
+getPlaceShipsR :: Rules -> Handler Html
+getPlaceShipsR gameRules = defaultLayout $ do
+  setNormalTitle
+  messageRender <- getMessageRender
+  addScript $ StaticR js_jquery_js
+  addScript $ StaticR js_json2_js
+  addScript $ StaticR js_map_js
+  $(widgetFile "board")
+  $(widgetFile "placeships2")
 
-postPlaceShipsR :: GameStateExt -> Handler Html
-postPlaceShipsR gameE = withGame gameE $ \game@(GameState {..}) -> do
+postPlaceShipsR :: Rules -> Handler Html
+postPlaceShipsR rules = do
   ships <- getPostedFleet
   case ships of
-    Nothing             -> redirect $ PlaceShipsR gameE
-    Just fleetPlacement -> do
-      let fleet = generateFleet fleetPlacement
-      g <- expGameH game { currentPlayer = currentPlayer { playerFleet = fleet } }
-      redirect $ PlayR g
+    Nothing             -> redirect $ PlaceShipsR rules
+    Just fleetPlacement -> startGame rules fleetPlacement
 
-postPlaceShipsRndR :: GameStateExt -> Handler TypedContent
-postPlaceShipsRndR gameE = withGame gameE $ \(GameState {..}) -> do
+startGame :: Rules -> FleetPlacement -> Handler Html
+startGame rules fleetPlacement = do
+  game  <- liftIO $ (newGame rules fleetPlacement HumanPlayer :: IO (GameState CleverAI))
+  gameE <- expGameH game
+  redirect $ PlayR gameE
+
+postPlaceShipsRndR :: Rules -> Handler TypedContent
+postPlaceShipsRndR rules = do
   fleet  <- fmap (fromMaybe []) getPostedFleet
-  fleet' <- liftIO $ initShips gameRules fleet
+  fleet' <- liftIO $ initShips rules fleet
   return $ jsonFleet $ fromMaybe [] $ fleet'
   
 getX :: ShipShape -> Int 
