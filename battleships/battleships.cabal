@@ -10,6 +10,7 @@ Extra-Source-Files:
                 templates/*.cassius
                 templates/*.hamlet
                 templates/*.julius
+                static/.htaccess
                 static/js/*.js
                 static/img/*.svg
                 static/img/*.ico

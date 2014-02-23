@@ -8,7 +8,7 @@ import Data.Maybe
 import Data.Traversable
 
 getRulesR :: Handler Html
-getRulesR = renderRulePage 10 Nothing
+getRulesR = renderRulePage Nothing
 
 rulesForm :: (Monad m, RenderMessage (HandlerSite m) FormMessage) 
           => FormInput m [Bool]
@@ -30,7 +30,7 @@ postRulesR = do
 
   redirect $ PlaceShipsR rules
 
-renderRulePage :: Int -> Maybe AppMessage -> Handler Html
-renderRulePage fieldSize formError = defaultLayout $ do
+renderRulePage :: Maybe AppMessage -> Handler Html
+renderRulePage formError = defaultLayout $ do
   setNormalTitle
   $(widgetFile "rules")
