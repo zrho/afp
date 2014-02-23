@@ -4,7 +4,7 @@ var ny = #{toJSON $ snd boardSize};
 var map;
 var safetyMargin = 1;
 
-var shipDef = ShipDef.fromList(#{toJSON $ rulesShips gameRules});
+var shipDef = ShipDef.fromList(#{toJSON rShips});
 var shipLenTD = {};
 
 $(window).load(function() {
@@ -40,7 +40,7 @@ $(window).load(function() {
 
 function placeRandom() {
 	$.ajax({
-		url: "@{PlaceShipsRndR gameRules}",
+		url: "@{PlaceShipsRndR (Ships rShips)}",
 		type: "POST",
 		dataType: "json",
 		data: { fleetData: JSON.stringify(map.ships) }

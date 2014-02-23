@@ -552,6 +552,16 @@ instance PathPiece Rules where
   fromPathPiece = impBinary >=> eitherToMaybe . decode . toStrict
   toPathPiece   = expBinary . fromStrict . encode
 
+newtype Ships = Ships [Int] deriving (Eq, Read, Show)
+
+instance Serialize Ships where
+  get = Ships <$> getList8 getIntegral8
+  put (Ships ships) = putList8 putIntegral8 ships
+
+instance PathPiece Ships where
+  fromPathPiece = impBinary >=> eitherToMaybe . decode . toStrict
+  toPathPiece   = expBinary . fromStrict . encode
+
 -------------------------------------------------------------------------------
 -- * Serialization
 -------------------------------------------------------------------------------

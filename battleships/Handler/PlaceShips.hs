@@ -27,6 +27,7 @@ getPlaceShipsR gameRules = defaultLayout $ do
   addScript $ StaticR js_jquery_js
   addScript $ StaticR js_json2_js
   addScript $ StaticR js_map_js
+  let rShips = rulesShips gameRules
   $(widgetFile "board")
   $(widgetFile "placeships2")
 
@@ -43,20 +44,11 @@ startGame rules fleetPlacement = do
   gameE <- expGameH game
   redirect $ PlayR gameE
 
-postPlaceShipsRndR :: Rules -> Handler TypedContent
-postPlaceShipsRndR rules = do
+postPlaceShipsRndR :: Ships -> Handler TypedContent
+postPlaceShipsRndR (Ships ships) = do
   fleet  <- fmap (fromMaybe []) getPostedFleet
-  fleet' <- liftIO $ initShips rules fleet
+  fleet' <- liftIO $ initShips ships fleet
   return $ jsonFleet $ fromMaybe [] $ fleet'
-  
-getX :: ShipShape -> Int 
-getX s = fst $ shipPosition s
-
-getY :: ShipShape -> Int 
-getY s = snd $ shipPosition s
-
-getOrientation :: ShipShape -> Int 
-getOrientation s = fromEnum $ shipOrientation s
 
 getPostedFleet :: Handler (Maybe [ShipShape])
 getPostedFleet = do
