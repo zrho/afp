@@ -38,7 +38,7 @@ cleverAI r checkerboardEven = CleverAI
 
 instance AI CleverAI where
   aiInit r = do
-    fleet <- liftM fromJust $ initShips r []
+    fleet <- liftM fromJust $ initShips (rulesShips r) []
     checkerboardEven <- getRandom
     return (cleverAI r checkerboardEven, fleet)
 
