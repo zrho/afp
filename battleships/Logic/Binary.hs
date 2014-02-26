@@ -1,4 +1,10 @@
-module Logic.Binary where
+module Logic.Binary
+  ( impBinary
+  , expBinary
+  , fromStrict
+  , toStrict
+  , eitherToMaybe
+  ) where
 
 import           Prelude
 import           Data.Text (Text)

@@ -1,5 +1,7 @@
 {-# LANGUAGE RecordWildCards, ScopedTypeVariables, TemplateHaskell #-}
-module Logic.CleverAI (CleverAI) where
+module Logic.CleverAI 
+  ( CleverAI
+  ) where
 
 import           Prelude
 import           Data.Array

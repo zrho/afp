@@ -1,4 +1,9 @@
-module Logic.Random where
+module Logic.Random
+  ( extractRandom
+  , shuffleRandom
+  , chooseRandom
+  , runRandM
+  ) where
 
 import Prelude
 import Control.Monad

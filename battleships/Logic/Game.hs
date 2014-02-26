@@ -1,5 +1,65 @@
 {-# LANGUAGE RecordWildCards, TupleSections, OverloadedStrings #-}
-module Logic.Game where
+module Logic.Game
+  ( 
+  -- * Typeclasses
+    AI (..)
+  -- * Datatypes
+  , Action (..)
+  , GameState (..)
+  , HitResponse (..)
+  , Movement (..)
+  , Orientation (..)
+  , Player (..)
+  , PlayerState (..)
+  , Rules (..)
+  , Ship (..)
+  , Ships (..)
+  , ShipShape (..)
+  , Shot (..)
+  , Turn (..)
+  -- * Type Synonyms
+  , Fleet
+  , FleetPlacement
+  , Grid
+  , Pos
+  , TrackingList
+  -- * Game Functions
+  , boardSize
+  , defaultRules
+  , newGame
+  , newGrid
+  -- * Turn Functions
+  , aiTurn
+  , desiredMove
+  , executeMove
+  , humanTurnFire
+  , moveHuman
+  -- * Custom Serialization Functions
+  , getIntegral8
+  , getList8
+  , getSmallGrid
+  , getPos
+  , putIntegral8
+  , putList8
+  , putPos
+  , putSmallGrid
+  -- * Ship Functions
+  , allSunk 
+  , damageShip
+  , generateFleet
+  , isDamaged
+  , isMovable
+  , isShipSunk
+  , moveShip
+  , numberShipsOfSize
+  , shipAdmissible
+  , shipAt
+  , shipCellIndex
+  , shipCoordinates
+  , shipSizes     -- TODO: think of better names for these two functions: shipSizes, sizesOfShips
+  , sizesOfShips
+  , unsunkShips
+  ) where
 
 import           Prelude hiding (and, or, foldl, foldr, mapM_)
 import           Logic.Binary
@@ -229,9 +289,6 @@ newGrid (w, h) a
 -------------------------------------------------------------------------------
 -- * Helper Functions
 -------------------------------------------------------------------------------
-
-gridSize :: Grid a -> (Int, Int)
-gridSize grid = let ((x1,y1),(x2,y2)) = bounds grid in (x2 - x1 + 1, y2 - y1 + 1)
 
 shipAdmissible :: FleetPlacement -> ShipShape -> Bool
 shipAdmissible fleet ship = rangeCheck && freeCheck where

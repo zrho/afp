@@ -1,5 +1,10 @@
 {-# LANGUAGE TypeFamilies, RecordWildCards #-}
-module Logic.GameExt where
+module Logic.GameExt
+  ( impGame
+  , expGame
+  , loadKey
+  , GameStateExt
+  ) where
 
 import           Prelude
 import           Logic.Game

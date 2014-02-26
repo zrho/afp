@@ -1,5 +1,10 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, RecordWildCards #-}
-module Handler.Play where
+module Handler.Play
+  ( getPlayR
+  , postMoveR
+  , postFireR
+  , shipsOpponentWidget
+  ) where
 
 import Import
 import Control.Monad.State

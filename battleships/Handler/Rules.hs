@@ -1,5 +1,8 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
-module Handler.Rules (getRulesR, postRulesR) where
+module Handler.Rules 
+  ( getRulesR
+  , postRulesR
+  ) where
 
 import Import
 import Logic.Game

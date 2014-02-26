@@ -1,4 +1,13 @@
-module Handler.Util where
+module Handler.Util
+  ( withGame
+  , fieldPos
+  , translateMessage
+  , setNormalTitle
+  , legendStatic
+  , gridStatic
+  , impGameH
+  , expGameH
+  ) where
 
 import Import
 import Diagrams.Prelude

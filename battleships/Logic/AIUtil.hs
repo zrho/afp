@@ -1,5 +1,31 @@
 {-# LANGUAGE RecordWildCards #-}
-module Logic.AIUtil where
+module Logic.AIUtil
+  (
+  -- * Type Synonyms
+    Score
+  , ScoreGrid
+  , TrackingGrid
+  -- * Grid Functions
+  , addMargin
+  , isHit
+  , isHitOrSunk
+  , isWater
+  -- * Ship Functions
+  , initShips
+  -- * Helper Functions
+  , buildArray
+  , traverseArray
+  , fromBool
+  , maximum'
+  , maximumIx
+  , removeNth
+  -- * Debugging Functions
+  , showFleet
+  , showFleetPlacement
+  , showPositions
+  , showScoreGrid
+  , showTracking
+  ) where
 
 import           Prelude
 import           Logic.Game

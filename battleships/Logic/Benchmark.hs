@@ -1,5 +1,8 @@
 {-# LANGUAGE RecordWildCards #-}
-module Logic.Benchmark where
+module Logic.Benchmark
+  ( playGame
+  , benchmark 
+  ) where
 
 import           Control.Monad.Random
 import           Control.Monad.State.Class (MonadState)

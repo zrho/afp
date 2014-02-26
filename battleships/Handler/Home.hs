@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
-module Handler.Home where
+module Handler.Home
+  ( getHomeR
+  ) where
 
 import Import
 import Logic.Game

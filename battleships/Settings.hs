@@ -1,4 +1,8 @@
-module Settings where
+module Settings
+  ( staticDir
+  , widgetFile
+  , widgetFileSettings
+  ) where
 
 import Prelude
 import Data.Default (def)

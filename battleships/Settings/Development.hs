@@ -1,5 +1,8 @@
 {-# LANGUAGE CPP #-}
-module Settings.Development where
+module Settings.Development
+  ( development
+  , production
+  ) where
 
 import Prelude
 

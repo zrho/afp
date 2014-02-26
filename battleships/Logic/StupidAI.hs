@@ -1,5 +1,7 @@
 {-# LANGUAGE RecordWildCards #-}
-module Logic.StupidAI (StupidAI) where
+module Logic.StupidAI 
+  ( StupidAI
+  ) where
 
 import           Prelude
 import           Logic.Game
