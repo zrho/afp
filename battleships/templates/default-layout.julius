@@ -1,0 +1,6 @@
+function confirmLeave() {
+	conf = window.confirm("#{rawJS (messageRender MsgConfirmLeave)}");
+	if (conf == true) {
+		document.location = "@{HomeR}";
+	}
+}

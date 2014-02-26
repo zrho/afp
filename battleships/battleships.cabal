@@ -109,6 +109,7 @@ library
                  , SimpleAES
                  , attoparsec
                  , word8
+                 , shakespeare-js
 
     if flag(library-only)
         build-depends:   warp

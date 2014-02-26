@@ -15,4 +15,4 @@
   
 $if (not isHome)
   <div .footer>
-    <a .linkButton .redButton href="@{HomeR}">_{MsgLinkHome}
+    <a .linkButton .redButton href="#!" onclick="confirmLeave()">_{MsgLinkHome}

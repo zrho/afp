@@ -12,6 +12,7 @@ import Settings (widgetFile)
 import Settings.StaticFiles
 import Text.Hamlet (hamletFile)
 import Text.Jasmine (minifym)
+import Text.Julius (rawJS)
 #if MIN_VERSION_fast_logger(2,1,0)
 import Yesod.Core.Types (Logger)
 #else
@@ -55,6 +56,7 @@ instance Yesod App where
     defaultLayout widget = do
         master <- getYesod
         mmsg <- getMessage
+        messageRender <- getMessageRender
 
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and
