@@ -21,8 +21,8 @@
             <td id="tdTotalShips">
       <hr>
       <div>
-        <button .linkButton .blueButton id="btnReset">_{MsgResetFleet}
-        <button .linkButton .blueButton id="btnRandom">_{MsgPlaceRandom}
+        <button .linkButton .yellowButton id="btnReset">_{MsgResetFleet}
+        <button .linkButton .yellowButton id="btnRandom">_{MsgPlaceRandom}
       <hr>
       <div>
         <form id="fleetForm" action="" method="POST">

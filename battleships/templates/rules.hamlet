@@ -20,4 +20,4 @@
             _{err}
         $of Nothing
       <p .linkBlock>
-        <input .linkButton .blueButton type="submit" value="_{MsgStartPlacing}">
+        <input .linkButton .yellowButton type="submit" value="_{MsgStartPlacing}">
