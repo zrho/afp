@@ -619,6 +619,11 @@ instance PathPiece Ships where
   fromPathPiece = impBinary >=> eitherToMaybe . decode . toStrict
   toPathPiece   = expBinary . fromStrict . encode
 
+eitherToMaybe :: Either a b -> Maybe b
+eitherToMaybe e = case e of
+  Right x -> Just x
+  _       -> Nothing
+
 -------------------------------------------------------------------------------
 -- * Serialization
 -------------------------------------------------------------------------------

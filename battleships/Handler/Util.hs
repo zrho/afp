@@ -21,8 +21,8 @@ import Data.Serialize (Serialize)
 
 withGame :: GameStateExt -> (GameState CleverAI -> Handler a) -> Handler a
 withGame gameE act = impGameH gameE >>= \g -> case g of
-  Nothing   -> redirect HomeR
-  Just game -> act game
+  Left _     -> redirect HomeR
+  Right game -> act game
 
 fieldPos :: (Double, Double) -> Maybe Pos
 fieldPos p = listToMaybe $ sample renderReferenceGrid $ p2 p
@@ -52,7 +52,7 @@ legendStatic ico = StaticR $ case ico of
 gridStatic :: Route App
 gridStatic = StaticR img_grid_svg
 
-impGameH :: Serialize a => GameStateExt -> Handler (Maybe (GameState a))
+impGameH :: Serialize a => GameStateExt -> Handler (Either String (GameState a))
 impGameH game = do
   key <- appKey <$> getYesod
   return $ impGame key game
