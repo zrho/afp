@@ -3,7 +3,6 @@ module Handler.Play
   ( getPlayR
   , postMoveR
   , postFireR
-  , shipsOpponentWidget
   ) where
 
 import Import
