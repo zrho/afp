@@ -41,3 +41,8 @@ LegendWater: water
 LegendLastShot: enemy's last shot
 
 ConfirmLeave: Do you really want to go home?
+About: About the game
+HowToPlay: How to play
+HowToPlayFull: Really long text explaining how to play...
+ReallyFair: Does the computer play fair?
+ReallyFairFull: Really long text explaining that the computer does play fair...

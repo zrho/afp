@@ -32,6 +32,7 @@ import Handler.Play
 import Handler.PlaceShips
 import Handler.GameEnded
 import Handler.Rules
+import Handler.About
 
 import Logic.GameExt
 

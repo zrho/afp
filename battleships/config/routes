@@ -9,3 +9,4 @@
 /battleships/gameEnded/#GameStateExt                GameEndedR     GET
 /battleships/rules                                  RulesR         GET POST
 /cgi-bin/battleships/static                         StaticR        Static getStatic
+/battleships/about                                  AboutR         GET

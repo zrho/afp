@@ -1,0 +1,6 @@
+body
+  font-family: sans-serif
+  overflow-x: hidden
+  background: #020402 url(@{StaticR img_dreadnought_png}) no-repeat
+  background-position: 50% 0px
+  color: #5FC0CE

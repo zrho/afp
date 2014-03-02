@@ -41,3 +41,8 @@ LegendWater: Wasser
 LegendLastShot: Letzter Schuss des Feindes
 
 ConfirmLeave: Wirklich zurück zur Startseite?
+About: Über das Spiel
+HowToPlay: So wird gespielt
+HowToPlayFull: Hier steht ein ganz langer Text, der das Spiel erklaert...
+ReallyFair: Spielt der Computer fair?
+ReallyFairFull: Hier steht ein ganz langer Text, der erklaert, dass der Computer fair spielt...

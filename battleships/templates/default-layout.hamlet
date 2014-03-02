@@ -12,7 +12,7 @@
   <!-- Placeholder to prevent overlapping of page contents and footer -->
   <div style="clear: both; height: 100px">
   
-  
 $if (not isHome)
   <div .footer>
     <a .linkButton .redButton href="#!" onclick="confirmLeave()">_{MsgLinkHome}
+    <a .linkButton .blueButton href=@{AboutR}  onclick="window.open('@{AboutR}', 'newwindow', 'width=800, height=600'); return false;">_{MsgAbout}

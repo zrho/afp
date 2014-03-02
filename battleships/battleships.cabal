@@ -39,6 +39,7 @@ library
                      Handler.Grid
                      Handler.GameEnded
                      Handler.Rules
+                     Handler.About
                      Logic.Random
                      Logic.Binary
                      Logic.Game
