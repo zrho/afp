@@ -391,13 +391,9 @@ aiTurn = do
   where
     shots = do
       result <- executeShot aiShot
-      rules <- gets gameRules
       case result of
         -- the AI player is allowed to shoot once more, when enabled
-        Again
-          | rulesAgainWhenHit rules -> shots
-          | otherwise               -> return Next
-        -- the AI player has either won or missed
+        Again -> shots
         _     -> return result
 
 -- | This function executes the fire-part of the human's turn
@@ -411,21 +407,12 @@ humanTurnFire target = do
   rules <- gets gameRules
   -- fire
   result <- executeShot $ fireAt target
-  case result of
-    -- human has won, no further action needed
-    Over -> return Over
-    -- expect a move of the human player first
-    -- human may fire again
-    Again
-      -- expected move is still "fire"
-      -- otherwise: firing again not allowed, proceeding to default case
-      | rulesAgainWhenHit rules -> return Again
-    _ -> do
+  when (result == Next) $ do
       -- update the action to "move" if appropriate
       humanFleet <- gets $ playerFleet . currentPlayer
       when (rulesMove rules && anyShipMovable rules humanFleet) $
         modify (\gs -> gs { expectedAction = ActionMove})
-      return Next
+  return result
 
 
 -- | The current player fires at the other player
@@ -477,11 +464,14 @@ aiShot = do
 executeShot :: (MonadState (GameState a) m)
             => (m HitResponse) -> m Turn
 executeShot turn = do
+  rules <- gets gameRules
   result <- turn
   op <- gets otherPlayer
   case result of
     Water -> return Next
-    Hit   -> return Again
+    Hit
+      | rulesAgainWhenHit rules -> return Again
+      | otherwise               -> return Next
     Sunk
       | allSunk $ playerFleet op -> return Over
       | otherwise                -> return Again
