@@ -65,7 +65,7 @@ postFireR gameE = withGame gameE $ \game -> do
           (result, game') <- liftIO $ runStateT (humanTurnFire pos) game
           -- evaluate outcome
           case result of
-            Won   -> gameEnded game'
+            Over  -> gameEnded game'
             -- shoot again. expectedAction has not changed
             Again -> continue game'
             -- either perform AI turn or let human move
@@ -82,7 +82,7 @@ continue game = expGameH game >>= redirect . PlayR
 performAI game = do
   (result, game') <- liftIO $ runStateT aiTurn game
   case result of
-    Won   -> gameEnded game'
+    Over  -> gameEnded game'
     Next  -> continue game'
     Again -> error "impossible. `Again` is handled by aiTurn"
 

@@ -6,6 +6,7 @@ StartPlacing: Start placing your fleet
 FireShot: Fire a shot!
 Won: You Won!
 Lost: You Lost.
+Drawn: It's a draw.
 PlaceShips: Place your Ships
 AvailableShips: Available Ships
 NoPossiblePlacement: There is no possible ship placement.

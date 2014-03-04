@@ -29,6 +29,7 @@ module Logic.Game
   , newGame
   , newGrid
   -- * Turn Functions
+  , isDrawn
   , aiTurn
   , desiredMove
   , executeMove
@@ -277,7 +278,7 @@ defaultRules = Rules
   , rulesAgainWhenHit = True
   , rulesMove  = True
   , rulesDevMode = False
-  , rulesMaximumTurns = 255
+  , rulesMaximumTurns = 2 * 75 -- 75 turns for each player
   }
 
 -- | Helper: Creates a grid, filled with one value.
@@ -360,7 +361,15 @@ sizesOfShips = map (shipSize . shipShape)
 -------------------------------------------------------------------------------
 
 -- | Result of the turn with respect to the current player
-data Turn = Won | Again | Next deriving (Show, Eq, Ord, Enum, Bounded)
+data Turn = Over | Again | Next deriving (Show, Eq, Ord, Enum, Bounded)
+
+-- | Checks whether the game is drawn.
+-- It is drawn when the number of shots has exceeded the
+-- number rulesMaximumTurns from the rules.
+isDrawn :: GameState a -> Bool
+isDrawn game = curTurns >= maxTurns where
+  curTurns = turnNumber game
+  maxTurns = rulesMaximumTurns . gameRules $ game
 
 -- | Performs a full AI turn. 
 -- This function takes care of swapping the current player.
@@ -373,9 +382,12 @@ aiTurn = do
     switchRoles
     result <- shots
     rules <- gets gameRules
-    when (result /= Won && rulesMove rules) $ executeMove moveAI
+    when (result /= Over && rulesMove rules) $ executeMove moveAI
     switchRoles
-    return result
+    draw <- gets isDrawn
+    return $ case result of
+      Next | draw -> Over
+      _           -> result
   where
     shots = do
       result <- executeShot aiShot
@@ -401,7 +413,7 @@ humanTurnFire target = do
   result <- executeShot $ fireAt target
   case result of
     -- human has won, no further action needed
-    Won -> return Won
+    Over -> return Over
     -- expect a move of the human player first
     -- human may fire again
     Again
@@ -471,7 +483,7 @@ executeShot turn = do
     Water -> return Next
     Hit   -> return Again
     Sunk
-      | allSunk $ playerFleet op -> return Won
+      | allSunk $ playerFleet op -> return Over
       | otherwise                -> return Again
 
 
