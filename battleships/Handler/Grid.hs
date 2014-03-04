@@ -18,12 +18,12 @@ import           Handler.Util
 -- | renders the currentPlayer's grid
 getPlayerGridR :: GameStateExt -> Action-> Handler TypedContent
 getPlayerGridR gameE requiredAction = withGame gameE $ \(GameState {..}) -> return
-  $ diagramContent $ renderPlayerGrid (playerFleet currentPlayer) (playerShots otherPlayer) requiredAction
+  $ diagramContent $ renderPlayerGrid (playerFleet currentPlayer) (playerShots otherPlayer) requiredAction turnNumber
 
 -- | renders the otherPlayer's grid
 getEnemyGridR :: GameStateExt -> Handler TypedContent
 getEnemyGridR gameE = withGame gameE $ \(GameState {..}) -> return
-  $ diagramContent $ renderEnemyGrid (playerFleet otherPlayer) (playerShots currentPlayer) gameRules
+  $ diagramContent $ renderEnemyGrid (playerFleet otherPlayer) (playerShots currentPlayer) gameRules turnNumber
 
 legendWidget :: Orientation -> Bool -> Widget
 legendWidget orientation movesAllowed = $(widgetFile "legend")

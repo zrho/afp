@@ -59,16 +59,16 @@ renderLegend icon = case icon of
 renderReferenceGrid :: BattleDia
 renderReferenceGrid = renderGrid
 
-renderEnemyGrid :: Fleet -> TrackingList -> Rules -> BattleDia
-renderEnemyGrid fleet shots Rules{..} = mconcat
+renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Int -> BattleDia
+renderEnemyGrid fleet shots Rules{..} turnNumber = mconcat
   [ if rulesDevMode then renderFleetHints else mempty
   , mconcat (fmap renderShot shots)
   , contentSquare # fc fogColor
   ]
   where
-    renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
+    renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
       case val of
-        Water -> waterSquare
+        Water -> waterSquare # opacity (timedOpacity turnNumber time)
         Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
         Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
     renderFleetHints = fold $ fmap renderFleetHint fleet
@@ -79,8 +79,8 @@ renderEnemyGrid fleet shots Rules{..} = mconcat
           Vertical   -> (1, realToFrac shipSize)
       in rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # lc red # lw 1 # value []
 
-renderPlayerGrid :: Fleet -> TrackingList -> Action -> BattleDia
-renderPlayerGrid fleet shots requiredAction = mconcat
+renderPlayerGrid :: Fleet -> TrackingList -> Action -> Int -> BattleDia
+renderPlayerGrid fleet shots requiredAction turnNumber = mconcat
     [ markLastShots
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
     , fold $ fmap renderShot $ filter ((/=Water) . shotResult) shots
@@ -105,12 +105,14 @@ renderPlayerGrid fleet shots requiredAction = mconcat
             then maybe mempty renderArrow (movementArrowAt ship i fleet) <> movableSquare
             else movableSquare
         
-    renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
+    renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
       case val of
-        Water -> marker # lc markerWaterColor # lw 3 <> waterSquare
+        Water -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
         Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
         Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
 
+timedOpacity :: Int -> Int -> Double
+timedOpacity turnNumber shotTime = if (turnNumber - shotTime) < 20 then 0.05 * (fromIntegral (20 + shotTime - turnNumber)) else 0
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering
 -------------------------------------------------------------------------------
@@ -242,7 +244,7 @@ fogColor         = sRGB 0.7 0.7 0.7
 waterColor       = sRGB24 0x36 0xBB 0xCE
 markerHitColor   = sRGB24 0xFE 0x3F 0x44
 markerSunkColor  = sRGB24 0xA4 0x00 0x04
-markerWaterColor = sRGB24 0x33 0x99 0xFF
+markerWaterColor = sRGB24 0x00 0x00 0xFF
 shipColor        = gray
 lastShotColor    = red
 movableColor     = sRGB24 0xC4 0xF8 0x3E
