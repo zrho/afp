@@ -15,4 +15,4 @@
 $if (not isHome)
   <div .footer>
     <a .linkButton .redButton href="#!" onclick="confirmLeave()">_{MsgLinkHome}
-    <a .linkButton .yellowButton href=@{AboutR}  onclick="window.open('@{AboutR}', 'newwindow', 'width=800, height=600'); return false;">_{MsgAbout}
+    <a .linkButton .yellowButton href=@{AboutR}  onclick="window.open('@{AboutR}', 'newwindow', 'width=800, height=650'); return false;">_{MsgAbout}
