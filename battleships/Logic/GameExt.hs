@@ -24,8 +24,8 @@ data GameStateExt = GameStateExt
 -------------------------------------------------------------------------------
 
 -- | Imports a game, given the key.
-impGame :: Serialize a => Key -> GameStateExt -> Maybe (GameState a)
-impGame key game = eitherToMaybe $ decode dec where
+impGame :: Serialize a => Key -> GameStateExt -> Either String (GameState a)
+impGame key game = decode dec where
   enc = fromStateExt game
   dec = toStrict $ decryptMsg CBC key enc
 
