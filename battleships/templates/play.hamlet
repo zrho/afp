@@ -53,7 +53,7 @@
   <div .legendV>
     <div .infoBoxV>
       <h3>_{MsgLegend}
-      ^{legendWidget Vertical}
+      ^{legendWidget Vertical (rulesMove gameRules)}
 
 <div .clear>
 
@@ -65,4 +65,4 @@
 <div .legendH>
   <div .infoBoxH>
     <h3>_{MsgLegend}
-    ^{legendWidget Horizontal}
+    ^{legendWidget Horizontal (rulesMove gameRules)}

@@ -39,7 +39,7 @@ LegendShipHit: Treffer
 LegendShipSunk: Treffer, Versenkt
 LegendFogOfWar: Nicht kartografierter Bereich
 LegendWater: Wasser
-LegendLastShot: Letzter Schuss des Feindes
+LegendLastShot: Feindliche Schüsse des letzten Zugs
 
 ConfirmLeave: Wirklich zurück zur Startseite?
 About: Über das Spiel

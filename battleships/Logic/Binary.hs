@@ -3,7 +3,6 @@ module Logic.Binary
   , expBinary
   , fromStrict
   , toStrict
-  , eitherToMaybe
   ) where
 
 import           Prelude

@@ -1,6 +1,5 @@
 module Logic.Random
-  ( extractRandom
-  , shuffleRandom
+  ( shuffleRandom
   , chooseRandom
   , runRandM
   ) where
