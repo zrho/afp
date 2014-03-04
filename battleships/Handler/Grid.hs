@@ -25,8 +25,8 @@ getEnemyGridR :: GameStateExt -> Handler TypedContent
 getEnemyGridR gameE = withGame gameE $ \(GameState {..}) -> return
   $ diagramContent $ renderEnemyGrid (playerFleet otherPlayer) (playerShots currentPlayer) gameRules
 
-legendWidget :: Orientation -> Widget
-legendWidget orientation = $(widgetFile "legend")
+legendWidget :: Orientation -> Bool -> Widget
+legendWidget orientation movesAllowed = $(widgetFile "legend")
 
 diagramContent :: (Semigroup m, Monoid m) => QDiagram SVG R2 m -> TypedContent
 diagramContent

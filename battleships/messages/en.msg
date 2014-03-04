@@ -38,7 +38,7 @@ LegendShipHit: hit
 LegendShipSunk: hit and sunk
 LegendFogOfWar: undiscovered area
 LegendWater: water
-LegendLastShot: enemy's last shot
+LegendLastShot: shot(s) of enemy's last turn
 
 ConfirmLeave: Do you really want to go home?
 About: About the game
