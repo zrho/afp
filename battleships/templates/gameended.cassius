@@ -11,9 +11,14 @@ div.bannerLost
   color: #FE7276
 
 div.bannerWon
-  background-color: rgba(113, 157, 0, 0.25)
-  box-shadow: 0 0 2px 2px #C4F83E inset
-  color: #AEF100
+  background-color: rgba(0, 164, 4, 0.25)
+  box-shadow: 0 0 2px 2px #40FF43 inset
+  color: #73FF75
+
+div.bannerDrawn
+  background-color: rgba(164, 164, 4, 0.25)
+  box-shadow: 0 0 2px 2px #FFFF40 inset
+  color: #FFFF73
 
 h3.bannerText
   display: inline-block
