@@ -17,11 +17,11 @@
 <div .clear>
 
 <div .infoH>
-  $if humanWon
     <div .infoBoxH .bannerWon>
       <h3 .bannerText>
-         _{MsgWon}
-  $else
-    <div .infoBoxH .bannerLost>
-      <h3 .bannerText>
-         _{MsgLost}
+        $if drawn
+          _{MsgDrawn}
+        $elseif humanWon
+          _{MsgWon}
+        $else
+          _{MsgLost}

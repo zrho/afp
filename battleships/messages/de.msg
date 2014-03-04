@@ -6,6 +6,7 @@ StartPlacing: Schiffe platzieren
 FireShot: Schuss abfeuern!
 Won: Du hast gewonnen!
 Lost: Du hast verloren.
+Drawn: Unentschieden!
 PlaceShips: Platziere deine Schiffe
 AvailableShips: Verfügbare Flotte
 NoPossiblePlacement: Es ist keine vollständige Flottenbelegung möglich.

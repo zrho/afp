@@ -54,7 +54,7 @@ instance Yesod App where
            else "/srv/www/vhosts/www-pg-data/battleships/client_session_key.aes")
 
     defaultLayout widget = do
-        master <- getYesod
+        -- master <- getYesod
         mmsg <- getMessage
         messageRender <- getMessageRender
 
@@ -111,8 +111,8 @@ instance Yesod App where
 -- | Can be used instead of defaultLayout for simple pages such as "About".
 plainLayout :: Widget -> Handler Html
 plainLayout widget = do
-  master <- getYesod
-  mmsg <- getMessage
+  -- master <- getYesod
+  -- mmsg <- getMessage
   pc <- widgetToPageContent widget
   giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
 

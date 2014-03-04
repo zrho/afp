@@ -9,6 +9,7 @@ import Handler.Util
 getGameEndedR :: GameStateExt -> Handler Html
 getGameEndedR gameE = withGame gameE $ \game -> do
   let humanWon = allSunk (playerFleet $ otherPlayer $ game)
+  let drawn    = isDrawn game
   defaultLayout $ do
     setNormalTitle
     $(widgetFile "board")
