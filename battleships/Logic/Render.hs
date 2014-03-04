@@ -68,7 +68,7 @@ renderEnemyGrid fleet shots Rules{..} turnNumber = mconcat
   where
     renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
       case val of
-        Water -> waterSquare # opacity (timedOpacity turnNumber time)
+        Water -> if rulesMove then waterSquare # opacity (timedOpacity turnNumber time) else waterSquare
         Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
         Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
     renderFleetHints = fold $ fmap renderFleetHint fleet
@@ -79,8 +79,8 @@ renderEnemyGrid fleet shots Rules{..} turnNumber = mconcat
           Vertical   -> (1, realToFrac shipSize)
       in rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # lc red # lw 1 # value []
 
-renderPlayerGrid :: Fleet -> TrackingList -> Action -> Int -> BattleDia
-renderPlayerGrid fleet shots requiredAction turnNumber = mconcat
+renderPlayerGrid :: Fleet -> TrackingList -> Action -> Rules -> Int -> BattleDia
+renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
     [ markLastShots
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
     , fold $ fmap renderShot $ filter ((/=Water) . shotResult) shots
@@ -107,7 +107,8 @@ renderPlayerGrid fleet shots requiredAction turnNumber = mconcat
         
     renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
       case val of
-        Water -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
+        Water -> if rulesMove then marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
+                              else marker # lc markerWaterColor # lw 3 <> waterSquare
         Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
         Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
 
