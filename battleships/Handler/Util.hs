@@ -97,14 +97,15 @@ playerGridHtml (GameState {..}) requiredAction
     gameRules
     turnNumber
 
-enemyGridHtml :: GameState a -> Html
-enemyGridHtml (GameState {..})
+enemyGridHtml :: GameState a -> Bool -> Html
+enemyGridHtml (GameState {..}) uncoverFleet
   = renderSvgHtml
   $ renderEnemyGrid
     (playerFleet otherPlayer)
     (playerShots currentPlayer)
     gameRules
     turnNumber
+    (uncoverFleet || rulesDevMode gameRules)
 
 -- | Renders a diagram as an SVG text.
 --

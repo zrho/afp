@@ -68,9 +68,9 @@ renderLegend icon = case icon of
 renderReferenceGrid :: BattleDia
 renderReferenceGrid = renderGrid
 
-renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Int -> BattleDia
-renderEnemyGrid fleet shots Rules{..} turnNumber = mconcat
-  [ if rulesDevMode then renderFleetHints else mempty
+renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Int -> Bool -> BattleDia
+renderEnemyGrid fleet shots Rules{..} turnNumber uncoverFleet = mconcat
+  [ if uncoverFleet then renderFleetHints else mempty
   , if rulesNoviceMode then mconcat (fmap renderImpossiblePositions $ nonWaterShots) else mempty
   , mconcat (fmap renderShot shots)
   , contentSquare # fc fogColor

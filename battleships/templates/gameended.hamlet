@@ -11,7 +11,7 @@
       <h3>
         _{MsgOpponentsFleet}
       <div .board>
-        #{enemyGridHtml game}
+        #{enemyGridHtml game True}
         <div>&nbsp;
 
 <div .clear>

@@ -20,7 +20,7 @@
         _{MsgOpponentsFleet}
 
       <div .board>
-        #{enemyGridHtml gameState}
+        #{enemyGridHtml gameState False}
         <div :expectedAction == ActionFire:.actionFire>&nbsp;
 
       <div .actionBox>
