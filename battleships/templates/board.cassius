@@ -3,7 +3,7 @@ div.board
   height: 480px
   position: relative
 
-div.board embed
+div.board svg
   margin: 0px
   padding: 0px
   position: absolute

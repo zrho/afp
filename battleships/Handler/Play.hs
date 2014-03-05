@@ -24,8 +24,8 @@ import Data.Map ((!))
 import Data.Serialize (Serialize)
 import Logic.Game
 import Logic.GameExt
+import Logic.Render
 import Handler.Util
-import Handler.Grid
 
 -------------------------------------------------------------------------------
 -- * Forms
@@ -46,6 +46,7 @@ getPlayR :: GameStateExt -> Handler Html
 getPlayR gameE = withGame gameE $ \(gameState@GameState {..}) -> defaultLayout $ do
   setNormalTitle
   addScript $ StaticR js_jquery_js
+  $(widgetFile "board")
   $(widgetFile "play")
 
 -- | Handles a request to move one of the player's ships.
@@ -98,6 +99,9 @@ postFireR gameE = withGame gameE $ \game -> do
 
 shipsOpponentWidget :: GameState a -> Orientation -> WidgetT App IO ()
 shipsOpponentWidget gameState orientation = $(widgetFile "shipsOpponent")
+
+legendWidget :: Orientation -> Bool -> Widget
+legendWidget orientation movesAllowed = $(widgetFile "legend")
 
 -------------------------------------------------------------------------------
 -- * Redirections

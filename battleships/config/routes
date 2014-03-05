@@ -1,8 +1,6 @@
 /battleships                                        HomeR          GET
 /battleships/place/#Rules                           PlaceShipsR    GET POST
 /battleships/place/random/#Ships                    PlaceShipsRndR POST
-/battleships/play/#GameStateExt/#Action/player.svg  PlayerGridR    GET
-/battleships/play/#GameStateExt/enemy.svg           EnemyGridR     GET
 /battleships/play/#GameStateExt/view                PlayR          GET
 /battleships/play/#GameStateExt/fire                FireR          POST
 /battleships/play/#GameStateExt/move                MoveR          POST

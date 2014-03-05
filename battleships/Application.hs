@@ -27,7 +27,6 @@ import System.IO (stdout)
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
 import Handler.Home
-import Handler.Grid
 import Handler.Play
 import Handler.PlaceShips
 import Handler.GameEnded

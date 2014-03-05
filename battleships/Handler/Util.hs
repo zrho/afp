@@ -5,7 +5,7 @@
 -- Portability :  portable
 --
 -- Several utilities for the handlers of this package.
-
+{-# LANGUAGE RecordWildCards, OverloadedStrings #-}
 module Handler.Util
   ( withGame
   , fieldPos
@@ -14,6 +14,8 @@ module Handler.Util
   , gridStatic
   , impGameH
   , expGameH
+  , playerGridHtml
+  , enemyGridHtml
   ) where
 
 import Import
@@ -25,6 +27,10 @@ import Logic.CleverAI
 import Logic.Render
 import Yesod.Routes.Class
 import Data.Serialize (Serialize)
+import Diagrams.Backend.SVG
+import Text.Blaze.Svg.Renderer.Text (renderSvg)
+import Data.Text.Lazy (toStrict)
+import Data.Text as T
 
 -------------------------------------------------------------------------------
 -- * Game Import/Export
@@ -79,3 +85,41 @@ fieldPos p = listToMaybe $ sample renderReferenceGrid $ p2 p
 -- | Set a default html title.
 setNormalTitle :: Widget 
 setNormalTitle = setTitleI MsgGameName
+
+
+playerGridHtml :: GameState a -> Action -> Html
+playerGridHtml (GameState {..}) requiredAction
+  = renderSvgHtml
+  $ renderPlayerGrid
+    (playerFleet currentPlayer)
+    (playerShots otherPlayer)
+    requiredAction
+    gameRules
+    turnNumber
+
+enemyGridHtml :: GameState a -> Html
+enemyGridHtml (GameState {..})
+  = renderSvgHtml
+  $ renderEnemyGrid
+    (playerFleet otherPlayer)
+    (playerShots currentPlayer)
+    gameRules
+    turnNumber
+
+-- | Renders a diagram as an SVG text.
+--
+-- Uses breakOn to omit doctype and xml declaration, so the text can
+-- be embedded in HTML. TODO: Is there a less hacky way to do that?
+
+renderSvgHtml :: (Semigroup m, Monoid m) => QDiagram SVG R2 m -> Html
+renderSvgHtml
+  = preEscapedToMarkup
+  . snd
+  . T.breakOn "<svg xmlns="
+  . toStrict
+  . renderSvg
+#if MIN_VERSION_diagrams_svg(0,8,0)
+  . renderDia SVG (SVGOptions Absolute (Just $ return ()))
+#else
+  . renderDia SVG (SVGOptions Absolute)
+#endif

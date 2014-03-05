@@ -3,19 +3,10 @@
     <div .boardContent>
       <h3>
         _{MsgYourFleet}
-      $case expectedAction
-        $of ActionFire
-          <div .board>
-            <embed
-                src="@{PlayerGridR gameE ActionFire}" 
-                type="image/svg+xml" />
-            <div>&nbsp;
-        $of ActionMove
-          <div .board>
-            <embed
-                src="@{PlayerGridR gameE ActionMove}" 
-                type="image/svg+xml" />
-            <div .actionMove>&nbsp;
+      
+      <div .board>
+        #{playerGridHtml gameState expectedAction}
+        <div :expectedAction == ActionMove:.actionMove>&nbsp;
 
       <div .actionBox>
         $if expectedAction == ActionMove
@@ -27,19 +18,10 @@
     <div .boardContent>
       <h3>
         _{MsgOpponentsFleet}
-      $case expectedAction
-        $of ActionFire
-          <div .board>
-            <embed
-                src="@{EnemyGridR gameE}"
-                type="image/svg+xml" />
-            <div .actionFire>&nbsp;
-        $of ActionMove
-          <div .board>
-            <embed
-                src="@{EnemyGridR gameE}"
-                type="image/svg+xml" />
-            <div>&nbsp;
+
+      <div .board>
+        #{enemyGridHtml gameState}
+        <div :expectedAction == ActionFire:.actionFire>&nbsp;
 
       <div .actionBox>
         $if expectedAction == ActionFire
