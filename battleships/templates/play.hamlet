@@ -47,6 +47,9 @@
 
   <div .infoV>
     <div .infoBoxV>
+      <div  .watchreplay>
+        <a .linkButton .redButton href="@{ReplayR gameE}">
+          _{MsgWatchReplay}
       <h3>_{MsgHints}
       ^{shipsOpponentWidget gameState Vertical}
 
@@ -59,6 +62,9 @@
 
 <div .infoH>
     <div .infoBoxH>
+      <div .watchreplay>
+        <a .linkButton .redButton href="@{ReplayR gameE}">
+          _{MsgWatchReplay}
       <h3>_{MsgHints}
       ^{shipsOpponentWidget gameState Horizontal}
 

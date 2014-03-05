@@ -47,7 +47,7 @@ postMoveR gameE = withGame gameE $ \game -> do
       _ -> performMove game Nothing
   where
     performMove game pos = do
-      game' <- liftIO $ execStateT (executeMove $ moveHuman pos) game
+      game' <- liftIO $ execStateT (moveHuman pos >>= executeMove) game
       performAI game'
 
 postFireR :: GameStateExt -> Handler Html

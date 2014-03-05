@@ -131,3 +131,7 @@ div.board div
 .red
   border: 3px solid #F00
   background: #F00
+
+.watchreplay
+  padding: 20px
+  text-align: center

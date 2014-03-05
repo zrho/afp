@@ -41,6 +41,11 @@ LegendFogOfWar: undiscovered area
 LegendWater: water
 LegendLastShot: shot(s) of enemy's last turn
 
+PauseButtonLabel: Pause
+UnpauseButtonLabel: Unpause
+RestartButtonLabel: Restart
+WatchReplay: Watch replay
+
 ConfirmLeave: Do you really want to go home?
 About: About the game
 HowToPlay: How to play

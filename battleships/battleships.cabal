@@ -38,6 +38,7 @@ library
                      Handler.Util
                      Handler.Grid
                      Handler.GameEnded
+                     Handler.Replay
                      Handler.Rules
                      Handler.About
                      Logic.Random

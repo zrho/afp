@@ -33,8 +33,4 @@ diagramContent
   = TypedContent typeSvg
   . toContent
   . renderSvg
-#if MIN_VERSION_diagrams_svg(0,8,0)
-  . renderDia SVG (SVGOptions Absolute Nothing)
-#else
-  . renderDia SVG (SVGOptions Absolute)
-#endif
+  . renderDiaSVG

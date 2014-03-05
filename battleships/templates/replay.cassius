@@ -1,0 +1,81 @@
+
+@media all and (max-width: 1329px)
+  div.boards
+    width: 1000px
+
+  div.rightBoard
+    width: 480px
+    float: right
+
+@media all and (max-width: 1629px) and (min-width: 1330px)
+  div.boards
+    width: 1300px
+
+  div.rightBoard
+    width: 480px
+    float: left
+
+@media all and (min-width: 1630px)
+  div.boards
+    width: 1600px
+
+  div.rightBoard
+    width: 500px
+    float: left
+
+div.boards
+  margin: 0px auto
+
+div.boards h3
+  text-align: center
+
+div.leftBoard
+  float: left
+  width: 500px
+
+div.boardContent
+  box-shadow: 0 0 5px #36BBCE
+  background-color: rgba(1, 89, 101, 0.25)
+  width: 480px
+  height: 480px
+
+div.board
+  width: 480px
+  height: 480px
+  position: relative
+  display: none
+
+div.board embed, div.board svg
+  margin: 0px
+  padding: 0px
+  position: absolute
+  top: 40px
+  left: 40px
+
+div.board div
+  position: absolute
+  margin: 0px
+  padding: 0px
+  top: 0px
+  left: 0px
+  width: 480px
+  height: 480px
+  background-image: url(@{gridStatic})
+
+#aiboard0, #humanboard0
+  display: block
+
+.red
+  border: 3px solid #F00
+  background: #F00
+
+
+div.infoH
+  width: 1002px
+  margin: 0px auto
+  text-align: center
+  padding-top: 15px
+
+div.infoBoxH
+  height: 100%
+  width: 100%

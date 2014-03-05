@@ -29,6 +29,7 @@ import System.IO (stdout)
 import Handler.Home
 import Handler.Grid
 import Handler.Play
+import Handler.Replay
 import Handler.PlaceShips
 import Handler.GameEnded
 import Handler.Rules

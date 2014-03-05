@@ -29,3 +29,5 @@
       <div .infoBoxH .bannerLost>
         <h3 .bannerText>
           _{MsgLost}
+        <a .linkButton .redButton href="@{ReplayR gameE}">
+          _{MsgWatchReplay}

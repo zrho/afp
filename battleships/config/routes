@@ -7,6 +7,7 @@
 /battleships/play/#GameStateExt/fire                FireR          POST
 /battleships/play/#GameStateExt/move                MoveR          POST
 /battleships/gameEnded/#GameStateExt                GameEndedR     GET
+/battleships/replay/#GameStateExt                   ReplayR        GET
 /battleships/rules                                  RulesR         GET POST
 /cgi-bin/battleships/static                         StaticR        Static getStatic
 /battleships/about                                  AboutR         GET

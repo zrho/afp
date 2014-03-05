@@ -41,6 +41,11 @@ LegendFogOfWar: Nicht kartografierter Bereich
 LegendWater: Wasser
 LegendLastShot: Feindliche Schüsse des letzten Zugs
 
+PauseButtonLabel: Anhalten
+UnpauseButtonLabel: Weiter
+RestartButtonLabel: Von vorne
+WatchReplay: Replay anschauen
+
 ConfirmLeave: Wirklich zurück zur Startseite?
 About: Über das Spiel
 HowToPlay: So wird gespielt

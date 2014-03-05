@@ -1,0 +1,66 @@
+var step = 0;
+var intervalID;
+var intervalDuration = 1000; // milliseconds
+var paused = false;
+
+function updateStep(f) {
+    oldStep = step;
+    newStep = f(step);
+    if(newStep < 0 || newStep >= #{toJSON numSteps})
+      return;
+    $("#humanboard" + oldStep).hide();
+    $("#humanboard" + newStep).show();
+    $("#aiboard" + oldStep).hide();
+    $("#aiboard" + newStep).show();
+    step = newStep
+    updatePauseButton();
+}
+
+function animationStep() {
+    if(!paused)
+        updateStep(function(s) { return s + 1; });
+}
+
+function updatePauseButton() {
+    if(step == #{toJSON (numSteps - 1)}) {
+        paused = true;
+        $("#pause").text(#{toJSON $ messageRender MsgRestartButtonLabel});
+    } else {
+        if(paused)
+          $("#pause").text(#{toJSON $ messageRender MsgUnpauseButtonLabel});
+        else
+          $("#pause").text(#{toJSON $ messageRender MsgPauseButtonLabel});
+    }
+}
+
+function handlePause() {
+    if(step == #{toJSON (numSteps - 1)}) {
+        paused = false;
+        updateStep(function(s) { return 0; })
+    } else {
+        paused = !paused;
+        updatePauseButton();
+    }
+}
+
+$(function() {
+    intervalID = setInterval(animationStep, intervalDuration)
+    updatePauseButton();
+    $("#first").click(function(event) {
+        paused = true;
+        updateStep(function(s) { return 0; })
+    })
+    $("#prev").click(function(event) {
+        paused = true;
+        updateStep(function(s) { return s - 1; });
+    });
+    $("#pause").click(handlePause)
+    $("#next").click(function(event) {
+        paused = true;
+        updateStep(function(s) { return s + 1; });
+    });
+    $("#last").click(function(event) {
+        paused = true;
+        updateStep(function(s) { return #{toJSON (numSteps - 1)}; })
+    })
+});

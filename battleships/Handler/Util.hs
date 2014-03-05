@@ -7,10 +7,13 @@ module Handler.Util
   , gridStatic
   , impGameH
   , expGameH
+  , renderDiaSVG
   ) where
 
 import Import
 import Diagrams.Prelude
+import Diagrams.Backend.SVG
+import Text.Blaze.Svg.Internal (Svg)
 import Data.Maybe
 import Logic.Game
 import Logic.GameExt
@@ -61,3 +64,12 @@ expGameH :: Serialize a => GameState a -> Handler GameStateExt
 expGameH game = do
   key <- appKey <$> getYesod
   expGame key game
+
+renderDiaSVG :: (Monoid m, Semigroup m) =>
+                QDiagram SVG R2 m -> Text.Blaze.Svg.Internal.Svg
+renderDiaSVG =
+#if MIN_VERSION_diagrams_svg(0,8,0)
+  renderDia SVG (SVGOptions Absolute Nothing)
+#else
+  renderDia SVG (SVGOptions Absolute)
+#endif
