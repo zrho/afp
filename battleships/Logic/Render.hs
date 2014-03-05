@@ -124,9 +124,10 @@ renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
         Vertical   -> vcat [shipCell i | i <- [0..shipSize-1]] # alignTL
       where
         shipCell = if isDamaged ship then const shipSquare else movableShipCell
-        movableShipCell i = if requiredAction == ActionMove
-            then maybe mempty renderArrow (movementArrowAt ship i fleet) <> movableSquare
-            else movableSquare
+        movableShipCell i =
+          case requiredAction of
+            ActionMove -> maybe mempty renderArrow (movementArrowAt ship i fleet) <> movableSquare
+            _          -> movableSquare
         
     renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
       if rulesMove then case val of 
