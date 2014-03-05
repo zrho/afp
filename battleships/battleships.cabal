@@ -14,6 +14,7 @@ Extra-Source-Files:
                 messages/*.msg
                 config/routes
                 config/settings.yml
+                config/key.aes
                 templates/*.cassius
                 templates/*.hamlet
                 templates/*.julius
@@ -22,7 +23,6 @@ Extra-Source-Files:
                 static/img/*.svg
                 static/img/*.ico
                 static/img/*.png
-                key.aes
 
 Flag dev
     Description:   Turn on development settings, like auto-reload templates.
