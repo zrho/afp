@@ -15,6 +15,7 @@ module Handler.Util
   , impGameH
   , expGameH
   , renderDiaSVG
+  , renderSvgHtml
   , playerGridHtml
   , enemyGridHtml
   ) where
@@ -80,15 +81,6 @@ gridStatic = StaticR img_grid_svg
 -- * Misc
 -------------------------------------------------------------------------------
 
-renderDiaSVG :: (Monoid m, Semigroup m) =>
-                QDiagram SVG R2 m -> Text.Blaze.Svg.Internal.Svg
-renderDiaSVG =
-#if MIN_VERSION_diagrams_svg(0,8,0)
-  renderDia SVG (SVGOptions Absolute Nothing)
-#else
-  renderDia SVG (SVGOptions Absolute)
-#endif
-
 -- | Converts coordinates in the grid SVG to a field position.
 fieldPos :: (Double, Double) -> Maybe Pos
 fieldPos p = listToMaybe $ sample renderReferenceGrid $ p2 p
@@ -129,8 +121,13 @@ renderSvgHtml
   . T.breakOn "<svg xmlns="
   . toStrict
   . renderSvg
+  . renderDiaSVG
+
+renderDiaSVG :: (Monoid m, Semigroup m) =>
+                QDiagram SVG R2 m -> Text.Blaze.Svg.Internal.Svg
+renderDiaSVG =
 #if MIN_VERSION_diagrams_svg(0,8,0)
-  . renderDia SVG (SVGOptions Absolute (Just $ return ()))
+  renderDia SVG (SVGOptions Absolute Nothing)
 #else
-  . renderDia SVG (SVGOptions Absolute)
+  renderDia SVG (SVGOptions Absolute)
 #endif

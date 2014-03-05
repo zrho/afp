@@ -23,7 +23,7 @@ getReplayR gameE = withGame gameE $ \gameState -> defaultLayout $ do
   setNormalTitle
   addScript $ StaticR js_jquery_js
   $(widgetFile "replay") where
-    renderHumanGrid rules (time, (humansState, aisState)) = (time, renderDiaSVG $
+    renderHumanGrid rules (time, (humansState, aisState)) = (time, renderSvgHtml $
       renderPlayerGrid (playerFleet humansState) (playerShots aisState) ActionFire rules time)
     renderAIGrid rules (time, (humansState, aisState)) = renderHumanGrid rules (time, (aisState, humansState))
 
