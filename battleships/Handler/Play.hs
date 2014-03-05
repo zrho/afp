@@ -1,3 +1,16 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Handler.Play
+-- Stability   :  experimental
+-- Portability :  non-portable
+--
+-- Handler for playing the battleships game.
+--
+-- Beside the GET handler for displaying the UI, two POST handlers for performing
+-- the two actions of the game (moving and shooting) are provided. After a validation
+-- step, these advance the simulation and redirect the user either to the game UI
+-- again, if the game is still on, or to the game ended screen.
+
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, RecordWildCards #-}
 module Handler.Play
   ( getPlayR
@@ -11,8 +24,12 @@ import Data.Map ((!))
 import Data.Serialize (Serialize)
 import Logic.Game
 import Logic.GameExt
+import Logic.Render
 import Handler.Util
-import Handler.Grid
+
+-------------------------------------------------------------------------------
+-- * Forms
+-------------------------------------------------------------------------------
 
 fireForm :: FormInput Handler (Double, Double)
 fireForm = (,) <$> ireq doubleField "X" <*> ireq doubleField "Y"
@@ -20,12 +37,19 @@ fireForm = (,) <$> ireq doubleField "X" <*> ireq doubleField "Y"
 moveForm :: FormInput Handler (Maybe Double, Maybe Double)
 moveForm = (,) <$> iopt doubleField "X" <*> iopt doubleField "Y"
 
+-------------------------------------------------------------------------------
+-- * Handler
+-------------------------------------------------------------------------------
+
+-- | Displays the game UI to the user.
 getPlayR :: GameStateExt -> Handler Html
 getPlayR gameE = withGame gameE $ \(gameState@GameState {..}) -> defaultLayout $ do
   setNormalTitle
   addScript $ StaticR js_jquery_js
+  $(widgetFile "board")
   $(widgetFile "play")
 
+-- | Handles a request to move one of the player's ships.
 postMoveR :: GameStateExt -> Handler Html
 postMoveR gameE = withGame gameE $ \game -> do
     mpos <- runInputPost moveForm
@@ -50,6 +74,7 @@ postMoveR gameE = withGame gameE $ \game -> do
       game' <- liftIO $ execStateT (moveHuman pos >>= executeMove) game
       performAI game'
 
+-- | Handles a request to fire at an enemy position.
 postFireR :: GameStateExt -> Handler Html
 postFireR gameE = withGame gameE $ \game -> do
   (x,y) <- runInputPost fireForm
@@ -72,18 +97,37 @@ postFireR gameE = withGame gameE $ \game -> do
               | expectedAction game' == ActionMove -> continue game'
               | otherwise -> performAI game'
 
+shipsOpponentWidget :: GameState a -> Orientation -> WidgetT App IO ()
+shipsOpponentWidget gameState orientation = $(widgetFile "shipsOpponent")
+
+legendWidget :: Orientation -> Bool -> Widget
+legendWidget orientation movesAllowed = $(widgetFile "legend")
+
+-------------------------------------------------------------------------------
+-- * Redirections
+-------------------------------------------------------------------------------
+
+-- | Redirects to the game UI in case of an invalid move.
 invalidMove :: GameStateExt -> Handler Html
 invalidMove gameE = redirect $ PlayR gameE
 
-gameEnded, continue, performAI :: (Serialize a, AI a) => GameState a -> Handler Html
+-- | Redirects to the game ended screen.
+gameEnded :: (Serialize a, AI a) => GameState a -> Handler Html
 gameEnded game = expGameH game >>= redirect . GameEndedR
+
+-- | Redirects the the game UI in case the game is still on.
+continue :: (Serialize a, AI a) => GameState a -> Handler Html
 continue game = expGameH game >>= redirect . PlayR
+
+-------------------------------------------------------------------------------
+-- * AI
+-------------------------------------------------------------------------------
+
+-- | Performs the AI actions.
+performAI :: (Serialize a, AI a) => GameState a -> Handler Html
 performAI game = do
   (result, game') <- liftIO $ runStateT aiTurn game
   case result of
     Over  -> gameEnded game'
     Next  -> continue game'
     Again -> error "impossible. `Again` is handled by aiTurn"
-
-shipsOpponentWidget :: GameState a -> Orientation -> WidgetT App IO ()
-shipsOpponentWidget gameState orientation = $(widgetFile "shipsOpponent")

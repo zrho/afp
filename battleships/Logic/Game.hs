@@ -1,3 +1,14 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Logic.Game
+-- Stability   :  experimental
+-- Portability :  semi-portable
+--
+-- Logic and data structures of the battleships implementation.
+--
+-- The AI is implemented in another module to cleanly seperate it from
+-- the game logic.
+
 {-# LANGUAGE RecordWildCards, TupleSections, OverloadedStrings #-}
 module Logic.Game
   ( 
@@ -13,7 +24,6 @@ module Logic.Game
   , PlayerState (..)
   , Rules (..)
   , Ship (..)
-  , Ships (..)
   , ShipShape (..)
   , ShipMove (..)
   , Shot (..)
@@ -26,6 +36,7 @@ module Logic.Game
   , TrackingList
   -- * Game Functions
   , boardSize
+  , rulesShips
   , defaultRules
   , newGame
   , newGrid
@@ -57,6 +68,7 @@ module Logic.Game
   , isDamaged
   , isMovable
   , isShipSunk
+  , isShipAtSunk
   , moveShip
   , numberShipsOfSize
   , shipAdmissible
@@ -89,6 +101,7 @@ import           Control.Monad.Random
 import           Control.Monad.Trans.State (runStateT)
 import           Control.Monad.State.Class (MonadState, gets, modify)
 import           Yesod (PathPiece (..))
+import           Settings (Extra (..))
 import qualified Data.Text as T hiding (find, zip, map)
 
 -------------------------------------------------------------------------------
@@ -97,6 +110,9 @@ import qualified Data.Text as T hiding (find, zip, map)
 
 boardSize :: (Int, Int)
 boardSize = (10, 10)
+
+rulesShips :: [Int]
+rulesShips = [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ]
 
 -------------------------------------------------------------------------------
 -- * AI
@@ -135,9 +151,9 @@ class AI a where
 -------------------------------------------------------------------------------
 
 data Rules = Rules
-  { rulesShips        :: [Int]
-  , rulesAgainWhenHit :: Bool
+  { rulesAgainWhenHit :: Bool
   , rulesMove         :: Bool
+  , rulesNoviceMode   :: Bool
   , rulesDevMode      :: Bool
   , rulesMaximumTurns :: Int
   } deriving (Show, Eq, Read)
@@ -278,13 +294,13 @@ newGame r pFleet begin = do
   return gameState
 
 -- | The battleship default rules
-defaultRules :: Rules 
-defaultRules = Rules
-  { rulesShips = [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ]
-  , rulesAgainWhenHit = True
+defaultRules :: Extra -> Rules 
+defaultRules Extra {..} = Rules
+  { rulesAgainWhenHit = True
   , rulesMove  = True
+  , rulesNoviceMode = False
   , rulesDevMode = False
-  , rulesMaximumTurns = 2 * 75 -- 75 turns for each player
+  , rulesMaximumTurns = extraMaxTurns
   }
 
 -- | Helper: Creates a grid, filled with one value.
@@ -323,6 +339,11 @@ shipAt fleet (px, py) = find containsP fleet where
     Vertical   -> px == sx && py >= sy && py < sy + shipSize
     where (sx, sy) = shipPosition
 
+isShipAtSunk :: Fleet -> Pos -> Bool
+isShipAtSunk fleet pos = case shipAt fleet pos of
+  Nothing -> False
+  Just s  -> isShipSunk s
+
 -- | Returns the zero-based index of a ship cell based on a global coordinate
 shipCellIndex :: HasShipShape s => Pos -> s -> Maybe Int
 shipCellIndex (px,py) (getShipShape -> ShipShape{..}) = case shipOrientation of
@@ -350,8 +371,8 @@ generateFleet :: FleetPlacement -> Fleet
 generateFleet = Map.fromAscList . fmap newShip . zip [1..] where
   newShip (sID, shape) = (sID, Ship sID shape (listArray (0,shipSize shape-1) (repeat False)))
 
-shipSizes :: Rules -> [Int]
-shipSizes rules = sort $ nub (rulesShips rules)
+shipSizes :: [Int]
+shipSizes = sort $ nub rulesShips
 
 numberShipsOfSize :: [Int] -> Int -> Int
 numberShipsOfSize ships size = length $ filter (== size) ships
@@ -628,16 +649,6 @@ instance PathPiece Rules where
   fromPathPiece = impBinary >=> eitherToMaybe . decode . toStrict
   toPathPiece   = expBinary . fromStrict . encode
 
-newtype Ships = Ships [Int] deriving (Eq, Read, Show)
-
-instance Serialize Ships where
-  get = Ships <$> getList8 getIntegral8
-  put (Ships ships) = putList8 putIntegral8 ships
-
-instance PathPiece Ships where
-  fromPathPiece = impBinary >=> eitherToMaybe . decode . toStrict
-  toPathPiece   = expBinary . fromStrict . encode
-
 eitherToMaybe :: Either a b -> Maybe b
 eitherToMaybe e = case e of
   Right x -> Just x
@@ -666,11 +677,11 @@ instance Serialize PlayerState where
     put playerMoves
 
 instance Serialize Rules where
-  get = Rules <$> getList8 getIntegral8 <*> get <*> get <*> get <*> getIntegral8
+  get = Rules <$> get <*> get <*> get <*> get <*> getIntegral8
   put Rules {..} = do
-    putList8 putIntegral8 rulesShips
     put rulesAgainWhenHit
     put rulesMove
+    put rulesNoviceMode
     put rulesDevMode
     putIntegral8 rulesMaximumTurns
 

@@ -2,6 +2,9 @@ Default: &defaults
   host: "*4" # any IPv4 host
   port: 3000
   approot: "http://localhost:3000"
+  datadir: "config/"
+  staticdir: "static/"
+  maxturns: 150
 
 Development:
   <<: *defaults
@@ -14,4 +17,6 @@ Staging:
 
 Production:
   approot: "http://www-pg.iai.uni-bonn.de"
+  datadir: "/srv/www/vhosts/www-pg-data/battleships/"
+  staticdir: "/srv/www/vhosts/www-pg-data/battleships/"
   <<: *defaults

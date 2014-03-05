@@ -1,4 +1,7 @@
 <h1> _{MsgHowToPlay}
+<h2> _{MsgHowToPlaceShipsHeading}
+<p> _{MsgHowToPlaceShipsFull}
+<h2> _{MsgHowToPlayHeading}
 <p> _{MsgHowToPlayFull}
 
 <h1> _{MsgReallyFair}

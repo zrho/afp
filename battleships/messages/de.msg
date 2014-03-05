@@ -9,10 +9,11 @@ Lost: Du hast verloren.
 Drawn: Unentschieden!
 PlaceShips: Platziere deine Schiffe
 AvailableShips: Verfügbare Flotte
-NoPossiblePlacement: Es ist keine vollständige Flottenbelegung möglich.
+NoPossiblePlacement: Es konnte keine vollständige Flottenbelegung erzeugt werden.
 
 InputAgainWhenHit: bei Treffer erneut schießen
 InputMove: Schiffe verschiebbar
+InputNoviceMode: Zusätzlich als Hilfe unmögliche Positionen anzeigen
 InputDevMode: Entwicklermodus
 AdjustRules: Die Regeln anpassen
 Rules: Regeln
@@ -49,6 +50,9 @@ WatchReplay: Replay anschauen
 ConfirmLeave: Wirklich zurück zur Startseite?
 About: Über das Spiel
 HowToPlay: So wird gespielt
-HowToPlayFull: Hier steht ein ganz langer Text, der das Spiel erklaert...
+HowToPlaceShipsHeading: Schiffe platzieren
+HowToPlaceShipsFull: Zu Beginn des Spiels platzierst du deine Schiffe. Dafür drückst du die linke Maustaste im ersten der Felder, die dein Schiff belegen soll, und lässt sie im letzten zum Schiff gehörenden Feld wieder los. Um ein Schiff wieder zu entfernen, klick es einfach an; dann kannst du es an einer anderen Stelle platzieren. Die Felder um platzierte Schiffe herum werden ausgegraut, da Schiffe sich nicht berühren dürfen. Es ist auch möglich, eine zufällige Platzierung generieren zu lassen.
+HowToPlayHeading: Schüsse feuern und Schiffe bewegen
+HowToPlayFull: Nach dem Platzieren der Schiffe sind abwechselnd du und der Computer an der Reihe. Ein Spielzug besteht aus dem Feuern (wenn entsprechend eingestellt, darfst du so lange feuern, wie du Schiffe des Gegners triffst) und -optional- dem Bewegen eines unversehrten Schiffes um ein Feld. Zum Feuern klicke einfach auf das Feld, auf das du schießen möchtest. Die unversehrten Schiffe werden besonders hervorgehoben und die, die sich bewegen lassen (wenn also kein Hindernis den Weg blockiert) haben Pfeile an ihren Enden. Klicke auf einen Pfeil, um das zugehörige Schiff zu bewegen. Wichtig ist dabei: Gesunkene Schiffe verschwinden! Sobald ein Schiff also komplett versenkt wurde, kann man andere Schiffe darüber hinweg bewegen. 
 ReallyFair: Spielt der Computer fair?
-ReallyFairFull: Hier steht ein ganz langer Text, der erklaert, dass der Computer fair spielt...
+ReallyFairFull: Ja, tut er - Er platziert und bewegt seine Schiffe nach den selben Regeln wie du und erhält auch keine zusätzlichen Informationen über deine Schiffe. Bei unserem Spiel gibt es einen 'Mittelsmann', der das Spiel leitet. Genau wie du sucht sich der Computer in seinem Zug aus, auf welches Feld er schießen möchte und teilt dies dem Mittelsmann mit. Die einzige Information, die der dem Computer zurückgibt, ist die, ob der Schuss ein Schiff getroffen bzw. versenkt hat oder nicht. Ebenso kann der Computer nicht über seine eigenen Schiffe 'lügen', denn auch deine Schüsse werden an den Mittelsmann weitergeleitet, der genau weiß, an welchen Stellen die Schiffe des Computers momentan liegen. Am Ende des Spiels siehst du eine animierte Zusammenfassung des Spielablaufs, um nachzuvollziehen, wann welches Schiff wo stand und wann wohin geschossen wurde. Wenn du besonders paranoid bist, kannst du dir auch den Quellcode anschauen (https://github.com/zrho/afp/tree/master/battleships), um sicher zu gehen, dass der Computer nicht betrügt.

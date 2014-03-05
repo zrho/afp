@@ -12,17 +12,14 @@ $case orientation
           <img src="@{legendStatic LIShipHit}">
         <td>_{MsgLegendShipHit}
         <td>
-          <img src="@{legendStatic LIShipSunk}">
-        <td>_{MsgLegendShipSunk}
+         <img src="@{legendStatic LILastShot}">
+        <td>_{MsgLegendLastShot}
         $if not movesAllowed
           <td>
-            <img src="@{legendStatic LILastShot}">
-          <td>_{MsgLegendLastShot}
+            <img src="@{legendStatic LIShipSunk}">
+          <td>_{MsgLegendShipSunk}
       $if movesAllowed
         <tr>
-          <td>
-            <img src="@{legendStatic LILastShot}">
-          <td>_{MsgLegendLastShot}
           <td>
             <img src="@{legendStatic LIShipImmovable}">
           <td>_{MsgLegendShipImmovable}
@@ -49,10 +46,6 @@ $case orientation
         <td>_{MsgLegendShipHit}
       <tr>
         <td>
-          <img src="@{legendStatic LIShipSunk}">
-        <td>_{MsgLegendShipSunk}
-      <tr>
-        <td>
           <img src="@{legendStatic LILastShot}">
         <td>_{MsgLegendLastShot}
       $if movesAllowed
@@ -67,4 +60,9 @@ $case orientation
         <tr>
           <td>
             <img src="@{legendStatic LIShipWithArrow }">
-         <td>_{MsgLegendShipWithArrow }
+          <td>_{MsgLegendShipWithArrow }
+      $else 
+        <tr>
+          <td>
+            <img src="@{legendStatic LIShipSunk}">
+          <td>_{MsgLegendShipSunk}

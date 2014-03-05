@@ -23,11 +23,11 @@ import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger (mkLogger)
 import System.IO (stdout)
 #endif
+import System.FilePath ((</>))
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
 import Handler.Home
-import Handler.Grid
 import Handler.Play
 import Handler.Replay
 import Handler.PlaceShips
@@ -39,7 +39,7 @@ import Logic.GameExt
 
 mkYesodDispatch "App" resourcesApp
 
-makeApplication :: AppConfig DefaultEnv () -> IO Application
+makeApplication :: AppConfig DefaultEnv Extra -> IO Application
 makeApplication conf = do
     foundation <- makeFoundation conf
     logWare <- mkRequestLogger def
@@ -56,7 +56,7 @@ makeApplication conf = do
     app <- toWaiAppPlain foundation
     return $ logWare app
 
-makeFoundation :: AppConfig DefaultEnv () -> IO App
+makeFoundation :: AppConfig DefaultEnv Extra -> IO App
 makeFoundation conf = do
 #if MIN_VERSION_fast_logger(2,1,0)
     loggerSet' <- newLoggerSet defaultBufSize Nothing
@@ -67,7 +67,7 @@ makeFoundation conf = do
     logger <- mkLogger True stdout
 #endif
     s <- staticSite
-    key <- loadKey
+    key <- loadKey (extraDataDir (appExtra conf) </> "key.aes")
     let foundation = App conf s logger key
     return foundation
 
@@ -77,3 +77,4 @@ getApplicationDev =
     defaultDevelApp loader makeApplication
   where
     loader = Yesod.Default.Config.loadConfig (configSettings Development)
+        { csParseExtra = parseExtra }

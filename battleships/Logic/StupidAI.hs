@@ -1,3 +1,11 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Logic.StupidAI
+-- Stability   :  experimental
+-- Portability :  semi-portable
+--
+-- AI that randomly shoots and does not move.
+
 {-# LANGUAGE RecordWildCards #-}
 module Logic.StupidAI 
   ( StupidAI
@@ -17,7 +25,7 @@ data StupidAI = StupidAI { rules :: Rules }
 
 instance AI StupidAI where
   aiInit r       = do
-    ships <- liftM fromJust $ initShips (rulesShips r) []
+    ships <- liftM fromJust $ initShips rulesShips []
     return $ (StupidAI r, ships)
   aiFire         = getRandomPos boardSize
   aiResponse _ _ = return ()

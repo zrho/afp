@@ -9,6 +9,9 @@
         <div .ruleEntry>
           <input #inputMove type="checkbox" name="move" value="yes" checked>
           <label for="inputMove">_{MsgInputMove}
+        <div .ruleEntry>
+          <input #inputNoviceMode type="checkbox" name="noviceMode" value="yes">
+          <label for="inputNoviceMode">_{MsgInputNoviceMode}
         $if development
           <div .ruleEntry>
             <input #inputDevMode type="checkbox" name="devMode" value="yes" checked>

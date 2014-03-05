@@ -1,3 +1,11 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Handler.Home
+-- Stability   :  experimental
+-- Portability :  non-portable
+--
+-- Handler for a static home page.
+
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
 module Handler.Home
   ( getHomeR
@@ -8,7 +16,9 @@ import Logic.Game
 import Handler.Util
 
 getHomeR :: Handler Html
-getHomeR = defaultLayout $ do 
-	setNormalTitle
-	$(widgetFile "home")
-  where rules = defaultRules
+getHomeR = do
+  extra <- getExtra
+  let rules = defaultRules extra
+  defaultLayout $ do 
+    setNormalTitle
+    $(widgetFile "home")

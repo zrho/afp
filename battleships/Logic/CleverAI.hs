@@ -1,3 +1,38 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Logic.Binary
+-- Stability   :  experimental
+-- Portability :  non-portable
+--
+-- Clever AI for battleships that supports moving ships.
+--
+-- Firing shots:
+-- 
+-- Blocked cells:
+-- Each square is assigned a probability to be blocked (i.e. being part of no ship).
+-- For example if we just hit a water cell, we know it's blocked. (Probablity 1)
+-- But after some time a ship can move there, so this probability declines over time.
+-- (modeled as exponential decay.)
+-- 
+-- Immovable ships:
+-- For each position, we count how many ships this square can be part of. We only
+-- consider ships which are not ruled out by to the AI's information about the
+-- situation. Hit ships are weighted higher => We try to sink ships as fast as
+-- possible. (This is not the case for movable ships!)
+-- 
+-- Movable ships:
+-- There are 2 phases. In the first one, the AI follows a checkerboard pattern to
+-- hit (not sink!) as many ships as possible to immobilize them.
+-- 
+-- After a certain time has passed or enough ships have been hit, we move on to
+-- phase 2.
+-- 
+-- Now that we have (hopefully) hit all ships, we sink them (essentially) according
+-- to the strategy for immovable ships.
+-- (However, a checkerboard pattern isn't useful now.)
+-- 
+-- Finally: Some randomness is added to the scores. The highest one is then chosen.
+
 {-# LANGUAGE RecordWildCards, ScopedTypeVariables, TemplateHaskell #-}
 module Logic.CleverAI 
   ( CleverAI
@@ -40,7 +75,7 @@ cleverAI r checkerboardEven = CleverAI
 
 instance AI CleverAI where
   aiInit r = do
-    fleet <- liftM fromJust $ initShips (rulesShips r) []
+    fleet <- liftM fromJust $ initShips rulesShips []
     checkerboardEven <- getRandom
     return (cleverAI r checkerboardEven, fleet)
 
@@ -74,36 +109,6 @@ cleverResponse p r ai = case r of
 -- * Firing shots
 --------------------------------------------------------------------------------
 
-{-
-This is roughly how it works:
-
-Blocked cells:
-Each square is assigned a probability to be blocked (i.e. being part of no ship).
-For example if we just hit a water cell, we know it's blocked. (Probablity 1)
-But after some time a ship can move there, so this probability declines over time.
-(modeled as exponential decay.)
-
-Immovable ships:
-For each position, we count how many ships this square can be part of. We only
-consider ships which are not ruled out by to the AI's information about the
-situation. Hit ships are weighted higher => We try to sink ships as fast as
-possible. (This is not the case for movable ships!)
-
-Movable ships:
-There are 2 phases. In the first one, the AI follows a checkerboard pattern to
-hit (not sink!) as many ships as possible to immobilize them.
-
-After a certain time has passed or enough ships have been hit, we move on to
-phase 2.
-
-Now that we have (hopefully) hit all ships, we sink them (essentially) according
-to the strategy for immovable ships.
-(However, a checkerboard pattern isn't useful now.)
-
-Finally:
-Some randomness is added to the scores. The heighest one is then chosen.
--}
-
 -- | Add some randomness to the scores: Multiplies each score with a
 -- | random number near 1.
 randomize :: MonadRandom m => ScoreGrid -> m ScoreGrid
@@ -118,7 +123,7 @@ scoreGrid' :: CleverAI -> ScoreGrid
 scoreGrid' ai@(CleverAI {..}) = buildArray bs $ scorePosition ai remaining where
   (w, h)    = boardSize
   bs        = ((0, 0), (w - 1, h - 1))
-  remaining = rulesShips rules \\ map shipSize sunk
+  remaining = rulesShips \\ map shipSize sunk
 
 -- | Given a position, look in all directions to find out whether it's part of a sunk ship.
 findSunkShip :: TrackingGrid    -- ^ AI's tracking array

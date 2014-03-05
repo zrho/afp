@@ -1,4 +1,12 @@
-{-# LANGUAGE TypeFamilies, RecordWildCards #-}
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Logic.GameExt
+-- Stability   :  experimental
+-- Portability :  semi-portable
+--
+-- External encrypted representation of the game state.
+
+{-# LANGUAGE RecordWildCards #-}
 module Logic.GameExt
   ( impGame
   , expGame
@@ -16,6 +24,7 @@ import           Data.Serialize (Serialize, encode, decode)
 import qualified Data.ByteString             as BS
 import qualified Data.ByteString.Lazy        as BL
 
+-- | External encrypted game state representation.
 data GameStateExt = GameStateExt
   { fromStateExt :: BL.ByteString } deriving (Eq, Show, Read)
 
@@ -39,8 +48,8 @@ expGame key game = liftIO $ do
   return $ GameStateExt enc
 
 -- | Loads the AES key.
-loadKey :: IO Key 
-loadKey = BS.readFile "key.aes"
+loadKey :: String -> IO Key 
+loadKey = BS.readFile
 
 -------------------------------------------------------------------------------
 -- * Path Piece

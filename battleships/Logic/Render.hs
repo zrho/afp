@@ -1,3 +1,11 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Logic.Render
+-- Stability   :  experimental
+-- Portability :  semi-portable
+--
+-- Diagrams based renderer for the game board.
+
 {-# LANGUAGE RecordWildCards, TypeFamilies #-}
 module Logic.Render
   ( renderReferenceGrid
@@ -19,6 +27,7 @@ import           Diagrams.TwoD.Text
 import           Data.Colour.SRGB
 import           Data.Foldable (fold, foldMap)
 import           Data.Function (on)
+import           Data.Ix
 
 type BattleDia = QDiagram SVG R2 [Pos]
 
@@ -59,18 +68,25 @@ renderLegend icon = case icon of
 renderReferenceGrid :: BattleDia
 renderReferenceGrid = renderGrid
 
-renderEnemyGrid :: Fleet -> TrackingList -> Rules -> BattleDia
-renderEnemyGrid fleet shots Rules{..} = mconcat
-  [ if rulesDevMode then renderFleetHints else mempty
+renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Int -> Bool -> BattleDia
+renderEnemyGrid fleet shots Rules{..} turnNumber uncoverFleet = mconcat
+  [ if uncoverFleet then renderFleetHints else mempty
+  , if rulesNoviceMode then mconcat (fmap renderImpossiblePositions $ nonWaterShots) else mempty
   , mconcat (fmap renderShot shots)
   , contentSquare # fc fogColor
   ]
   where
-    renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
-      case val of
-        Water -> waterSquare
-        Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
-        Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
+    renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
+      if rulesMove then case val of 
+                          Water -> waterSquare # opacity (timedOpacity turnNumber time) 
+                          Hit   -> if isShipAtSunk fleet pos then waterSquare # opacity (timedOpacity turnNumber time) 
+                                                             else marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
+                          Sunk  -> waterSquare # opacity (timedOpacity turnNumber time) 
+                   else case val of 
+                          Water -> waterSquare
+                          Hit   -> if isShipAtSunk fleet pos then marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
+                                                             else marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
+                          Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
     renderFleetHints = fold $ fmap renderFleetHint fleet
     renderFleetHint Ship{shipShape = ShipShape{shipPosition=(x,y),..}} =
       let
@@ -78,9 +94,16 @@ renderEnemyGrid fleet shots Rules{..} = mconcat
           Horizontal -> (realToFrac shipSize, 1)
           Vertical   -> (1, realToFrac shipSize)
       in rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # lc red # lw 1 # value []
+    renderImpossiblePositions (Shot p _ t) = mconcat (fmap (renderImpossiblePos p t) $ marginPositions p)
+    renderImpossiblePos hitPos hitTime impPos = translateToPos impPos $ value [] $ alignTL $
+      if rulesMove && isShipAtSunk fleet hitPos then waterSquare # opacity (timedOpacity turnNumber hitTime)
+                                                else waterSquare
+    marginPositions (x,y) = filter (inRange gridRange) [(x+i, y+j) | i <- [-1,1], j <- [-1,1]]
+    gridRange             = ((0, 0), (fst boardSize - 1, snd boardSize - 1))
+    nonWaterShots         = filter (\s -> shotResult s /= Water) shots
 
-renderPlayerGrid :: Fleet -> TrackingList -> Action -> BattleDia
-renderPlayerGrid fleet shots requiredAction = mconcat
+renderPlayerGrid :: Fleet -> TrackingList -> Action -> Rules -> Int -> BattleDia
+renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
     [ markLastShots
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
     , fold $ fmap renderShot $ filter ((/=Water) . shotResult) shots
@@ -105,12 +128,22 @@ renderPlayerGrid fleet shots requiredAction = mconcat
             then maybe mempty renderArrow (movementArrowAt ship i fleet) <> movableSquare
             else movableSquare
         
-    renderShot (Shot pos val _) = translateToPos pos $ value [] $ alignTL $
-      case val of
-        Water -> marker # lc markerWaterColor # lw 3 <> waterSquare
-        Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
-        Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
+    renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
+      if rulesMove then case val of 
+                          Water -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
+                          Hit   -> if isShipAtSunk fleet pos then marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
+                                                             else marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
+                          Sunk  -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
+                   else case val of
+                          Water -> marker # lc markerWaterColor # lw 3 <> waterSquare
+                          Hit   -> if isShipAtSunk fleet pos then marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare
+                                                             else marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
+                          Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare
 
+timedOpacity :: Int -> Int -> Double
+timedOpacity turnNumber shotTime
+  | (turnNumber - shotTime) < 18 = 0.05 * (fromIntegral (20 + shotTime - turnNumber))
+  | otherwise                    = 0.1
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering
 -------------------------------------------------------------------------------
@@ -242,7 +275,7 @@ fogColor         = sRGB 0.7 0.7 0.7
 waterColor       = sRGB24 0x36 0xBB 0xCE
 markerHitColor   = sRGB24 0xFE 0x3F 0x44
 markerSunkColor  = sRGB24 0xA4 0x00 0x04
-markerWaterColor = sRGB24 0x33 0x99 0xFF
+markerWaterColor = sRGB24 0x00 0x00 0xFF
 shipColor        = gray
 lastShotColor    = red
 movableColor     = sRGB24 0xC4 0xF8 0x3E

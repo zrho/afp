@@ -5,7 +5,6 @@ module Handler.Replay
 
 import Import
 import Prelude (last)
-import Data.Tuple (swap)
 import qualified Data.Map (lookup)
 import Control.Monad.State
 import Logic.Game
@@ -16,15 +15,17 @@ import Handler.Util
 getReplayR :: GameStateExt -> Handler Html
 getReplayR gameE = withGame gameE $ \gameState -> defaultLayout $ do
   messageRender <- getMessageRender -- needed for i18n in julius
-  let history     = reconstructHistory gameState
-      humanGrids  = zip [0 :: Int ..] $ map renderHumanGrid history
-      aiGrids     = zip [0 :: Int ..] $ map (renderHumanGrid . swap) history
+  let rules       = gameRules gameState
+      history     = zip [0 :: Int ..] $ reconstructHistory gameState
+      humanGrids  = map (renderHumanGrid rules) history
+      aiGrids     = map (renderAIGrid rules) history
       numSteps    = length history
   setNormalTitle
   addScript $ StaticR js_jquery_js
   $(widgetFile "replay") where
-    renderHumanGrid (humansState, aisState) = renderDiaSVG $
-      renderPlayerGrid (playerFleet humansState) (playerShots aisState) ActionFire
+    renderHumanGrid rules (time, (humansState, aisState)) = (time, renderDiaSVG $
+      renderPlayerGrid (playerFleet humansState) (playerShots aisState) ActionFire rules time)
+    renderAIGrid rules (time, (humansState, aisState)) = renderHumanGrid rules (time, (aisState, humansState))
 
 -- | Generate all the player states leading up to the current game situation.
 -- Given a game state, this function generates a list of pairs of PlayerStates

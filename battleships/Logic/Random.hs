@@ -1,3 +1,11 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Logic.Random
+-- Stability   :  experimental
+-- Portability :  portable
+--
+-- Utilities for randomness.
+
 module Logic.Random
   ( shuffleRandom
   , chooseRandom

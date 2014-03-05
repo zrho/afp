@@ -3,10 +3,18 @@ version:           0.5.0
 cabal-version:     >= 1.8
 build-type:        Simple
 
+description: This package provides a web-based implementation of the popular
+             battleships game, developed over the course of a practical functional
+             programming class at the University of Bonn (<http://www.iai.uni-bonn.de/~jv/teaching/afp13/>).
+
+             Alongside with the classical gameplay against an AI opponent, a game mode
+             is provided in which players may move their undamaged ships.
+
 Extra-Source-Files:
                 messages/*.msg
                 config/routes
                 config/settings.yml
+                config/key.aes
                 templates/*.cassius
                 templates/*.hamlet
                 templates/*.julius
@@ -15,7 +23,6 @@ Extra-Source-Files:
                 static/img/*.svg
                 static/img/*.ico
                 static/img/*.png
-                key.aes
 
 Flag dev
     Description:   Turn on development settings, like auto-reload templates.
@@ -36,7 +43,6 @@ library
                      Handler.PlaceShips
                      Handler.Play
                      Handler.Util
-                     Handler.Grid
                      Handler.GameEnded
                      Handler.Replay
                      Handler.Rules
@@ -50,7 +56,6 @@ library
                      Logic.AIUtil
                      Logic.Benchmark
                      Logic.Render
-                     Logic.Session
                      Logic.Debug
 
     ghc-options:   -threaded -Wall -Werror 
@@ -113,6 +118,8 @@ library
                  , attoparsec
                  , word8
                  , shakespeare-js
+                 , yaml
+                 , filepath
 
     if flag(library-only)
         build-depends:   warp

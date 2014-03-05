@@ -1,3 +1,11 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Logic.AIUtil
+-- Stability   :  experimental
+-- Portability :  portable
+--
+-- Utilities for the enemy AI.
+
 {-# LANGUAGE RecordWildCards #-}
 module Logic.AIUtil
   (
@@ -6,7 +14,6 @@ module Logic.AIUtil
   , ScoreGrid
   , TrackingGrid
   -- * Grid Functions
-  , addMargin
   , isHit
   , isHitOrSunk
   , isWater
@@ -18,7 +25,6 @@ module Logic.AIUtil
   , fromBool
   , maximum'
   , maximumIx
-  , removeNth
   -- * Debugging Functions
   , showFleet
   , showFleetPlacement
@@ -56,13 +62,14 @@ type TrackingGrid = Grid (Maybe HitResponse)
 -- * Placing ships
 --------------------------------------------------------------------------------
 
+-- | Random completion of a given fleet, if one exists.
 initShips :: MonadRandom m => [Int] -> FleetPlacement -> m (Maybe FleetPlacement)
 initShips ships fleet = do
   let ships' = ships \\ (fmap shipSize fleet)
   fleets <- runRandM $ runListT $ foldM initShips' fleet ships'
   return $ listToMaybe fleets
 
--- | returns a random fleet, if one exists
+-- | Helper for 'initShips'.
 initShips'
   :: (MonadRandom m)
   => FleetPlacement
@@ -75,7 +82,7 @@ initShips' fleet len = do
   placement <- choose shuffled
   return $ placement : fleet
 
--- | calculates all possible placements for a ship of the given length
+-- | Calculates all possible placements for a ship of the given length.
 admissibleShips :: FleetPlacement -> Int -> [ShipShape]
 admissibleShips fleet len = do
   let (w, h) = boardSize
@@ -87,7 +94,7 @@ admissibleShips fleet len = do
   return ship
 
 --------------------------------------------------------------------------------
--- * Helper functions
+-- * Hit Response
 --------------------------------------------------------------------------------
 
 isHit :: Maybe HitResponse -> Bool
@@ -105,16 +112,32 @@ isWater _            = False
 isHitOrSunk :: Maybe HitResponse -> Bool
 isHitOrSunk h = isSunk h || isHit h
 
-addMargin :: Int -> Pos -> [Pos]
-addMargin margin (x,y) = [(x + dx, y + dy) | dx <- [-margin..margin], dy <- [-margin..margin]]
+--------------------------------------------------------------------------------
+-- * Array Utilities
+--------------------------------------------------------------------------------
 
--- can't find this function in the standard libraries...
-removeNth :: Int -> [a] -> [a]
-removeNth n xs = let (ys,zs) = splitAt n xs in ys ++ (tail zs)
+-- | Index of the maximum element in an array.
+maximumIx :: (Ix i, Ord e) => Array i e -> i
+maximumIx = fst . maximumBy (compare `on` snd) . assocs
 
+-- | Distributive law for monad actions in arrays.
+traverseArray :: (Ix i, Monad m) => (a -> m b) -> Array i a -> m (Array i b)
+traverseArray f a = liftM (listArray (bounds a)) $ mapM f $ elems a
+
+-- | Build an array by specifying bounds and a function that constructs
+-- the value for an index.
+buildArray :: Ix i => (i, i) -> (i -> a) -> Array i a
+buildArray bs f = array bs $ fmap (id &&& f) $ range bs
+
+--------------------------------------------------------------------------------
+-- * Misc
+--------------------------------------------------------------------------------
+
+-- | Lift a list into a 'MonadPlus'.
 choose :: MonadPlus m => [a] -> m a
 choose = msum . fmap return
 
+-- | Bool to numeric.
 fromBool :: Num a => Bool -> a
 fromBool True  = 1
 fromBool False = 0
@@ -123,19 +146,6 @@ fromBool False = 0
 maximum' :: (Ord a, Num a) => [a] -> a
 maximum' [] = 0
 maximum' xs = maximum xs
-
---------------------------------------------------------------------------------
--- * Array Utilities
---------------------------------------------------------------------------------
-
-maximumIx :: (Ix i, Ord e) => Array i e -> i
-maximumIx = fst . maximumBy (compare `on` snd) . assocs
-
-traverseArray :: (Ix i, Monad m) => (a -> m b) -> Array i a -> m (Array i b)
-traverseArray f a = liftM (listArray (bounds a)) $ mapM f $ elems a
-
-buildArray :: Ix i => (i, i) -> (i -> a) -> Array i a
-buildArray bs f = array bs $ fmap (id &&& f) $ range bs
 
 --------------------------------------------------------------------------------
 -- * Debugging
