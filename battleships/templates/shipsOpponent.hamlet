@@ -6,7 +6,7 @@
         <td>_{MsgShipLength}
         <td>#_{MsgShipsUnsunk}
     <tbody>
-      $forall size <- (shipSizes (gameRules gameState))
+      $forall size <- shipSizes
         <tr>
           <td>#{show size}
           <td>#{show $ numberShipsOfSize (sizesOfShips $ unsunkShips $ playerFleet $ otherPlayer gameState) size}
