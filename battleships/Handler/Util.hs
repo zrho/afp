@@ -1,7 +1,6 @@
 module Handler.Util
   ( withGame
   , fieldPos
-  , translateMessage
   , setNormalTitle
   , legendStatic
   , gridStatic
@@ -26,12 +25,6 @@ withGame gameE act = impGameH gameE >>= \g -> case g of
 
 fieldPos :: (Double, Double) -> Maybe Pos
 fieldPos p = listToMaybe $ sample renderReferenceGrid $ p2 p
-
--- | Translates a message of the current application to the current target language.
-translateMessage :: MonadHandler m => AppMessage -> m Text
-translateMessage msg = do
-  langs <- languages
-  return $ renderMessage (undefined :: App) langs msg
 
 -- | Set a default html title.
 setNormalTitle :: Widget 

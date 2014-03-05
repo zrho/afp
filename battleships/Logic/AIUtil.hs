@@ -6,7 +6,6 @@ module Logic.AIUtil
   , ScoreGrid
   , TrackingGrid
   -- * Grid Functions
-  , addMargin
   , isHit
   , isHitOrSunk
   , isWater
@@ -18,7 +17,6 @@ module Logic.AIUtil
   , fromBool
   , maximum'
   , maximumIx
-  , removeNth
   -- * Debugging Functions
   , showFleet
   , showFleetPlacement
@@ -104,13 +102,6 @@ isWater _            = False
 
 isHitOrSunk :: Maybe HitResponse -> Bool
 isHitOrSunk h = isSunk h || isHit h
-
-addMargin :: Int -> Pos -> [Pos]
-addMargin margin (x,y) = [(x + dx, y + dy) | dx <- [-margin..margin], dy <- [-margin..margin]]
-
--- can't find this function in the standard libraries...
-removeNth :: Int -> [a] -> [a]
-removeNth n xs = let (ys,zs) = splitAt n xs in ys ++ (tail zs)
 
 choose :: MonadPlus m => [a] -> m a
 choose = msum . fmap return
