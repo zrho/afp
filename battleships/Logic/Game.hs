@@ -51,6 +51,7 @@ module Logic.Game
   , isDamaged
   , isMovable
   , isShipSunk
+  , isShipAtSunk
   , moveShip
   , numberShipsOfSize
   , shipAdmissible
@@ -316,6 +317,11 @@ shipAt fleet (px, py) = find containsP fleet where
     Horizontal -> px >= sx && px < sx + shipSize && py == sy
     Vertical   -> px == sx && py >= sy && py < sy + shipSize
     where (sx, sy) = shipPosition
+
+isShipAtSunk :: Fleet -> Pos -> Bool
+isShipAtSunk fleet pos = case shipAt fleet pos of
+  Nothing -> False
+  Just s  -> isShipSunk s
 
 -- | Returns the zero-based index of a ship cell based on a global coordinate
 shipCellIndex :: HasShipShape s => Pos -> s -> Maybe Int

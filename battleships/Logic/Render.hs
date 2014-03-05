@@ -67,10 +67,16 @@ renderEnemyGrid fleet shots Rules{..} turnNumber = mconcat
   ]
   where
     renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
-      case val of
-        Water -> if rulesMove then waterSquare # opacity (timedOpacity turnNumber time) else waterSquare
-        Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
-        Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
+      if rulesMove then case val of 
+                          Water -> waterSquare # opacity (timedOpacity turnNumber time) 
+                          Hit   -> if isShipAtSunk fleet pos then waterSquare # opacity (timedOpacity turnNumber time) 
+                                                             else marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
+                          Sunk  -> waterSquare # opacity (timedOpacity turnNumber time) 
+                   else case val of 
+                          Water -> waterSquare
+                          Hit   -> if isShipAtSunk fleet pos then marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
+                                                             else marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
+                          Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
     renderFleetHints = fold $ fmap renderFleetHint fleet
     renderFleetHint Ship{shipShape = ShipShape{shipPosition=(x,y),..}} =
       let
@@ -106,11 +112,16 @@ renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
             else movableSquare
         
     renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
-      case val of
-        Water -> if rulesMove then marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
-                              else marker # lc markerWaterColor # lw 3 <> waterSquare
-        Hit   -> marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
-        Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare 
+      if rulesMove then case val of 
+                          Water -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
+                          Hit   -> if isShipAtSunk fleet pos then marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
+                                                             else marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
+                          Sunk  -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
+                   else case val of
+                          Water -> marker # lc markerWaterColor # lw 3 <> waterSquare
+                          Hit   -> if isShipAtSunk fleet pos then marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare
+                                                             else marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
+                          Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare
 
 timedOpacity :: Int -> Int -> Double
 timedOpacity turnNumber shotTime = if (turnNumber - shotTime) < 20 then 0.05 * (fromIntegral (20 + shotTime - turnNumber)) else 0
