@@ -15,6 +15,7 @@ module Logic.Game
   , Ship (..)
   , Ships (..)
   , ShipShape (..)
+  , ShipMove (..)
   , Shot (..)
   , Turn (..)
   -- * Type Synonyms
@@ -28,11 +29,16 @@ module Logic.Game
   , defaultRules
   , newGame
   , newGrid
+  , humanPlayerState
+  , aiPlayerState
   -- * Turn Functions
   , isDrawn
   , aiTurn
   , desiredMove
   , executeMove
+  , executeShot
+  , fireAt
+  , switchRoles
   , humanTurnFire
   , moveHuman
   -- * Custom Serialization Functions
@@ -356,6 +362,16 @@ unsunkShips fleet = filter (not . isShipSunk) (Map.elems fleet)
 sizesOfShips :: [Ship] -> [Int]
 sizesOfShips = map (shipSize . shipShape)
 
+humanPlayerState :: GameState a -> PlayerState
+humanPlayerState GameState{..} = case playerType currentPlayer of
+  HumanPlayer -> currentPlayer
+  AIPlayer    -> otherPlayer
+
+aiPlayerState    :: GameState a -> PlayerState
+aiPlayerState GameState{..} = case playerType currentPlayer of
+  HumanPlayer -> otherPlayer
+  AIPlayer    -> currentPlayer
+
 -------------------------------------------------------------------------------
 -- * Turn
 -------------------------------------------------------------------------------
@@ -382,15 +398,12 @@ aiTurn = do
     switchRoles
     result <- shots
     rules <- gets gameRules
-    when (result /= Over && rulesMove rules) $ executeMove moveAI
+    when (result /= Over && rulesMove rules) $ moveAI >>= executeMove
     switchRoles
-    draw <- gets isDrawn
-    return $ case result of
-      Next | draw -> Over
-      _           -> result
+    return result
   where
     shots = do
-      result <- executeShot aiShot
+      result <- aiShot >>= executeShot
       case result of
         -- the AI player is allowed to shoot once more, when enabled
         Again -> shots
@@ -406,7 +419,7 @@ humanTurnFire target = do
   -- setup common actions
   rules <- gets gameRules
   -- fire
-  result <- executeShot $ fireAt target
+  result <- fireAt target >>= executeShot
   when (result == Next) $ do
       -- update the action to "move" if appropriate
       humanFleet <- gets $ playerFleet . currentPlayer
@@ -462,19 +475,24 @@ aiShot = do
 
 -- | Executes the supplied turn.
 executeShot :: (MonadState (GameState a) m)
-            => (m HitResponse) -> m Turn
-executeShot turn = do
+            => HitResponse -> m Turn
+executeShot result = do
   rules <- gets gameRules
-  result <- turn
   op <- gets otherPlayer
-  case result of
-    Water -> return Next
+  handleDraw $ case result of
+    Water -> Next
     Hit
-      | rulesAgainWhenHit rules -> return Again
-      | otherwise               -> return Next
+      | rulesAgainWhenHit rules -> Again
+      | otherwise               -> Next
     Sunk
-      | allSunk $ playerFleet op -> return Over
-      | otherwise                -> return Again
+      | allSunk $ playerFleet op -> Over
+      | otherwise                -> Again
+  where
+    handleDraw r = do
+      draw <- gets isDrawn
+      return $ case r of
+        Next | draw -> Over
+        _           -> r
 
 
 -- | Switches the roles of active and passive player.
@@ -529,10 +547,9 @@ moveAI = do
   return mov
 
 -- | executes a move for the current player
-executeMove :: (MonadState (GameState a) m, MonadRandom m, AI a) 
-     => m (Maybe (ShipID, Movement)) -> m ()
-executeMove moveAction = do
-  move <- moveAction
+executeMove :: (MonadState (GameState a) m)
+     => (Maybe (ShipID, Movement)) -> m ()
+executeMove move = do
   curPlayer <- gets currentPlayer
   let fleet = playerFleet curPlayer
   case move of
