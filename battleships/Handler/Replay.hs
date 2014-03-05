@@ -43,12 +43,12 @@ reconstructHistory g = evalState (reconstructAndCheck g) initialGameState where
     }
   humanPlayer = let s = humanPlayerState g
                 in s { playerShots = []
-                     , playerFleet = unsinkFleet $ undoMoves (playerMoves s) (playerFleet s)
+                     , playerFleet = reconstructOriginalFleet (playerMoves s) (playerFleet s)
                      , playerMoves = []
                      }
   aiPlayer    = let s = aiPlayerState g
                 in s { playerShots = []
-                     , playerFleet = unsinkFleet $ undoMoves (playerMoves s) (playerFleet s)
+                     , playerFleet = reconstructOriginalFleet (playerMoves s) (playerFleet s)
                      , playerMoves = []
                      }
 
@@ -102,6 +102,13 @@ execMove (move:moves) = do
     ShipMove mId mDir mTime | time == mTime
       -> executeMove (Just (mId, mDir)) >> return moves
     _ -> return $ move:moves
+
+-- | Reconstruct the original fleet given the moves performed.
+reconstructOriginalFleet :: [ShipMove] -> Fleet -> Fleet
+-- The order is crucial here!
+-- The ships must be unsunk first, otherwise they might not be movable.
+-- (cf. `isMovable`)
+reconstructOriginalFleet moves = undoMoves moves . unsinkFleet
 
 unsinkFleet :: Fleet -> Fleet
 unsinkFleet = fmap unsinkShip where
