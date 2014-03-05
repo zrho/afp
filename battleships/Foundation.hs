@@ -6,9 +6,9 @@ import Yesod
 import Yesod.Static
 import Yesod.Default.Config
 import Yesod.Default.Util
-import qualified Settings
 import Settings.Development (development)
-import Settings (widgetFile)
+import qualified Settings
+import Settings (widgetFile, Extra (..))
 import Settings.StaticFiles
 import Text.Hamlet (hamletFile)
 import Text.Jasmine (minifym)
@@ -24,7 +24,7 @@ import Logic.Game
 import qualified Codec.Crypto.SimpleAES as AES
 
 data App = App
-    { settings :: AppConfig DefaultEnv ()
+    { settings :: AppConfig DefaultEnv Extra
     , getStatic :: Static -- ^ Settings for static file serving.
     , appLogger :: Logger
     , appKey    :: AES.Key
@@ -120,3 +120,6 @@ plainLayout widget = do
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
+
+getExtra :: Handler Extra
+getExtra = fmap (appExtra . settings) getYesod

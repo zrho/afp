@@ -37,7 +37,7 @@ import Logic.GameExt
 
 mkYesodDispatch "App" resourcesApp
 
-makeApplication :: AppConfig DefaultEnv () -> IO Application
+makeApplication :: AppConfig DefaultEnv Extra -> IO Application
 makeApplication conf = do
     foundation <- makeFoundation conf
     logWare <- mkRequestLogger def
@@ -54,7 +54,7 @@ makeApplication conf = do
     app <- toWaiAppPlain foundation
     return $ logWare app
 
-makeFoundation :: AppConfig DefaultEnv () -> IO App
+makeFoundation :: AppConfig DefaultEnv Extra -> IO App
 makeFoundation conf = do
 #if MIN_VERSION_fast_logger(2,1,0)
     loggerSet' <- newLoggerSet defaultBufSize Nothing
@@ -75,3 +75,4 @@ getApplicationDev =
     defaultDevelApp loader makeApplication
   where
     loader = Yesod.Default.Config.loadConfig (configSettings Development)
+        { csParseExtra = parseExtra }

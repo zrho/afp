@@ -117,6 +117,7 @@ library
                  , attoparsec
                  , word8
                  , shakespeare-js
+                 , yaml
 
     if flag(library-only)
         build-depends:   warp

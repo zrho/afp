@@ -30,8 +30,9 @@ getRulesR = renderRulePage Nothing
 postRulesR :: Handler Html
 postRulesR = do
   s <- runInputPost $ rulesForm
+  extra <- getExtra
   let
-    rules = defaultRules
+    rules = (defaultRules extra)
       { rulesAgainWhenHit = s!!0
       , rulesMove         = s!!1
       , rulesNoviceMode   = s!!2

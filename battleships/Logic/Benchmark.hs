@@ -16,6 +16,7 @@ import           Logic.AIUtil
 import           Logic.Debug
 import           Data.Maybe
 import           Prelude
+import           Settings (Extra (..))
 
 -- | Tests the performance of the AI, that is the average number of shots
 -- | needed to sink all the ships. This way, we can estimate how well the AI plays.
@@ -96,7 +97,7 @@ turn shots fleet sunk count = do
                   (count + 1)
 
 rules :: Rules
-rules = defaultRules
+rules = (defaultRules $ Extra 150)
   { rulesAgainWhenHit = False
   , rulesMove         = True
   }

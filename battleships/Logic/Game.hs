@@ -96,6 +96,7 @@ import           Control.Monad.Random
 import           Control.Monad.Trans.State (runStateT)
 import           Control.Monad.State.Class (MonadState, gets, modify)
 import           Yesod (PathPiece (..))
+import           Settings (Extra (..))
 import qualified Data.Text as T hiding (find, zip, map)
 
 -------------------------------------------------------------------------------
@@ -288,13 +289,13 @@ newGame r pFleet begin = do
   return gameState
 
 -- | The battleship default rules
-defaultRules :: Rules 
-defaultRules = Rules
+defaultRules :: Extra -> Rules 
+defaultRules Extra {..} = Rules
   { rulesAgainWhenHit = True
   , rulesMove  = True
   , rulesNoviceMode = False
   , rulesDevMode = False
-  , rulesMaximumTurns = 2 * 75 -- 75 turns for each player
+  , rulesMaximumTurns = extraMaxTurns
   }
 
 -- | Helper: Creates a grid, filled with one value.

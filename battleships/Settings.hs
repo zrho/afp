@@ -2,6 +2,8 @@ module Settings
   ( staticDir
   , widgetFile
   , widgetFileSettings
+  , Extra (..)
+  , parseExtra
   ) where
 
 import Prelude
@@ -9,8 +11,10 @@ import Data.Default (def)
 import Yesod.Default.Util
 import Settings.Development (development)
 import Text.Hamlet
+import Data.Yaml
+import Yesod.Default.Config
+import Control.Applicative
 
-import Prelude
 import Language.Haskell.TH.Syntax
 -- import Text.Shakespeare.Text (st)
 -- import Yesod.Default.Config
@@ -56,3 +60,10 @@ widgetFile :: String -> Q Exp
 widgetFile = (if development then widgetFileReload
                              else widgetFileNoReload)
               widgetFileSettings
+
+data Extra = Extra
+  { extraMaxTurns :: Int
+  } deriving Show
+
+parseExtra :: DefaultEnv -> Object -> Parser Extra
+parseExtra _ o = Extra <$> o .: "maxturns"
