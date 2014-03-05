@@ -1,3 +1,11 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Handler.Grid
+-- Stability   :  experimental
+-- Portability :  non-portable
+--
+-- Handler for dynamically generated SVG presentations of the boards.
+
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, RecordWildCards #-}
 module Handler.Grid
   ( getPlayerGridR

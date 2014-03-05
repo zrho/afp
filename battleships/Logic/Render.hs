@@ -1,3 +1,11 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Logic.Render
+-- Stability   :  experimental
+-- Portability :  semi-portable
+--
+-- Diagrams based renderer for the game board.
+
 {-# LANGUAGE RecordWildCards, TypeFamilies #-}
 module Logic.Render
   ( renderReferenceGrid

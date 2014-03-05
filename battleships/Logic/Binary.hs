@@ -1,6 +1,16 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Logic.Binary
+-- Stability   :  experimental
+-- Portability :  portable
+--
+-- Import/export for binary serializable data to text URLs.
+
 module Logic.Binary
-  ( impBinary
+  ( -- * Import/Export
+    impBinary
   , expBinary
+    -- * Misc
   , fromStrict
   , toStrict
   ) where
@@ -11,6 +21,10 @@ import qualified Data.Text.Encoding          as TE
 import qualified Data.ByteString             as BS
 import qualified Data.ByteString.Lazy        as BL
 import qualified Data.ByteString.Base64.Lazy as B64
+
+--------------------------------------------------------------------------------
+-- * Import/Export
+--------------------------------------------------------------------------------
 
 -- | Imports a byte string from text.
 impBinary :: Text -> Maybe BL.ByteString
@@ -29,6 +43,14 @@ expBinary
   . toStrict
   . B64.encode
 
+--------------------------------------------------------------------------------
+-- * URL
+--
+-- Some characters used in base 64 encoding are problematic when used in URLs.
+-- These functions convert from and into a representation in which these
+-- characters are replaced with non problematic ones.
+--------------------------------------------------------------------------------
+
 toBase64Url :: BS.ByteString -> BS.ByteString
 toBase64Url = BS.map convert where
   convert 43 = 45 -- '+' --> '-'
@@ -40,6 +62,10 @@ fromBase64Url = BS.map convert where
   convert 45 = 43 -- '+' <-- '-'
   convert 95 = 47 -- '/' <-- '_'
   convert  x =  x
+
+--------------------------------------------------------------------------------
+-- * Misc
+--------------------------------------------------------------------------------
 
 eitherToMaybe :: Either a b -> Maybe b
 eitherToMaybe e = case e of

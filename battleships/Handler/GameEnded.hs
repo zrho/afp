@@ -1,3 +1,12 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Handler.GameEnded
+-- Stability   :  experimental
+-- Portability :  non-portable
+--
+-- Handler for an end screen revealing both boards and informing the user
+-- whether he has lost or won.
+
 {-# LANGUAGE RecordWildCards, OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
 module Handler.GameEnded (getGameEndedR) where
 

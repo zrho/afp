@@ -1,3 +1,14 @@
+----------------------------------------------------------------------------
+-- |
+-- Module      :  Logic.Game
+-- Stability   :  experimental
+-- Portability :  semi-portable
+--
+-- Logic and data structures of the battleships implementation.
+--
+-- The AI is implemented in another module to cleanly seperate it from
+-- the game logic.
+
 {-# LANGUAGE RecordWildCards, TupleSections, OverloadedStrings #-}
 module Logic.Game
   ( 
