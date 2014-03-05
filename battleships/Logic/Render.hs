@@ -27,6 +27,7 @@ import           Diagrams.TwoD.Text
 import           Data.Colour.SRGB
 import           Data.Foldable (fold, foldMap)
 import           Data.Function (on)
+import           Data.Ix
 
 type BattleDia = QDiagram SVG R2 [Pos]
 
@@ -70,6 +71,7 @@ renderReferenceGrid = renderGrid
 renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Int -> BattleDia
 renderEnemyGrid fleet shots Rules{..} turnNumber = mconcat
   [ if rulesDevMode then renderFleetHints else mempty
+  , if rulesNoviceMode then mconcat (fmap renderImpossiblePositions $ nonWaterShots) else mempty
   , mconcat (fmap renderShot shots)
   , contentSquare # fc fogColor
   ]
@@ -92,6 +94,13 @@ renderEnemyGrid fleet shots Rules{..} turnNumber = mconcat
           Horizontal -> (realToFrac shipSize, 1)
           Vertical   -> (1, realToFrac shipSize)
       in rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # lc red # lw 1 # value []
+    renderImpossiblePositions (Shot p _ t) = mconcat (fmap (renderImpossiblePos p t) $ marginPositions p)
+    renderImpossiblePos hitPos hitTime impPos = translateToPos impPos $ value [] $ alignTL $
+      if rulesMove && isShipAtSunk fleet hitPos then waterSquare # opacity (timedOpacity turnNumber hitTime)
+                                                else waterSquare
+    marginPositions (x,y) = filter (inRange gridRange) [(x+i, y+j) | i <- [-1,1], j <- [-1,1]]
+    gridRange             = ((0, 0), (fst boardSize - 1, snd boardSize - 1))
+    nonWaterShots         = filter (\s -> shotResult s /= Water) shots
 
 renderPlayerGrid :: Fleet -> TrackingList -> Action -> Rules -> Int -> BattleDia
 renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat

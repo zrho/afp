@@ -34,7 +34,8 @@ postRulesR = do
     rules = defaultRules
       { rulesAgainWhenHit = s!!0
       , rulesMove         = s!!1
-      , rulesDevMode      = s!!2
+      , rulesNoviceMode   = s!!2
+      , rulesDevMode      = s!!3
       }
 
   redirect $ PlaceShipsR rules
@@ -54,5 +55,6 @@ rulesForm :: (Monad m, RenderMessage (HandlerSite m) FormMessage)
 rulesForm = sequenceA
   [ fromMaybe False <$> iopt boolField "againWhenHit"
   , fromMaybe False <$> iopt boolField "move"
+  , fromMaybe False <$> iopt boolField "noviceMode"
   , fromMaybe False <$> iopt boolField "devMode"
   ]

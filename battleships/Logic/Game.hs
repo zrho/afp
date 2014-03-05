@@ -36,6 +36,7 @@ module Logic.Game
   , TrackingList
   -- * Game Functions
   , boardSize
+  , rulesShips
   , defaultRules
   , newGame
   , newGrid
@@ -104,6 +105,9 @@ import qualified Data.Text as T hiding (find, zip, map)
 boardSize :: (Int, Int)
 boardSize = (10, 10)
 
+rulesShips :: [Int]
+rulesShips = [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ]
+
 -------------------------------------------------------------------------------
 -- * AI
 -------------------------------------------------------------------------------
@@ -141,9 +145,9 @@ class AI a where
 -------------------------------------------------------------------------------
 
 data Rules = Rules
-  { rulesShips        :: [Int]
-  , rulesAgainWhenHit :: Bool
+  { rulesAgainWhenHit :: Bool
   , rulesMove         :: Bool
+  , rulesNoviceMode   :: Bool
   , rulesDevMode      :: Bool
   , rulesMaximumTurns :: Int
   } deriving (Show, Eq, Read)
@@ -286,9 +290,9 @@ newGame r pFleet begin = do
 -- | The battleship default rules
 defaultRules :: Rules 
 defaultRules = Rules
-  { rulesShips = [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ]
-  , rulesAgainWhenHit = True
+  { rulesAgainWhenHit = True
   , rulesMove  = True
+  , rulesNoviceMode = False
   , rulesDevMode = False
   , rulesMaximumTurns = 2 * 75 -- 75 turns for each player
   }
@@ -361,8 +365,8 @@ generateFleet :: FleetPlacement -> Fleet
 generateFleet = Map.fromAscList . fmap newShip . zip [1..] where
   newShip (sID, shape) = (sID, Ship sID shape (listArray (0,shipSize shape-1) (repeat False)))
 
-shipSizes :: Rules -> [Int]
-shipSizes rules = sort $ nub (rulesShips rules)
+shipSizes :: [Int]
+shipSizes = sort $ nub rulesShips
 
 numberShipsOfSize :: [Int] -> Int -> Int
 numberShipsOfSize ships size = length $ filter (== size) ships
@@ -676,11 +680,11 @@ instance Serialize PlayerState where
     put playerMoves
 
 instance Serialize Rules where
-  get = Rules <$> getList8 getIntegral8 <*> get <*> get <*> get <*> getIntegral8
+  get = Rules <$> get <*> get <*> get <*> get <*> getIntegral8
   put Rules {..} = do
-    putList8 putIntegral8 rulesShips
     put rulesAgainWhenHit
     put rulesMove
+    put rulesNoviceMode
     put rulesDevMode
     putIntegral8 rulesMaximumTurns
 

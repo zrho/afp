@@ -41,7 +41,6 @@ getPlaceShipsR gameRules = defaultLayout $ do
   addScript $ StaticR js_jquery_js
   addScript $ StaticR js_json2_js
   addScript $ StaticR js_map_js
-  let rShips = rulesShips gameRules
   $(widgetFile "board")
   $(widgetFile "placeships2")
 
