@@ -35,7 +35,7 @@ import Handler.Util
 
 -- | Displays a client side UI for placing the player's fleet.
 getPlaceShipsR :: Rules -> Handler Html
-getPlaceShipsR gameRules = defaultLayout $ do
+getPlaceShipsR rules = defaultLayout $ do
   setNormalTitle
   messageRender <- getMessageRender
   addScript $ StaticR js_jquery_js
@@ -68,10 +68,10 @@ startGame rules fleetPlacement = do
 -- Accepts a posted fleet and tries to complete it; if there is a valid
 -- completion, that one is sent back to the UI. Otherwise an empty fleet is
 -- returned in order to indicate that no such completion exists.
-postPlaceShipsRndR :: Ships -> Handler TypedContent
-postPlaceShipsRndR (Ships ships) = do
+postPlaceShipsRndR :: Handler TypedContent
+postPlaceShipsRndR = do
   fleet  <- fmap (fromMaybe []) getPostedFleet
-  fleet' <- liftIO $ initShips ships fleet
+  fleet' <- liftIO $ initShips rulesShips fleet
   return $ jsonFleet $ fromMaybe [] $ fleet'
 
 -------------------------------------------------------------------------------
