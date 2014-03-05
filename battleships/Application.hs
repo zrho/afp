@@ -23,6 +23,7 @@ import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger (mkLogger)
 import System.IO (stdout)
 #endif
+import System.FilePath ((</>))
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -65,7 +66,7 @@ makeFoundation conf = do
     logger <- mkLogger True stdout
 #endif
     s <- staticSite
-    key <- loadKey
+    key <- loadKey (extraDataDir (appExtra conf) </> "key.aes")
     let foundation = App conf s logger key
     return foundation
 

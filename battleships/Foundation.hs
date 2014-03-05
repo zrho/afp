@@ -7,7 +7,6 @@ import Yesod.Static
 import Yesod.Default.Config
 import Yesod.Default.Util
 import Settings.Development (development)
-import qualified Settings
 import Settings (widgetFile, Extra (..))
 import Settings.StaticFiles
 import Text.Hamlet (hamletFile)
@@ -18,6 +17,7 @@ import Yesod.Core.Types (Logger)
 #else
 import System.Log.FastLogger (Logger)
 #endif
+import System.FilePath ((</>))
 import Web.Cookie (setCookiePath)
 import Logic.GameExt
 import Logic.Game
@@ -42,16 +42,17 @@ instance Yesod App where
 
     -- REPLACE whole right-hand side by "return Nothing" if no cookies needed;
     -- (avoids some potential complications, and makes things more efficient)
-    makeSessionBackend _ =
-      fmap (Just . if development
+    makeSessionBackend app = 
+        fmap (Just . if development
                    then id
                    else customizeSessionCookies $
                         \cookie -> cookie { setCookiePath = Just "/battleships" })
         $ defaultClientSessionBackend
           (120 * 60) -- session idle timeout is 120 minutes
-          (if development
-           then "config/client_session_key.aes"
-           else "/srv/www/vhosts/www-pg-data/battleships/client_session_key.aes")
+          (basePath </> "client_session_key.aes")
+      where
+        basePath = extraDataDir $ appExtra $ settings app
+
 
     defaultLayout widget = do
         -- master <- getYesod
@@ -93,8 +94,9 @@ instance Yesod App where
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    addStaticContent =
-        addStaticContentExternal mini genFileName staticContentPath (StaticR . flip StaticRoute [])
+    addStaticContent fileExt mimeType content = do
+        staticContentPath <- fmap extraStaticDir getExtra
+        addStaticContentExternal mini genFileName staticContentPath (StaticR . flip StaticRoute []) fileExt mimeType content
       where
         -- Generate a unique filename based on the content itself
         genFileName lbs
@@ -103,9 +105,6 @@ instance Yesod App where
         mini
             | development = Right 
             | otherwise   = minifym
-        staticContentPath
-            | development = Settings.staticDir
-            | otherwise   = "/srv/www/vhosts/www-pg-data/battleships"
 
 
 -- | Can be used instead of defaultLayout for simple pages such as "About".

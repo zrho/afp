@@ -118,6 +118,7 @@ library
                  , word8
                  , shakespeare-js
                  , yaml
+                 , filepath
 
     if flag(library-only)
         build-depends:   warp

@@ -97,7 +97,7 @@ turn shots fleet sunk count = do
                   (count + 1)
 
 rules :: Rules
-rules = (defaultRules $ Extra 150)
+rules = (defaultRules $ Extra 150 "" "")
   { rulesAgainWhenHit = False
   , rulesMove         = True
   }

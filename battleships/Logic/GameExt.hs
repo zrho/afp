@@ -48,8 +48,8 @@ expGame key game = liftIO $ do
   return $ GameStateExt enc
 
 -- | Loads the AES key.
-loadKey :: IO Key 
-loadKey = BS.readFile "key.aes"
+loadKey :: String -> IO Key 
+loadKey = BS.readFile
 
 -------------------------------------------------------------------------------
 -- * Path Piece
