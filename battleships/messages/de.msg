@@ -13,6 +13,7 @@ NoPossiblePlacement: Es konnte keine vollständige Flottenbelegung erzeugt werde
 
 InputAgainWhenHit: bei Treffer erneut schießen
 InputMove: Schiffe verschiebbar
+InputNoviceMode: Zusätzlich als Hilfe unmögliche Positionen anzeigen
 InputDevMode: Entwicklermodus
 AdjustRules: Die Regeln anpassen
 Rules: Regeln

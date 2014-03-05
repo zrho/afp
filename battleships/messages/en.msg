@@ -13,6 +13,7 @@ NoPossiblePlacement: Unable to generate a complete placement of ships.
 
 InputAgainWhenHit: shoot again when hit
 InputMove: allow ship movement
+InputNoviceMode: show additional hints about impossible positions
 InputDevMode: enable developer mode
 AdjustRules: Adjust the rules
 Rules: Rules

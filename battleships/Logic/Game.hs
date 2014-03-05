@@ -133,6 +133,7 @@ data Rules = Rules
   { rulesShips        :: [Int]
   , rulesAgainWhenHit :: Bool
   , rulesMove         :: Bool
+  , rulesNoviceMode   :: Bool
   , rulesDevMode      :: Bool
   , rulesMaximumTurns :: Int
   } deriving (Show, Eq, Read)
@@ -278,6 +279,7 @@ defaultRules = Rules
   { rulesShips = [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ]
   , rulesAgainWhenHit = True
   , rulesMove  = True
+  , rulesNoviceMode = False
   , rulesDevMode = False
   , rulesMaximumTurns = 2 * 75 -- 75 turns for each player
   }
@@ -665,11 +667,12 @@ instance Serialize PlayerState where
     put playerMoves
 
 instance Serialize Rules where
-  get = Rules <$> getList8 getIntegral8 <*> get <*> get <*> get <*> getIntegral8
+  get = Rules <$> getList8 getIntegral8 <*> get <*> get <*> get <*> get <*> getIntegral8
   put Rules {..} = do
     putList8 putIntegral8 rulesShips
     put rulesAgainWhenHit
     put rulesMove
+    put rulesNoviceMode
     put rulesDevMode
     putIntegral8 rulesMaximumTurns
 
