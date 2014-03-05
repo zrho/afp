@@ -141,7 +141,9 @@ renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
                           Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare <> waterSquare
 
 timedOpacity :: Int -> Int -> Double
-timedOpacity turnNumber shotTime = if (turnNumber - shotTime) < 20 then 0.05 * (fromIntegral (20 + shotTime - turnNumber)) else 0
+timedOpacity turnNumber shotTime
+  | (turnNumber - shotTime) < 18 = 0.05 * (fromIntegral (20 + shotTime - turnNumber))
+  | otherwise                    = 0.1
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering
 -------------------------------------------------------------------------------
