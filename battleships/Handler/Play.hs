@@ -26,6 +26,7 @@ import Logic.Game
 import Logic.GameExt
 import Logic.Render
 import Handler.Util
+import Text.Julius (rawJS)
 
 -------------------------------------------------------------------------------
 -- * Forms
@@ -46,6 +47,7 @@ getPlayR :: GameStateExt -> Handler Html
 getPlayR gameE = withGame gameE $ \(gameState@GameState {..}) -> defaultLayout $ do
   setNormalTitle
   addScript $ StaticR js_jquery_js
+  messageRender <- getMessageRender
   $(widgetFile "board")
   $(widgetFile "play")
 

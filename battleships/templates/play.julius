@@ -33,3 +33,10 @@ $(function() {
     clickableInit($(".actionMove"), '@{MoveR gameE}');
     clickableInit($(".actionFire"), '@{FireR gameE}');    
 });
+
+function confirmReplay() {
+    conf = window.confirm("#{rawJS (messageRender MsgConfirmReplay)}");
+    if (conf == true) {
+        document.location = "@{ReplayR gameE}";
+    }
+}

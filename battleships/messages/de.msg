@@ -48,6 +48,7 @@ RestartButtonLabel: Von vorne
 WatchReplay: Replay anschauen
 
 ConfirmLeave: Wirklich zurück zur Startseite?
+ConfirmReplay: Wirklich das Replay anschauen? Das beendet das aktuelle Spiel!
 About: Über das Spiel
 HowToPlay: So wird gespielt
 HowToPlaceShipsHeading: Schiffe platzieren

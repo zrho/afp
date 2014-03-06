@@ -48,6 +48,7 @@ RestartButtonLabel: Restart
 WatchReplay: Watch replay
 
 ConfirmLeave: Do you really want to go home?
+ConfirmReplay: Do you really want to see the replay now? This ends the current game!
 About: About the game
 HowToPlay: How to play
 HowToPlaceShipsHeading: Placing your ships
