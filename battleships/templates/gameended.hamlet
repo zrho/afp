@@ -21,10 +21,14 @@
       <div .infoBoxH .bannerDrawn>
         <h3 .bannerText>
           _{MsgDrawn}
+        <a .linkButton .redButton href="@{ReplayR gameE}">
+          _{MsgWatchReplay}
     $elseif humanWon
       <div .infoBoxH .bannerWon>
         <h3 .bannerText>
           _{MsgWon}
+        <a .linkButton .redButton href="@{ReplayR gameE}">
+          _{MsgWatchReplay}
     $else
       <div .infoBoxH .bannerLost>
         <h3 .bannerText>
