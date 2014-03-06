@@ -78,7 +78,6 @@ instance AI CleverAI where
     fleet <- liftM fromJust $ initShips rulesShips []
     checkerboardEven <- getRandom
     return (cleverAI r checkerboardEven, fleet)
-
   aiFire         = liftM maximumIx $ scoreGrid >>= randomize
   aiResponse p r = modify (cleverResponse p r)
   aiMove fleet _ = chooseRandom $ do
@@ -116,8 +115,8 @@ randomize = traverseArray $ \r -> liftM (r *) $ getRandomR (0.95,1.05)
 
 -- | Assigns each cell a score. If it's high, it means that it's beneficial
 -- | to attack this cell. On how this is calculated, see below.
-scoreGrid :: (MonadRandom m, MonadState CleverAI m) => m ScoreGrid
-scoreGrid = liftM (scoreGrid') get
+scoreGrid :: (MonadState CleverAI m) => m ScoreGrid
+scoreGrid = scoreGrid' `liftM` get
 
 scoreGrid' :: CleverAI -> ScoreGrid
 scoreGrid' ai@(CleverAI {..}) = buildArray bs $ scorePosition ai remaining where
@@ -161,6 +160,7 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
   -- | Score position when ships are immovable.
   scoreImmovable :: Score
   scoreImmovable = preventDoubleAttackImmovable
+                 . considerEdges
                  . checkerboard 0.9
                  . scoreShips
                  $ allRemaining
@@ -182,14 +182,16 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
                     . elems
                     $ tracking
     phase1          = preventDoubleAttackMovable
+                    . considerEdges
                     . checkerboard 0
                     $ sum (map scoreShipPhase1 $ allRemaining)
     phase2          = preventDoubleAttackMovable
+                    -- considerEdges doesn't work very well here
                     . scoreShips
                     $ allRemaining
   
   allRemaining :: [ShipShape]
-  allRemaining = allShips remaining
+  allRemaining = allShips pos remaining
 
   -- | Special scoring function for phase 1 with movable ships.
   -- | A different one is needed because we don't want to sink ships
@@ -215,6 +217,15 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
   checkerboard p 
     | checkerboardEven = if even (x + y) then id else (*) p
     | otherwise        = if odd (x + y) then id else (*) p
+
+  -- | Divide the scores by the initial score of that position.
+  -- This way, edge positions won't get a low score simply because
+  -- they are at the edge. We're measuring the "difference" between
+  -- the initial scores and the current scores instead.
+  considerEdges :: Score -> Score
+  considerEdges = (* 100) . (/ initialScore) where
+    -- TODO: Use variable instead of constant list in the source code.
+    initialScore = fromIntegral . length $ allShips pos [5,4,4,3,3,3,2,2,2,2]
 
   -- | Assign a score to a list of ships. Hit ships are scored higher.
   scoreShips :: [ShipShape] -> Score
@@ -244,15 +255,6 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
   shipSunk :: ShipShape -> Bool
   shipSunk s = all (isHit . (tracking !)) . delete pos $ shipCoordinates 0 s
 
-  -- | Generates all ships through the current position which are inside the
-  -- | boundaries of the field.
-  allShips :: [Int] -- ^ the lengths of the ships to be generated
-           -> [ShipShape]
-  allShips lens = filter (shipAdmissible [])
-                $ lens >>= \len ->
-                    [ShipShape (x-dx, y) len Horizontal | dx <- [0..len-1]]
-                    ++ [ShipShape (x, y-dy) len Vertical | dy <- [0..len-1]]
-
   probBlocked :: ScoreGrid
   probBlocked = probBlockedGrid ai
 
@@ -261,6 +263,16 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
   probNotBlocked = product
                  . map ((1 -) . (probBlocked !))
                  . shipCoordinates 0
+
+-- | Generates all ships through the current position which are inside the
+-- | boundaries of the field.
+allShips :: Pos   -- ^ the position that all ships will contain
+         -> [Int] -- ^ the lengths of the ships to be generated
+         -> [ShipShape]
+allShips (x,y) lens = filter (shipAdmissible [])
+              $ lens >>= \len ->
+                  [ShipShape (x-dx, y) len Horizontal | dx <- [0..len-1]]
+                  ++ [ShipShape (x, y-dy) len Vertical | dy <- [0..len-1]]
 
 -- | Returns a grid where the value at each position is the estimated probability
 -- | that this position is blocked, i.e. doesn't contain a ship.
