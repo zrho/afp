@@ -1,4 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
 module Logic.Benchmark
   ( playGame
   , benchmark 
@@ -25,7 +24,7 @@ benchmark :: Int -> IO ()
 benchmark repetitions = do
   shotCounts <- mapM f [1..repetitions]
   let sorted = sort shotCounts
-  let avg = (fromIntegral $ sum shotCounts :: Double) / (fromIntegral $ length shotCounts)
+  let avg = (fromIntegral $ sum shotCounts :: Double) / fromIntegral (length shotCounts)
   let mn = minimum shotCounts
   let mx = maximum shotCounts
   let mdn = sorted !! (length sorted `div` 2)
@@ -33,8 +32,8 @@ benchmark repetitions = do
   putStrLn $ "Minimum: " ++ show mn ++ " shots."
   putStrLn $ "Maximum: " ++ show mx ++ " shots."
   putStrLn $ "Median:  " ++ show mdn ++ " shots."
-  putStrLn $ "Complete list: "
-  mapM_ print $ sorted where
+  putStrLn   "Complete list: "
+  mapM_ print sorted where
     f :: Int -> IO Int
     f i = do
       putStrLn $ "\n---\n" ++ show i ++ "th run:"
@@ -88,13 +87,13 @@ turn shots fleet sunk count = do
                           Nothing   -> fleet'
                else return fleet'
     -- all ships sunk now?
-    case allSunk fleet'' of
-      True  -> return (count + 1)
-      False -> turn
-                  shots'
-                  ( debug' (\f -> "Fleet:\n" ++ showFleet f) fleet'')
-                  ( debug' (\f -> "Sunk:\n" ++ showFleet f) sunk'  )
-                  (count + 1)
+    if allSunk fleet'' 
+      then return (count + 1)
+      else turn
+            shots'
+            ( debug' (\f -> "Fleet:\n" ++ showFleet f) fleet'')
+            ( debug' (\f -> "Sunk:\n" ++ showFleet f) sunk'  )
+            (count + 1)
 
 rules :: Rules
 rules = (defaultRules $ Extra 150 "" "")

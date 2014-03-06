@@ -55,7 +55,7 @@ postPlaceShipsR rules = do
 -- | Starts a game, given the placement of the player's fleet.
 startGame :: Rules -> FleetPlacement -> Handler Html
 startGame rules fleetPlacement = do
-  game  <- liftIO $ (newGame rules fleetPlacement HumanPlayer :: IO (GameState CleverAI))
+  game  <- liftIO (newGame rules fleetPlacement HumanPlayer :: IO (GameState CleverAI))
   gameE <- expGameH game
   redirect $ PlayR gameE
 
@@ -72,7 +72,7 @@ postPlaceShipsRndR :: Handler TypedContent
 postPlaceShipsRndR = do
   fleet  <- fmap (fromMaybe []) getPostedFleet
   fleet' <- liftIO $ initShips rulesShips fleet
-  return $ jsonFleet $ fromMaybe [] $ fleet'
+  return $ jsonFleet $ fromMaybe [] fleet'
 
 -------------------------------------------------------------------------------
 -- * JSON Fleet Import/Export

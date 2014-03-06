@@ -70,8 +70,7 @@ instance Yesod App where
             isHome = case requestedRoute of
                 Just HomeR -> True
                 _          -> False
-        pc <- widgetToPageContent $ do
-            $(widgetFile "default-layout")
+        pc <- widgetToPageContent $ $(widgetFile "default-layout")
         giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
 
     -- was BottomOfBody: Place Javascript at bottom of the body tag so the rest of the page loads first

@@ -29,14 +29,14 @@ getRulesR = renderRulePage Nothing
 -- | Handler to accept the configured game rules.
 postRulesR :: Handler Html
 postRulesR = do
-  s <- runInputPost $ rulesForm
+  [r0, r1, r2, r3] <- runInputPost rulesForm
   extra <- getExtra
   let
     rules = (defaultRules extra)
-      { rulesAgainWhenHit = s!!0
-      , rulesMove         = s!!1
-      , rulesNoviceMode   = s!!2
-      , rulesDevMode      = s!!3
+      { rulesAgainWhenHit = r0
+      , rulesMove         = r1
+      , rulesNoviceMode   = r2
+      , rulesDevMode      = r3
       }
 
   redirect $ PlaceShipsR rules

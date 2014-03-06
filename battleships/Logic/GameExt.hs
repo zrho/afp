@@ -6,7 +6,6 @@
 --
 -- External encrypted representation of the game state.
 
-{-# LANGUAGE RecordWildCards #-}
 module Logic.GameExt
   ( impGame
   , expGame

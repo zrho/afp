@@ -33,7 +33,7 @@
 -- 
 -- Finally: Some randomness is added to the scores. The highest one is then chosen.
 
-{-# LANGUAGE RecordWildCards, ScopedTypeVariables, TemplateHaskell #-}
+{-# LANGUAGE RecordWildCards, ScopedTypeVariables #-}
 module Logic.CleverAI 
   ( CleverAI
   ) where
@@ -102,7 +102,7 @@ cleverResponse p r ai = case r of
     shipArea s t = shipCoordinates 1 s `intersect` indices t
     ai' = ai
       { tracking = tracking ai // [(p, Just r)]
-      , shots    = p : (shots ai)
+      , shots    = p : shots ai
       }    
 
 --------------------------------------------------------------------------------
@@ -117,7 +117,7 @@ randomize = traverseArray $ \r -> liftM (r *) $ getRandomR (0.95,1.05)
 -- | Assigns each cell a score. If it's high, it means that it's beneficial
 -- | to attack this cell. On how this is calculated, see below.
 scoreGrid :: (MonadRandom m, MonadState CleverAI m) => m ScoreGrid
-scoreGrid = liftM (scoreGrid') get
+scoreGrid = liftM scoreGrid' get
 
 scoreGrid' :: CleverAI -> ScoreGrid
 scoreGrid' ai@(CleverAI {..}) = buildArray bs $ scorePosition ai remaining where
@@ -144,7 +144,7 @@ findSunkShip t p = findHorizontal `mplus` findVertical where
   findEnd :: (Pos -> Pos) -- ^ the movement
           -> Pos          -- ^ start position
           -> Pos
-  findEnd move pos = if inRange (bounds t) (move pos) && isHitOrSunk (t ! (move pos))
+  findEnd move pos = if inRange (bounds t) (move pos) && isHitOrSunk (t ! move pos)
                      then findEnd move $ move pos
                      else pos
 
@@ -183,7 +183,7 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
                     $ tracking
     phase1          = preventDoubleAttackMovable
                     . checkerboard 0
-                    $ sum (map scoreShipPhase1 $ allRemaining)
+                    $ sum (map scoreShipPhase1 allRemaining)
     phase2          = preventDoubleAttackMovable
                     . scoreShips
                     $ allRemaining
@@ -282,33 +282,33 @@ probBlockedGrid (CleverAI {..}) = array ((0, 0), (width - 1, height - 1))
     decayFactor         = if rulesMove rules then decay else 1 :: Score
     -- | Probability for a ship to be on a (former) water cell
     probWater p         = if isWater $ tracking ! p
-                          then decayFactor ^ (numMovesAgo p) -- exponential "decay"
+                          then decayFactor ^ numMovesAgo p -- exponential "decay"
                           else 0
     -- | Probability for a ship to be within the safety zone of a sunk ship.
     probNearSunk p      = maximum'
                         . map (\(_,c) -> decayFactor ^ (length shots - c))
                         . filter (\(s,_) -> p `elem` shipCoordinates 1 s)
                         $ zip sunk sunkTime where
-    -- | If the diagonal cells are hit, there can't be a ship.
-    -- | Illustration:
-    -- | ???
-    -- | ?H?
-    -- | ???
-    -- | We know that the positions marked with X are blocked for *sure*:
-    -- | X?X
-    -- | ?H?
-    -- | X?X
-    -- | so diagonalHit returns 1
-    diagonalHit         = fromBool
-                        . any isHitOrSunk
-                        . map (tracking !)
-                        . diagonalCells
-    diagonalCells (x,y) = [ (x-1,y-1)
-                          , (x-1,y+1)
-                          , (x+1,y-1)
-                          , (x+1,y+1)
-                          ] `intersect`
-                          indices tracking
+      -- | If the diagonal cells are hit, there can't be a ship.
+      -- | Illustration:
+      -- | ???
+      -- | ?H?
+      -- | ???
+      -- | We know that the positions marked with X are blocked for *sure*:
+      -- | X?X
+      -- | ?H?
+      -- | X?X
+      -- | so diagonalHit returns 1
+      diagonalHit         = fromBool
+                          . any isHitOrSunk
+                          . map (tracking !)
+                          . diagonalCells
+      diagonalCells (x,y) = [ (x-1,y-1)
+                            , (x-1,y+1)
+                            , (x+1,y-1)
+                            , (x+1,y+1)
+                            ] `intersect`
+                            indices tracking
 
 -- | How quickly should the probability for a former water cell
 -- | decline? 0.99 is pretty slowly, 0.9 is very (too) quickly.
