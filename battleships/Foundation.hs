@@ -70,6 +70,9 @@ instance Yesod App where
             isHome = case requestedRoute of
                 Just HomeR -> True
                 _          -> False
+            isReplay = case requestedRoute of 
+                Just (ReplayR _) -> True
+                _                -> False
         pc <- widgetToPageContent $ $(widgetFile "default-layout")
         giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
 
