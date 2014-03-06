@@ -14,25 +14,23 @@ module Logic.StupidAI
 import           Prelude
 import           Logic.Game
 import           Logic.AIUtil
+import           Control.Monad
 import           Control.Monad.Random
-import           Control.Monad.Reader
-import           Control.Applicative
 import           Data.Maybe (fromJust)
-import           Data.Serialize (Serialize)
-import qualified Data.Serialize as S
+import           Data.Serialize (Serialize(..))
 
-data StupidAI = StupidAI { rules :: Rules }
+data StupidAI = StupidAI
 
 instance AI StupidAI where
-  aiInit r       = do
+  aiInit _       = do
     ships <- liftM fromJust $ initShips rulesShips []
-    return (StupidAI r, ships)
+    return (StupidAI, ships)
   aiFire         = getRandomPos boardSize
   aiResponse _ _ = return ()
 
 instance Serialize StupidAI where
-  get = StupidAI <$> S.get
-  put StupidAI {..} = S.put rules
+  get = return StupidAI
+  put StupidAI = return ()
 
 getRandomPos :: MonadRandom m => (Int, Int) -> m (Int,Int)
 getRandomPos (w,h) = liftM2 (,) (getRandomR (0, w - 1)) (getRandomR (0, h - 1))
