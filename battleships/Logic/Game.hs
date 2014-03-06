@@ -69,6 +69,7 @@ module Logic.Game
   , isMovable
   , isShipSunk
   , isShipAtSunk
+  , sinkTime
   , moveShip
   , numberShipsOfSize
   , shipAdmissible
@@ -343,6 +344,13 @@ isShipAtSunk :: Fleet -> Pos -> Bool
 isShipAtSunk fleet pos = case shipAt fleet pos of
   Nothing -> False
   Just s  -> isShipSunk s
+
+-- | If at the given position there is a completely sunk ship, this returns the turn number in which it was sunk.
+sinkTime :: Fleet -> Pos -> [Shot] -> Maybe Int
+sinkTime fleet pos shots = case shipAt fleet pos of
+  Nothing   -> Nothing
+  Just ship -> Just $ L.maximum $ map shotTime sinkingShots
+    where sinkingShots = filter (\s -> shotPos s `L.elem` shipCoordinates 0 ship && shotResult s == Sunk) shots
 
 -- | Returns the zero-based index of a ship cell based on a global coordinate
 shipCellIndex :: HasShipShape s => Pos -> s -> Maybe Int

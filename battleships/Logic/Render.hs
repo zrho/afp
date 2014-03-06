@@ -28,6 +28,7 @@ import           Data.Colour.SRGB
 import           Data.Foldable (fold, foldMap)
 import           Data.Function (on)
 import           Data.Ix
+import           Data.Maybe
 
 type BattleDia = QDiagram SVG R2 [Pos]
 
@@ -79,7 +80,7 @@ renderEnemyGrid fleet shots Rules{..} turnNumber uncoverFleet = mconcat
     renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
       if rulesMove then case val of 
                           Water -> waterSquare # opacity (timedOpacity turnNumber time) 
-                          Hit   -> if isShipAtSunk fleet pos then waterSquare # opacity (timedOpacity turnNumber time) 
+                          Hit   -> if isShipAtSunk fleet pos then waterSquare # opacity (timedOpacity turnNumber $ fromJust $ sinkTime fleet pos shots) 
                                                              else marker # lc markerHitColor # lw 3 <> shipSquare <> waterSquare
                           Sunk  -> waterSquare # opacity (timedOpacity turnNumber time) 
                    else case val of 
@@ -94,9 +95,9 @@ renderEnemyGrid fleet shots Rules{..} turnNumber uncoverFleet = mconcat
           Horizontal -> (realToFrac shipSize, 1)
           Vertical   -> (1, realToFrac shipSize)
       in rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # lc red # lw 1 # value []
-    renderImpossiblePositions (Shot p _ t) = mconcat (fmap (renderImpossiblePos p t) $ marginPositions p)
-    renderImpossiblePos hitPos hitTime impPos = translateToPos impPos $ value [] $ alignTL $
-      if rulesMove && isShipAtSunk fleet hitPos then waterSquare # opacity (timedOpacity turnNumber hitTime)
+    renderImpossiblePositions (Shot p _ _) = mconcat (fmap (renderImpossiblePos p) $ marginPositions p)
+    renderImpossiblePos hitPos impPos = translateToPos impPos $ value [] $ alignTL $
+      if rulesMove && isShipAtSunk fleet hitPos then waterSquare # opacity (timedOpacity turnNumber $ fromJust $ sinkTime fleet hitPos shots)
                                                 else waterSquare
     marginPositions (x,y) = filter (inRange gridRange) [(x+i, y+j) | i <- [-1,1], j <- [-1,1]]
     gridRange             = ((0, 0), (fst boardSize - 1, snd boardSize - 1))
