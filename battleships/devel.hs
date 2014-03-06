@@ -4,10 +4,9 @@ import "battleships" Application (getApplicationDev)
 -- Bis auf den Paketnamen muss in dieser Datei im Normalfall nichts geändert werden.
 
 import Network.Wai.Handler.Warp (runSettings, defaultSettings, settingsPort)
-import Control.Concurrent (forkIO)
+import Control.Concurrent (forkIO, threadDelay)
 import System.Directory (doesFileExist)
 import System.Exit (exitSuccess)
-import Control.Concurrent (threadDelay)
 
 main :: IO ()
 main = do

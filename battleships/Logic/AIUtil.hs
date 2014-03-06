@@ -6,7 +6,6 @@
 --
 -- Utilities for the enemy AI.
 
-{-# LANGUAGE RecordWildCards #-}
 module Logic.AIUtil
   (
   -- * Type Synonyms
@@ -65,7 +64,7 @@ type TrackingGrid = Grid (Maybe HitResponse)
 -- | Random completion of a given fleet, if one exists.
 initShips :: MonadRandom m => [Int] -> FleetPlacement -> m (Maybe FleetPlacement)
 initShips ships fleet = do
-  let ships' = ships \\ (fmap shipSize fleet)
+  let ships' = ships \\ fmap shipSize fleet
   fleets <- runRandM $ runListT $ foldM initShips' fleet ships'
   return $ listToMaybe fleets
 

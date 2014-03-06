@@ -569,14 +569,14 @@ moveAI = do
 
 -- | executes a move for the current player
 executeMove :: (MonadState (GameState a) m)
-     => (Maybe (ShipID, Movement)) -> m ()
+     => Maybe (ShipID, Movement) -> m ()
 executeMove move = do
   curPlayer <- gets currentPlayer
   let fleet = playerFleet curPlayer
   case move of
-    Nothing               -> return ()
+    Nothing                 -> return ()
     Just (shipID, movement) -> case Map.lookup shipID fleet of
-      Just ship -> when (not $ isDamaged ship) $ do
+      Just ship -> unless (isDamaged ship) $ do
         time <- gets turnNumber
         let
           newFleet   = moveShip ship movement fleet
@@ -592,7 +592,7 @@ desiredMove :: Pos -> Fleet -> Maybe (ShipID, Movement)
 desiredMove pos fleet = do 
   Ship{..} <- shipAt remainingFleet pos
   let 
-    (x,y) = shipPosition $ shipShape
+    (x,y) = shipPosition shipShape
     size  = shipSize shipShape
   case shipOrientation shipShape of
     Horizontal 
@@ -783,12 +783,12 @@ getSmallGrid gel = do
 instance Random Orientation where
   randomR (a, b) g = (toEnum r, g') where
     (r, g')        = randomR (fromEnum a, fromEnum b) g
-  random g         = randomR (Horizontal, Vertical) g
+  random           = randomR (Horizontal, Vertical)
 
 instance Random Movement where
   randomR (a, b) g = (toEnum r, g') where
     (r, g')        = randomR (fromEnum a, fromEnum b) g
-  random g         = randomR (Forward, Backward) g
+  random           = randomR (Forward, Backward)
 
 -------------------------------------------------------------------------------
 -- * JSON

@@ -33,7 +33,7 @@
 -- 
 -- Finally: Some randomness is added to the scores. The highest one is then chosen.
 
-{-# LANGUAGE RecordWildCards, ScopedTypeVariables, TemplateHaskell #-}
+{-# LANGUAGE RecordWildCards, ScopedTypeVariables #-}
 module Logic.CleverAI 
   ( CleverAI
   ) where
@@ -101,7 +101,7 @@ cleverResponse p r ai = case r of
     shipArea s t = shipCoordinates 1 s `intersect` indices t
     ai' = ai
       { tracking = tracking ai // [(p, Just r)]
-      , shots    = p : (shots ai)
+      , shots    = p : shots ai
       }    
 
 --------------------------------------------------------------------------------
@@ -115,6 +115,7 @@ randomize = traverseArray $ \r -> liftM (r *) $ getRandomR (0.95,1.05)
 
 -- | Assigns each cell a score. If it's high, it means that it's beneficial
 -- | to attack this cell. On how this is calculated, see below.
+
 scoreGrid :: (MonadState CleverAI m) => m ScoreGrid
 scoreGrid = scoreGrid' `liftM` get
 
@@ -143,7 +144,7 @@ findSunkShip t p = findHorizontal `mplus` findVertical where
   findEnd :: (Pos -> Pos) -- ^ the movement
           -> Pos          -- ^ start position
           -> Pos
-  findEnd move pos = if inRange (bounds t) (move pos) && isHitOrSunk (t ! (move pos))
+  findEnd move pos = if inRange (bounds t) (move pos) && isHitOrSunk (t ! move pos)
                      then findEnd move $ move pos
                      else pos
 
@@ -184,7 +185,7 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
     phase1          = preventDoubleAttackMovable
                     . considerEdges
                     . checkerboard 0
-                    $ sum (map scoreShipPhase1 $ allRemaining)
+                    $ sum (map scoreShipPhase1 allRemaining)
     phase2          = preventDoubleAttackMovable
                     -- considerEdges doesn't work very well here
                     . scoreShips
@@ -294,7 +295,7 @@ probBlockedGrid (CleverAI {..}) = array ((0, 0), (width - 1, height - 1))
     decayFactor         = if rulesMove rules then decay else 1 :: Score
     -- | Probability for a ship to be on a (former) water cell
     probWater p         = if isWater $ tracking ! p
-                          then decayFactor ^ (numMovesAgo p) -- exponential "decay"
+                          then decayFactor ^ numMovesAgo p -- exponential "decay"
                           else 0
     -- | Probability for a ship to be within the safety zone of a sunk ship.
     probNearSunk p      = maximum'

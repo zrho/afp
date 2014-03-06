@@ -82,20 +82,19 @@ postFireR gameE = withGame gameE $ \game -> do
     -- invalid click
     Nothing  -> invalidMove gameE
     -- valid click
-    Just pos -> do 
-      case expectedAction game of
-        ActionMove -> invalidMove gameE
-        ActionFire -> do
-          (result, game') <- liftIO $ runStateT (humanTurnFire pos) game
-          -- evaluate outcome
-          case result of
-            Over  -> gameEnded game'
-            -- shoot again. expectedAction has not changed
-            Again -> continue game'
-            -- either perform AI turn or let human move
-            Next
-              | expectedAction game' == ActionMove -> continue game'
-              | otherwise -> performAI game'
+    Just pos -> case expectedAction game of
+      ActionMove -> invalidMove gameE
+      ActionFire -> do
+        (result, game') <- liftIO $ runStateT (humanTurnFire pos) game
+        -- evaluate outcome
+        case result of
+          Over  -> gameEnded game'
+          -- shoot again. expectedAction has not changed
+          Again -> continue game'
+          -- either perform AI turn or let human move
+          Next
+            | expectedAction game' == ActionMove -> continue game'
+            | otherwise -> performAI game'
 
 shipsOpponentWidget :: GameState a -> Orientation -> WidgetT App IO ()
 shipsOpponentWidget gameState orientation = $(widgetFile "shipsOpponent")

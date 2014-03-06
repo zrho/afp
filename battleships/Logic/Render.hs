@@ -71,7 +71,7 @@ renderReferenceGrid = renderGrid
 renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Int -> Bool -> BattleDia
 renderEnemyGrid fleet shots Rules{..} turnNumber uncoverFleet = mconcat
   [ if uncoverFleet then renderFleetHints else mempty
-  , if rulesNoviceMode then mconcat (fmap renderImpossiblePositions $ nonWaterShots) else mempty
+  , if rulesNoviceMode then mconcat (fmap renderImpossiblePositions nonWaterShots) else mempty
   , mconcat (fmap renderShot shots)
   , contentSquare # fc fogColor
   ]
@@ -143,7 +143,7 @@ renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
 
 timedOpacity :: Int -> Int -> Double
 timedOpacity turnNumber shotTime
-  | (turnNumber - shotTime) < 18 = 0.05 * (fromIntegral (20 + shotTime - turnNumber))
+  | (turnNumber - shotTime) < 18 = 0.05 * fromIntegral (20 + shotTime - turnNumber)
   | otherwise                    = 0.1
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering
@@ -206,7 +206,7 @@ movementArrowAt ship@Ship{..} i fleet =
 
 renderArrow :: MoveArrow -> QDiagram SVG R2 Any
 renderArrow arrType = arrowShape # rotateBy circleFraction # arrowStyle  where 
-  circleFraction = (fromIntegral $ fromEnum arrType) / 4
+  circleFraction = fromIntegral (fromEnum arrType) / 4
   arrowShape     = fromVertices [ p2 (0, -0.8 * halfCellSize)
                                 , p2 (0.8 * halfCellSize,  0)
                                 , p2 (0,  0.8 * halfCellSize)]
@@ -224,7 +224,7 @@ translateToPos (x,y) =
 renderGrid :: BattleDia
 renderGrid  = border <> gridLines <> labels where
   border    = rect w h # alignTL # lw 1 # lc gridColor # value []
-  gridLines = (innerLines <> outerLines)
+  gridLines = innerLines <> outerLines
   xnums     = colNumbers nx # translate (r2 (cellSize, 0))
   ynums     = rowNumbers ny
   field     = vcat [cellRow y | y <- [0..nx-1]]
@@ -235,7 +235,7 @@ renderGrid  = border <> gridLines <> labels where
   w = (fromIntegral nx + 2) * cellSize
   h = (fromIntegral ny + 2) * cellSize
   outerOffsets n = [cellSize, (fromIntegral n + 1) * cellSize]
-  innerOffsets n = [(fromIntegral i) * cellSize | i <- [2..n]]
+  innerOffsets n = [fromIntegral i * cellSize | i <- [2..n]]
   innerLines = (xticks (h-1) (innerOffsets nx) <> yticks (w-1) (innerOffsets ny)) # innerGridLineStyle # value []
   outerLines = (xticks (h-1) (outerOffsets nx) <> yticks (w-1) (outerOffsets ny)) # outerGridLineStyle # value []
   (nx, ny)   = boardSize
@@ -261,8 +261,8 @@ markerRadius   = cellSize / 2 - 3
 innerGridWidth = 1
 
 innerGridLineStyle, outerGridLineStyle, arrowStyle :: HasStyle c => c -> c
-innerGridLineStyle = lw (innerGridWidth) . lc gridColor . dashing [3, 3] 0
-outerGridLineStyle = lw (innerGridWidth) . lc gridColor
+innerGridLineStyle = lw innerGridWidth . lc gridColor . dashing [3, 3] 0
+outerGridLineStyle = lw innerGridWidth . lc gridColor
 arrowStyle         = lw 3 . lc gray
 
 numberStyle :: HasStyle c => c -> c
