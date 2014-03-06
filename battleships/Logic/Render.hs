@@ -132,10 +132,10 @@ renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
         
     renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
       if rulesMove then case val of 
-                          Water -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time)
-                          Hit   -> if isShipAtSunk fleet pos then marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time)
+                          Water -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
+                          Hit   -> if isShipAtSunk fleet pos then marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
                                                              else marker # lc markerHitColor # lw 3 <> shipSquare
-                          Sunk  -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time)
+                          Sunk  -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
                    else case val of
                           Water -> marker # lc markerWaterColor # lw 3 <> waterSquare
                           Hit   -> if isShipAtSunk fleet pos then marker # lc markerSunkColor # lw 3 <> shipSquare
