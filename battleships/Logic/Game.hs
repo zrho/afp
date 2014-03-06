@@ -164,26 +164,26 @@ data HitResponse
   = Water -- ^ the shot hit the water
   | Hit   -- ^ the shot hit a ship
   | Sunk  -- ^ the shot hit the last intact part of a ship
-  deriving (Show, Eq, Ord, Bounded, Enum)
+  deriving (Eq, Enum)
 
 data Orientation 
   = Horizontal
   | Vertical
-  deriving (Show, Eq, Ord, Bounded, Enum)
+  deriving Enum
 
 -- | Encodes a ships state using position, size and orientation
 data ShipShape = ShipShape 
   { shipPosition    :: Pos
   , shipSize        :: Int
   , shipOrientation :: Orientation
-  } deriving (Show, Eq)
+  }
 
 -- | A ship using with unique id, a shape and current damage.
 data Ship = Ship
   { shipID     :: ShipID         -- ^ unique ID of ship
   , shipShape  :: ShipShape      -- ^ shape of ship (including position, orientation and size)
   , shipDamage :: Array Int Bool -- ^ damage at each position
-  } deriving (Show)
+  }
 
 instance Eq Ship where
   (==) = (==) `on` shipID
@@ -213,33 +213,33 @@ data PlayerState = PlayerState
   , playerFleet :: Fleet        -- ^ the player's fleet
   , playerType  :: Player
   , playerMoves :: [ShipMove]   -- ^ the player's moves
-  } deriving (Show, Eq)
+  } deriving Eq
 
 -- | type to distinguish between human and AI player
 data Player
   = HumanPlayer
   | AIPlayer
-  deriving (Show, Eq, Ord, Enum, Bounded)
+  deriving (Eq, Enum)
 
 -- | the next action expected from the human player
 data Action
   = ActionFire
   | ActionMove
-  deriving (Show, Read, Eq, Ord, Enum, Bounded)
+  deriving (Show, Eq, Enum)
 
 -- | keeps track of all relevant information for a fired shot
 data Shot = Shot
   { shotPos    :: Pos
   , shotResult :: HitResponse
   , shotTime   :: Int
-  } deriving (Show, Eq)
+  } deriving Eq
 
 -- | a ship movement
 data ShipMove = ShipMove
   { shipMoveID        :: ShipID
   , shipMoveDirection :: Movement
   , shipMoveTime      :: Int
-  } deriving (Show, Eq)
+  } deriving Eq
 
 instance PathPiece Action where
   fromPathPiece "ActionFire" = Just ActionFire
@@ -406,7 +406,7 @@ aiPlayerState GameState{..} = case playerType currentPlayer of
 -------------------------------------------------------------------------------
 
 -- | Result of the turn with respect to the current player
-data Turn = Over | Again | Next deriving (Show, Eq, Ord, Enum, Bounded)
+data Turn = Over | Again | Next deriving Eq
 
 -- | Checks whether the game is drawn.
 -- It is drawn when the number of shots has exceeded the
@@ -547,7 +547,7 @@ increaseTurnNumber = modify $ \gs -> gs {turnNumber = turnNumber gs + 1}
 data Movement 
   = Forward  -- ^ -1 for the respective coordinate
   | Backward -- ^ +1 for the respective coordinate
-  deriving (Show, Eq, Ord, Enum, Bounded)
+  deriving (Eq, Enum)
 
 -- | Tries to move the human player's ship if pos is one of its endings.
 -- Assumes that the human player is the currentPlayer
