@@ -32,7 +32,7 @@ import           Data.Ix
 type BattleDia = QDiagram SVG R2 [Pos]
 
 -- | Arrows displayed on the bow and stern of undamaged ships.
-data MoveArrow = ArrowRight | ArrowUp | ArrowLeft | ArrowDown deriving (Show, Eq, Ord, Bounded, Enum)
+data MoveArrow = ArrowRight | ArrowUp | ArrowLeft | ArrowDown deriving Enum
 
 -- | legend icon to render
 data LegendIcon 
@@ -44,7 +44,6 @@ data LegendIcon
   | LIFogOfWar
   | LIWater
   | LILastShot
-  deriving (Show, Read, Eq, Ord, Enum, Bounded)
 
 -------------------------------------------------------------------------------
 -- * Legend Rendering
