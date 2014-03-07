@@ -110,7 +110,7 @@ legendWidget orientation movesAllowed = $(widgetFile "legend")
 
 -- | Redirects to the game UI in case of an invalid move.
 invalidMove :: GameStateExt -> Handler Html
-invalidMove gameE = redirect $ PlayR gameE
+invalidMove = getPlayR -- redirect . PlayR
 
 -- | Redirects to the game ended screen.
 gameEnded :: (Serialize a, AI a) => GameState a -> Handler Html
@@ -118,7 +118,7 @@ gameEnded game = expGameH game >>= redirect . GameEndedR
 
 -- | Redirects the the game UI in case the game is still on.
 continue :: (Serialize a, AI a) => GameState a -> Handler Html
-continue game = expGameH game >>= redirect . PlayR
+continue game = expGameH game >>= getPlayR -- redirect . PlayR
 
 -------------------------------------------------------------------------------
 -- * AI
