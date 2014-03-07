@@ -103,7 +103,6 @@ import           Control.Monad.Trans.State (runStateT)
 import           Control.Monad.State.Class (MonadState, gets, modify)
 import           Yesod (PathPiece (..))
 import           Settings (Extra (..))
-import qualified Data.Text as T hiding (find, zip, map)
 
 -------------------------------------------------------------------------------
 -- * Constants
@@ -225,7 +224,7 @@ data Player
 data Action
   = ActionFire
   | ActionMove
-  deriving (Show, Eq, Enum)
+  deriving (Eq, Enum)
 
 -- | keeps track of all relevant information for a fired shot
 data Shot = Shot
@@ -240,12 +239,6 @@ data ShipMove = ShipMove
   , shipMoveDirection :: Movement
   , shipMoveTime      :: Int
   } deriving Eq
-
-instance PathPiece Action where
-  fromPathPiece "ActionFire" = Just ActionFire
-  fromPathPiece "ActionMove" = Just ActionMove
-  fromPathPiece  _ = Nothing
-  toPathPiece = T.pack . show
 
 -- | A fleet is a map of ship ID's to ships
 type Fleet = Map.Map ShipID Ship
