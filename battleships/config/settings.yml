@@ -4,6 +4,7 @@ Default: &defaults
   approot: "http://localhost:3000"
   datadir: "config/"
   staticdir: "static/"
+  sourceURL: "https://github.com/zrho/afp/tree/master/battleships"
   maxturns: 150
 
 Development:

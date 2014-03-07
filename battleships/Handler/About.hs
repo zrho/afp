@@ -15,7 +15,8 @@ import Import
 import Handler.Util
 
 getAboutR :: Handler Html
-getAboutR = plainLayout $ do 
-	setNormalTitle
-	$(widgetFile "about")
-
+getAboutR = do extra <- getExtra
+               plainLayout $ do 
+                 setNormalTitle
+                 let sourceURL = extraSourceURL extra
+                 $(widgetFile "about")
