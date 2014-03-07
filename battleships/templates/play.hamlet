@@ -45,7 +45,7 @@
 <div .infoH>
     <div .infoBoxH>
       <div .watchreplay>
-        <a .linkButton .redButton href="@{ReplayR gameE}">
+        <a .linkButton .redButton href="#!" onclick="confirmReplay()">
           _{MsgWatchReplay}
       <h3>_{MsgHints}
       ^{shipsOpponentWidget gameState Horizontal}
