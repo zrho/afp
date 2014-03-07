@@ -73,7 +73,7 @@ postMoveR gameE = withGame gameE $ \game -> do
       _ -> performMove game Nothing
   where
     performMove game pos = do
-      game' <- liftIO $ execStateT (moveHuman pos >>= executeMove) game
+      game' <- execStateT (moveHuman pos >>= executeMove) game
       performAI game'
 
 -- | Handles a request to fire at an enemy position.
@@ -87,7 +87,7 @@ postFireR gameE = withGame gameE $ \game -> do
     Just pos -> case expectedAction game of
       ActionMove -> invalidMove gameE
       ActionFire -> do
-        (result, game') <- liftIO $ runStateT (humanTurnFire pos) game
+        (result, game') <- runStateT (humanTurnFire pos) game
         -- evaluate outcome
         case result of
           Over  -> gameEnded game'
