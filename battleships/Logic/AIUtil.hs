@@ -110,7 +110,7 @@ isWater (Just Water) = True
 isWater _            = False
 
 isHitOrSunk :: Maybe HitResponse -> Bool
-isHitOrSunk h = isSunk h || isHit h  -- not (isWater h)
+isHitOrSunk h = isSunk h || isHit h  -- equivalent: isJust h && not (isWater h)
 
 --------------------------------------------------------------------------------
 -- * Array Utilities
