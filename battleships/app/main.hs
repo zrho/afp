@@ -1,23 +1,24 @@
 {-# LANGUAGE CPP #-}
-import Prelude              (IO, (>>=), return)
+import Prelude              (IO, (>>=))
+import Yesod.Default.Config (loadConfig, configSettings, DefaultEnv(..), ConfigSettings(csParseExtra))
+import Settings             (parseExtra)
 import Application          (makeApplication)
+
 
 #if DEVELOPMENT
 import qualified Network.Wai.Handler.Warp (run)
-import Yesod.Default.Config (loadConfig, configSettings, DefaultEnv(Development))
 
 main :: IO ()
 main =
-    loadConfig (configSettings Development)
+    loadConfig (configSettings Development) { csParseExtra = parseExtra }
     >>= makeApplication
     >>= Network.Wai.Handler.Warp.run 3000
 #else
 import qualified Network.Wai.Handler.FastCGI (run)
-import Yesod.Default.Config (loadConfig, configSettings, DefaultEnv(Production), ConfigSettings(csFile))
 
 main :: IO ()
 main =
-    loadConfig ((configSettings Production) {csFile = \_ -> return "/srv/www/vhosts/www-pg/cgi-bin/settings.yml"})
+    loadConfig (configSettings Production) { csParseExtra = parseExtra }
     >>= makeApplication
     >>= Network.Wai.Handler.FastCGI.run
 #endif
