@@ -169,7 +169,7 @@ data HitResponse
 data Orientation 
   = Horizontal
   | Vertical
-  deriving Enum
+  deriving (Enum, Bounded)
 
 -- | Encodes a ships state using position, size and orientation
 data ShipShape = ShipShape 
@@ -178,7 +178,7 @@ data ShipShape = ShipShape
   , shipOrientation :: Orientation
   }
 
--- | A ship using with unique id, a shape and current damage.
+-- | A ship with unique id, a shape and current damage.
 data Ship = Ship
   { shipID     :: ShipID         -- ^ unique ID of ship
   , shipShape  :: ShipShape      -- ^ shape of ship (including position, orientation and size)
@@ -188,14 +188,13 @@ data Ship = Ship
 instance Eq Ship where
   (==) = (==) `on` shipID
 
--- | Used to allow lookup functions to work both with FleetPlacement and Fleet
+-- | Used to allow lookup functions to work with both FleetPlacement and Fleet
 class HasShipShape a where
   getShipShape :: a -> ShipShape
 instance HasShipShape Ship where
   getShipShape = shipShape
 instance HasShipShape ShipShape where
   getShipShape = id
-
 
 -- | State of the game for both players.
 data GameState a = GameState
@@ -547,7 +546,7 @@ increaseTurnNumber = modify $ \gs -> gs {turnNumber = turnNumber gs + 1}
 data Movement 
   = Forward  -- ^ -1 for the respective coordinate
   | Backward -- ^ +1 for the respective coordinate
-  deriving (Eq, Enum)
+  deriving (Eq, Enum, Bounded)
 
 -- | Tries to move the human player's ship if pos is one of its endings.
 -- Assumes that the human player is the currentPlayer
@@ -619,6 +618,7 @@ moveShip ship movement fleet =
     then Map.adjust (\s -> s{shipShape = newShape}) (shipID ship) fleet
     else fleet
   where newShape = movedShipShape movement (shipShape ship)
+
 -- | Checks whether a ship can be moved.
 isMovable :: Movement -> Fleet -> Ship -> Bool
 isMovable movement fleet ship =
@@ -784,6 +784,7 @@ getSmallGrid gel = do
   let count = rangeSize ((0,0), upper)
   xs <- replicateM count gel
   return $ listArray ((0,0), upper) xs
+
 -------------------------------------------------------------------------------
 -- * Random
 -------------------------------------------------------------------------------
@@ -791,12 +792,12 @@ getSmallGrid gel = do
 instance Random Orientation where
   randomR (a, b) g = (toEnum r, g') where
     (r, g')        = randomR (fromEnum a, fromEnum b) g
-  random           = randomR (Horizontal, Vertical)
+  random           = randomR (minBound, maxBound)
 
 instance Random Movement where
   randomR (a, b) g = (toEnum r, g') where
     (r, g')        = randomR (fromEnum a, fromEnum b) g
-  random           = randomR (Forward, Backward)
+  random           = randomR (minBound, maxBound)
 
 -------------------------------------------------------------------------------
 -- * JSON

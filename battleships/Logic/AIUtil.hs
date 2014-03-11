@@ -40,6 +40,7 @@ import           Data.List
 import           Data.Function
 import           Data.Maybe (isJust, listToMaybe)
 import qualified Data.Map as Map
+import qualified Data.Traversable (mapM)
 import           Control.Arrow
 import           Control.Monad
 import           Control.Monad.Trans
@@ -109,7 +110,7 @@ isWater (Just Water) = True
 isWater _            = False
 
 isHitOrSunk :: Maybe HitResponse -> Bool
-isHitOrSunk h = isSunk h || isHit h
+isHitOrSunk h = isSunk h || isHit h  -- not (isWater h)
 
 --------------------------------------------------------------------------------
 -- * Array Utilities
@@ -121,7 +122,7 @@ maximumIx = fst . maximumBy (compare `on` snd) . assocs
 
 -- | Distributive law for monad actions in arrays.
 traverseArray :: (Ix i, Monad m) => (a -> m b) -> Array i a -> m (Array i b)
-traverseArray f a = liftM (listArray (bounds a)) $ mapM f $ elems a
+traverseArray = Data.Traversable.mapM
 
 -- | Build an array by specifying bounds and a function that constructs
 -- the value for an index.
