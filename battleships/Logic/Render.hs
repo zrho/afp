@@ -56,8 +56,8 @@ renderLegend icon = case icon of
   LIShipWithArrow -> renderArrow ArrowRight <> movableSquare
   LIShipMovable   -> movableSquare
   LIShipImmovable -> shipSquare
-  LIShipHit       -> marker # lc markerHitColor # lw 3 <> shipSquare
-  LIShipSunk      -> marker # lc markerSunkColor # lw 3 <> shipSquare
+  LIShipHit       -> marker # lc markerHitColor <> shipSquare
+  LIShipSunk      -> marker # lc markerSunkColor <> shipSquare
   LIFogOfWar      -> square cellSize # fc fogColor
   LIWater         -> waterSquare
   LILastShot      -> square cellSize # alignTL <> lastShotMarker 1
@@ -77,17 +77,14 @@ renderEnemyGrid fleet shots Rules{..} turnNumber uncoverFleet = mconcat
   , contentSquare # fc fogColor
   ]
   where
-    renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
-      if rulesMove then case val of 
-                          Water -> waterSquare # opacity (timedOpacity turnNumber time) 
-                          Hit   -> if isShipAtSunk fleet pos then waterSquare # opacity (timedOpacity turnNumber $ fromJust $ sinkTime fleet pos shots) 
-                                                             else marker # lc markerHitColor # lw 3 <> shipSquare
-                          Sunk  -> waterSquare # opacity (timedOpacity turnNumber time) 
-                   else case val of 
-                          Water -> waterSquare
-                          Hit   -> if isShipAtSunk fleet pos then marker # lc markerSunkColor # lw 3 <> shipSquare
-                                                             else marker # lc markerHitColor # lw 3 <> shipSquare
-                          Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare
+    opac = timedOpacity rulesMove turnNumber
+    renderShot (Shot pos val time) = translateToPos pos . value [] . alignTL $
+      case val of
+        Water -> waterSquare # opac time
+        Hit   -> if isShipAtSunk fleet pos
+          then waterSquare # opac (fromJust $ sinkTime fleet pos shots)
+          else marker # lc markerHitColor <> shipSquare
+        Sunk  -> waterSquare # opac time
     renderFleetHints = fold $ fmap renderFleetHint fleet
     renderFleetHint Ship{shipShape = ShipShape{shipPosition=(x,y),..}} =
       let
@@ -97,8 +94,9 @@ renderEnemyGrid fleet shots Rules{..} turnNumber uncoverFleet = mconcat
       in rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # lc red # lw 1 # value []
     renderImpossiblePositions (Shot p _ _) = mconcat (fmap (renderImpossiblePos p) $ marginPositions p)
     renderImpossiblePos hitPos impPos = translateToPos impPos $ value [] $ alignTL $
-      if rulesMove && isShipAtSunk fleet hitPos then waterSquare # opacity (timedOpacity turnNumber $ fromJust $ sinkTime fleet hitPos shots)
-                                                else waterSquare
+      if rulesMove && isShipAtSunk fleet hitPos
+        then waterSquare # opac (fromJust $ sinkTime fleet hitPos shots)
+        else waterSquare
     marginPositions (x,y) = filter (inRange gridRange) [(x+i, y+j) | i <- [-1,1], j <- [-1,1]]
     gridRange             = ((0, 0), (fst boardSize - 1, snd boardSize - 1))
     nonWaterShots         = filter (\s -> shotResult s /= Water) shots
@@ -113,6 +111,7 @@ renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
     , contentSquare # fc waterColor
     ]
   where
+    opac = timedOpacity rulesMove turnNumber
     markLastShots = case L.groupBy ((==) `on` shotTime) shots of
       shotsLastRound:_ 
         -> flip foldMap (zip [1::Int ..] (reverse shotsLastRound)) $ \(idx, Shot lastShotPos _ _) ->
@@ -130,22 +129,19 @@ renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
             ActionMove -> maybe mempty renderArrow (movementArrowAt ship i fleet) <> movableSquare
             _          -> movableSquare
         
-    renderShot (Shot pos val time) = translateToPos pos $ value [] $ alignTL $
-      if rulesMove then case val of 
-                          Water -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
-                          Hit   -> if isShipAtSunk fleet pos then marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
-                                                             else marker # lc markerHitColor # lw 3 <> shipSquare
-                          Sunk  -> marker # lc markerWaterColor # lw 3 # opacity (timedOpacity turnNumber time) <> waterSquare
-                   else case val of
-                          Water -> marker # lc markerWaterColor # lw 3 <> waterSquare
-                          Hit   -> if isShipAtSunk fleet pos then marker # lc markerSunkColor # lw 3 <> shipSquare
-                                                             else marker # lc markerHitColor # lw 3 <> shipSquare
-                          Sunk  -> marker # lc markerSunkColor # lw 3 <> shipSquare
+    renderShot (Shot pos val time) = translateToPos pos . value [] . alignTL $
+      case val of
+        Water -> marker # lc markerWaterColor # opac time <> waterSquare
+        Hit   -> if isShipAtSunk fleet pos
+          then marker # lc markerWaterColor # opac time <> waterSquare
+          else marker # lc markerHitColor <> shipSquare
+        Sunk  -> marker # lc markerWaterColor # opac time <> waterSquare
 
-timedOpacity :: Int -> Int -> Double
-timedOpacity turnNumber shotTime
-  | (turnNumber - shotTime) < 18 = 0.05 * fromIntegral (20 + shotTime - turnNumber)
-  | otherwise                    = 0.1
+timedOpacity :: (Integral i, HasStyle c) => Bool -> i -> i -> c -> c
+timedOpacity True turnNumber shotTime
+  | (turnNumber - shotTime) < 18 = opacity $ 0.05 * fromIntegral (20 + shotTime - turnNumber)
+  | otherwise                    = opacity 0.1
+timedOpacity False _ _           = opacity 1
 
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering
@@ -170,7 +166,7 @@ marker, waterSquare, shipSquare, movableSquare
   :: (Alignable b, HasOrigin b, PathLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #endif
-marker         = drawX (markerRadius * sqrt 2) <> circle markerRadius where
+marker         = lw 3 $ drawX (markerRadius * sqrt 2) <> circle markerRadius where
   drawX s      = p2 (-0.5 * s, -0.5 * s) ~~ p2 (0.5 * s, 0.5 * s)
                <> p2 (-0.5 * s, 0.5 * s) ~~ p2 (0.5 * s, -0.5 * s)
 waterSquare    = square cellSize # fc waterColor
