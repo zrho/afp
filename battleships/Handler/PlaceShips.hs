@@ -42,7 +42,7 @@ getPlaceShipsR rules = defaultLayout $ do
   addScript $ StaticR js_json2_js
   addScript $ StaticR js_map_js
   $(widgetFile "board")
-  $(widgetFile "placeships2")
+  $(widgetFile "placeships")
 
 -- | Validates the player's fleet; if it's correct, the game is started.
 postPlaceShipsR :: Rules -> Handler Html

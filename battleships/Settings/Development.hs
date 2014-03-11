@@ -6,6 +6,8 @@ module Settings.Development
 
 import Prelude
 
+
+{-# INLINE development #-}
 development :: Bool
 development =
 #if DEVELOPMENT
@@ -14,5 +16,6 @@ development =
   False
 #endif
 
+{-# INLINE production #-}
 production :: Bool
 production = not development

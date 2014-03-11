@@ -45,6 +45,7 @@ data LegendIcon
   | LIFogOfWar
   | LIWater
   | LILastShot
+  deriving (Show, Enum, Bounded)
 
 -------------------------------------------------------------------------------
 -- * Legend Rendering
@@ -145,6 +146,7 @@ timedOpacity :: Int -> Int -> Double
 timedOpacity turnNumber shotTime
   | (turnNumber - shotTime) < 18 = 0.05 * fromIntegral (20 + shotTime - turnNumber)
   | otherwise                    = 0.1
+
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering
 -------------------------------------------------------------------------------
