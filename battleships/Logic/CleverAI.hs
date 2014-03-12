@@ -79,11 +79,19 @@ instance AI CleverAI where
     return (cleverAI r checkerboardEven, fleet)
   aiFire         = liftM maximumIx $ scoreGrid >>= randomize
   aiResponse p r = modify (cleverResponse p r)
-  aiMove fleet _ = chooseRandom $ do
-    ship <- Map.elems fleet
-    mvmt <- [Forward, Backward]
-    guard $ isMovable mvmt fleet ship
-    return (shipID ship, mvmt)
+  aiMove fleet _ = do
+    move <- chooseRandom $
+      [ (shipID ship, mvmt)
+      | ship <- Map.elems fleet
+      , mvmt <- [Forward, Backward]
+      , isMovable mvmt fleet ship
+      ]
+    rand <- getRandomR (0.0, 1.0)
+    return $ if rand < probMove then move else Nothing
+
+-- | How often should the AI use its right to move?
+probMove :: Double
+probMove = 0.5
 
 cleverResponse :: Pos -> HitResponse -> CleverAI -> CleverAI
 cleverResponse p r ai = case r of
