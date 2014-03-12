@@ -6,7 +6,6 @@ module Settings.Development
 
 import Prelude
 
-
 {-# INLINE development #-}
 development :: Bool
 development =

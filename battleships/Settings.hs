@@ -66,7 +66,7 @@ data Extra = Extra
   , extraDataDir :: String
   , extraStaticDir :: String
   , extraSourceURL :: String
-  } deriving Show
+  }
 
 parseExtra :: DefaultEnv -> Object -> Parser Extra
 parseExtra _ o = Extra <$> o .: "maxturns" <*> o .: "datadir" <*> o .: "staticdir" <*> o .: "sourceURL"

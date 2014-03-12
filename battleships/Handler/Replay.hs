@@ -6,7 +6,6 @@
 --
 -- Handler for displaying a replay of the game.
 
-{-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, RecordWildCards #-}
 module Handler.Replay
   ( getReplayR
   ) where

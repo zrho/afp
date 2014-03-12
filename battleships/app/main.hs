@@ -4,7 +4,6 @@ import Yesod.Default.Config (loadConfig, configSettings, DefaultEnv(..), ConfigS
 import Settings             (parseExtra)
 import Application          (makeApplication)
 
-
 #if DEVELOPMENT
 import qualified Network.Wai.Handler.Warp (run)
 

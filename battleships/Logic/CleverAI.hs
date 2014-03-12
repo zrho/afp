@@ -33,7 +33,6 @@
 -- 
 -- Finally: Some randomness is added to the scores. The highest one is then chosen.
 
-{-# LANGUAGE RecordWildCards, ScopedTypeVariables #-}
 module Logic.CleverAI 
   ( CleverAI
   ) where

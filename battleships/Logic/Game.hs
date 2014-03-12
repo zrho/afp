@@ -9,7 +9,7 @@
 -- The AI is implemented in another module to cleanly seperate it from
 -- the game logic.
 
-{-# LANGUAGE RecordWildCards, TupleSections, OverloadedStrings #-}
+{-# LANGUAGE ViewPatterns #-}
 module Logic.Game
   ( 
   -- * Typeclasses

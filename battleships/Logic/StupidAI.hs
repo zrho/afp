@@ -6,7 +6,6 @@
 --
 -- AI that randomly shoots and does not move.
 
-{-# LANGUAGE RecordWildCards #-}
 module Logic.StupidAI 
   ( StupidAI
   ) where

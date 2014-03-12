@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Main where
 
 import           Logic.Render
@@ -80,4 +81,3 @@ imageFileName
 imageFileName img = do
   dir <- asks optOutputDir
   return $ dir </> (imageName img ++ ".svg")
-

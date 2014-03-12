@@ -5,7 +5,7 @@
 -- Portability :  portable
 --
 -- Several utilities for the handlers of this package.
-{-# LANGUAGE RecordWildCards, OverloadedStrings #-}
+{-# LANGUAGE CPP #-}
 module Handler.Util
   ( withGame
   , fieldPos
