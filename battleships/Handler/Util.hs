@@ -27,7 +27,6 @@ import Text.Blaze.Svg.Internal (Svg)
 import Data.Maybe
 import Logic.Game
 import Logic.GameExt
-import Logic.CleverAI
 import Logic.Render
 import Yesod.Routes.Class
 import Data.Serialize (Serialize)
@@ -52,7 +51,7 @@ expGameH game = do
   expGame key game
 
 -- | Bracket for actions in the Handler monad that require the game state.
-withGame :: GameStateExt -> (GameState CleverAI -> Handler a) -> Handler a
+withGame :: GameStateExt -> (GameState DefaultAI -> Handler a) -> Handler a
 withGame gameE act = impGameH gameE >>= \g -> case g of
   Left _     -> redirect HomeR
   Right game -> act game

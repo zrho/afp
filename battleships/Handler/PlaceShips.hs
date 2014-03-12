@@ -24,8 +24,8 @@ import Data.Maybe
 import qualified Data.Text.Encoding as TE
 import qualified Data.ByteString.Lazy as BL
 import Logic.Game
+import Logic.GameExt (DefaultAI)
 import Logic.AIUtil
-import Logic.CleverAI
 import Handler.Util
 
 -------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ postPlaceShipsR rules = do
 -- | Starts a game, given the placement of the player's fleet.
 startGame :: Rules -> FleetPlacement -> Handler Html
 startGame rules fleetPlacement = do
-  game  <- liftIO (newGame rules fleetPlacement HumanPlayer :: IO (GameState CleverAI))
+  game  <- liftIO (newGame rules fleetPlacement HumanPlayer :: IO (GameState DefaultAI))
   gameE <- expGameH game
   redirect $ PlayR gameE
 
