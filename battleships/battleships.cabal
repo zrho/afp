@@ -70,16 +70,8 @@ library
                 QuasiQuotes
                 OverloadedStrings
                 NoImplicitPrelude
-                CPP
-                MultiParamTypeClasses
-                TypeFamilies
-                GADTs
-                GeneralizedNewtypeDeriving
+                RecordWildCards
                 FlexibleContexts
-                EmptyDataDecls
-                NoMonomorphismRestriction
-                DeriveDataTypeable
-                ViewPatterns
 
     build-depends: base                          >= 4          && < 5
                 -- * needed for yesod
@@ -149,8 +141,7 @@ executable img-gen
     if flag(library-only)
         Buildable: False
 
-    extensions:      CPP
-                     FlexibleContexts
+    extensions:      FlexibleContexts
     main-is:         Main.hs
     hs-source-dirs:  img-gen
     build-depends:   base

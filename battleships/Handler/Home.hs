@@ -6,7 +6,6 @@
 --
 -- Handler for a static home page.
 
-{-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
 module Handler.Home
   ( getHomeR
   ) where

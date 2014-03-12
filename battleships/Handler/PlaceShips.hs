@@ -12,7 +12,6 @@
 -- to the 'PlaceShipsRndR' route by the javascript code, which uses 'initShips'
 -- to try and complete the player's ship placement.
 
-{-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, RecordWildCards #-}
 module Handler.PlaceShips
   ( getPlaceShipsR
   , postPlaceShipsR

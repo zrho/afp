@@ -6,7 +6,6 @@
 --
 -- Handler for page that allows the user to customize the game's rules.
 
-{-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
 module Handler.Rules 
   ( getRulesR
   , postRulesR

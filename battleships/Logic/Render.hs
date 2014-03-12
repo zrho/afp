@@ -6,7 +6,7 @@
 --
 -- Diagrams based renderer for the game board.
 
-{-# LANGUAGE RecordWildCards, TypeFamilies #-}
+{-# LANGUAGE CPP, TypeFamilies #-}
 module Logic.Render
   ( renderReferenceGrid
   , renderEnemyGrid

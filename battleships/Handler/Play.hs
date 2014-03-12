@@ -11,7 +11,6 @@
 -- step, these advance the simulation and redirect the user either to the game UI
 -- again, if the game is still on, or to the game ended screen.
 
-{-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, RecordWildCards #-}
 module Handler.Play
   ( getPlayR
   , postMoveR
