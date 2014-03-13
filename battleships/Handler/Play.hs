@@ -25,6 +25,7 @@ import Logic.Game
 import Logic.GameExt
 import Logic.Render
 import Handler.Util
+import Handler.GameEnded
 import Text.Julius (rawJS)
 
 -------------------------------------------------------------------------------
@@ -98,7 +99,9 @@ postFireR gameE = withGame gameE $ \game -> do
             | otherwise -> performAI game'
 
 shipsOpponentWidget :: GameState a -> Orientation -> WidgetT App IO ()
-shipsOpponentWidget gameState orientation = $(widgetFile "shipsOpponent")
+shipsOpponentWidget gameState orientation =
+  let sizes = sizesOfShips $ unsunkShips $ playerFleet $ otherPlayer gameState
+  in $(widgetFile "shipsOpponent")
 
 legendWidget :: Orientation -> Bool -> Widget
 legendWidget orientation movesAllowed = $(widgetFile "legend")
@@ -113,7 +116,7 @@ invalidMove = getPlayR -- redirect . PlayR
 
 -- | Redirects to the game ended screen.
 gameEnded :: (Serialize a, AI a) => GameState a -> Handler Html
-gameEnded game = expGameH game >>= redirect . GameEndedR
+gameEnded game = expGameH game >>= getGameEndedR -- redirect . GameEndedR
 
 -- | Redirects the the game UI in case the game is still on.
 continue :: (Serialize a, AI a) => GameState a -> Handler Html

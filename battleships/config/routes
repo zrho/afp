@@ -1,10 +1,8 @@
 /battleships                                        HomeR          GET
 /battleships/place/#Rules                           PlaceShipsR    GET POST
 /battleships/place-random                           PlaceShipsRndR POST
-/battleships/play/#GameStateExt/view                PlayR          GET
 /battleships/play/#GameStateExt/fire                FireR          POST
 /battleships/play/#GameStateExt/move                MoveR          POST
-/battleships/gameEnded/#GameStateExt                GameEndedR     GET
 /battleships/replay/#GameStateExt                   ReplayR        GET
 /battleships/rules                                  RulesR         GET POST
 /cgi-bin/battleships/static                         StaticR        Static getStatic

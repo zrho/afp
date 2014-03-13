@@ -9,8 +9,8 @@
       $forall size <- shipSizes
         <tr>
           <td>#{show size}
-          <td>#{show $ numberShipsOfSize (sizesOfShips $ unsunkShips $ playerFleet $ otherPlayer gameState) size}
+          <td>#{show $ numberShipsOfSize sizes size}
     <tfoot>
       <tr>
           <td>_{MsgShipsTotal}
-          <td>#{length $ sizesOfShips $ unsunkShips $ playerFleet $ otherPlayer gameState}
+          <td>#{length sizes}
