@@ -12,6 +12,7 @@ module Logic.StupidAI
 
 import           Prelude
 import           Logic.Game
+import           Logic.Random
 import           Logic.AIUtil
 import           Control.Monad
 import           Control.Monad.Random
@@ -22,7 +23,7 @@ data StupidAI = StupidAI
 
 instance AI StupidAI where
   aiInit _       = do
-    ships <- liftM fromJust $ initShips rulesShips []
+    ships <- liftM fromJust $ runRandM $ initShips rulesShips []
     return (StupidAI, ships)
   aiFire         = getRandomPos boardSize
   aiResponse _ _ = return ()
