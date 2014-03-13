@@ -63,7 +63,7 @@ type TrackingGrid = Grid (Maybe HitResponse)
 --------------------------------------------------------------------------------
 
 -- | Random completion of a given fleet, if one exists.
-initShips :: RandomGen g => [Int] -> FleetPlacement -> Rand g (Maybe FleetPlacement)
+initShips :: MonadRandom m => [Int] -> FleetPlacement -> m (Maybe FleetPlacement)
 initShips ships fleet = do
   let ships' = ships \\ fmap shipSize fleet
   fleets <- runRandM $ runListT $ foldM initShips' fleet ships'

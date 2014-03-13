@@ -24,7 +24,6 @@ import Data.Maybe
 import qualified Data.Text.Encoding as TE
 import qualified Data.ByteString.Lazy as BL
 import Logic.Game
-import Logic.Random
 import Logic.GameExt (DefaultAI)
 import Logic.AIUtil
 import Handler.Util
@@ -71,7 +70,7 @@ startGame rules fleetPlacement = do
 postPlaceShipsRndR :: Handler TypedContent
 postPlaceShipsRndR = do
   fleet  <- fmap (fromMaybe []) getPostedFleet
-  fleet' <- liftIO $ runRandM $ initShips rulesShips fleet
+  fleet' <- liftIO $ initShips rulesShips fleet
   return $ jsonFleet $ fromMaybe [] fleet'
 
 -------------------------------------------------------------------------------
