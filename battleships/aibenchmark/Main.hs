@@ -20,19 +20,23 @@ import           Settings (Extra (..))
 
 main :: IO ()
 main = do
-  putStrLn "Usage: aibenchmark (mov|immov) numGames [--verbose]"
-  putStrLn "Example: aibenchmark immov 20 --verbose"
-  a1:a2:rest <- getArgs
+  putStrLn "Usage: aibenchmark (mov|immov) (Hard|Medium|Easy) numGames [--verbose]"
+  putStrLn "Example: aibenchmark immov Hard 20 --verbose"
+  a1:a2:a3:rest <- getArgs
   let
     moveable    = case a1 of
       "mov"   -> True
       "immov" -> False
       _       -> error $ "Error: `" ++ a2 ++ "` is neither `mov` nor `immov`!"
-    repetitions = read a2
+    difficulty  = read a2
+    repetitions = read a3
     verbose     = case rest of
       "--verbose":_ -> True
       _      -> False
-  benchmark verbose benchmarkRules { rulesMove = moveable } repetitions
+  benchmark
+    verbose
+    benchmarkRules { rulesMove = moveable, rulesDifficulty = difficulty }
+    repetitions
 
 -- | Tests the performance of the AI, that is the average number of shots
 -- | needed to sink all the ships. This way, we can estimate how well the AI plays.
@@ -119,7 +123,4 @@ turn verbose rules shots fleet sunk count = do
       else turn verbose rules shots' fleet'' sunk' (count + 1)
 
 benchmarkRules :: Rules
-benchmarkRules = (defaultRules $ Extra 150 "" "" "")
-  { rulesAgainWhenHit = False
-  , rulesMove         = True
-  }
+benchmarkRules = (defaultRules $ Extra 150 "" "" "") { rulesAgainWhenHit = False }

@@ -12,7 +12,14 @@
         <div .ruleEntry>
           <input #inputNoviceMode type="checkbox" name="noviceMode" value="yes">
           <label for="inputNoviceMode">_{MsgInputNoviceMode}
+        <div .ruleEntry>
+          <label for="inputDifficulty">_{MsgInputDifficulty}
+          <select #inputDifficulty name="difficulty">
+            $forall (i, (msg, _)) <- zippedDifficultyList
+              <option value="#{show i}">
+                _{msg}
         $if development
+          <hr>
           <div .ruleEntry>
             <input #inputDevMode type="checkbox" name="devMode" value="yes" checked>
             <label for="inputDevMode">_{MsgInputDevMode}

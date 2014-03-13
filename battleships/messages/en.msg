@@ -15,6 +15,10 @@ InputAgainWhenHit: shoot again when hit
 InputMove: allow ship movement
 InputNoviceMode: show additional hints about impossible positions
 InputDevMode: enable developer mode
+InputDifficulty: difficulty level
+InputDifficultyEasy: easy
+InputDifficultyMedium: medium
+InputDifficultyHard: hard
 AdjustRules: Adjust the rules
 Rules: Rules
 

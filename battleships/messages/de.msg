@@ -15,6 +15,10 @@ InputAgainWhenHit: bei Treffer erneut schießen
 InputMove: Schiffe verschiebbar
 InputNoviceMode: Zusätzlich als Hilfe unmögliche Positionen anzeigen
 InputDevMode: Entwicklermodus
+InputDifficulty: Schwierigkeitsstufe
+InputDifficultyEasy: Einfach
+InputDifficultyMedium: Mittelschwer
+InputDifficultyHard: Schwer
 AdjustRules: Die Regeln anpassen
 Rules: Regeln
 

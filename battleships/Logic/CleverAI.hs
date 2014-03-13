@@ -42,6 +42,7 @@ import           Data.Array
 import           Data.List ((\\), elemIndex, intersect, delete)
 import           Data.Maybe (fromMaybe, fromJust)
 import qualified Data.Map as Map
+import qualified Data.Foldable as Foldable
 import           Logic.Game
 import           Logic.AIUtil
 import           Logic.Random
@@ -116,9 +117,19 @@ cleverResponse p r ai = case r of
 --------------------------------------------------------------------------------
 
 -- | Add some randomness to the scores: Multiplies each score with a
--- | random number near 1.
-randomize :: MonadRandom m => ScoreGrid -> m ScoreGrid
-randomize = traverseArray $ \r -> liftM (r *) $ getRandomR (0.95,1.05)
+-- | random number near 1. If the AI is configured to play not as strongly,
+-- | the range of the random numbers is increased.
+randomize :: (MonadRandom m, MonadState CleverAI m) => ScoreGrid -> m ScoreGrid
+randomize s = do
+  d <- gets $ rulesDifficulty . rules
+  move <- gets $ rulesMove . rules
+  let m = Foldable.maximum s
+  flip traverseArray s $ \r -> case d of
+    Hard   -> liftM (r *) $ getRandomR (0.95,1.05)
+    Medium -> case move of
+      False -> liftM (r +) $ getRandomR (0, m * 2)   -- chosen s.t. AI needs about 10 more shots
+      True  -> liftM (r +) $ getRandomR (0, m * 2.9) -- on average (using aibenchmark)
+    Easy   -> liftM (r +) $ getRandomR (0, m * 3.5) -- chosen s.t. AI needs about 20 more shots on average
 
 -- | Assigns each cell a score. If it's high, it means that it's beneficial
 -- | to attack this cell. On how this is calculated, see below.
@@ -231,7 +242,7 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
   -- they are at the edge. We're measuring the "difference" between
   -- the initial scores and the current scores instead.
   considerEdges :: Score -> Score
-  considerEdges = (* 100) . (/ initialScore) where
+  considerEdges = (*) (100 / initialScore) where
     -- TODO: Use variable instead of constant list in the source code.
     initialScore = fromIntegral . length $ allShips pos [5,4,4,3,3,3,2,2,2,2]
 
@@ -340,7 +351,12 @@ decay = 0.98
 -------------------------------------------------------------------------------
 
 instance Serialize CleverAI where
-  get = CleverAI <$> S.get <*> getSmallGrid S.get <*> getList8 getPos <*> getList8 S.get <*> getList8 getIntegral8 <*> S.get
+  get = CleverAI <$> S.get
+                 <*> getSmallGrid S.get
+                 <*> getList8 getPos
+                 <*> getList8 S.get
+                 <*> getList8 getIntegral8
+                 <*> S.get
   put CleverAI {..} = do
     S.put rules
     putSmallGrid S.put tracking

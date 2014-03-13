@@ -17,6 +17,7 @@ module Logic.Game
   -- * Datatypes
   , Action (..)
   , GameState (..)
+  , DifficultyLevel (..)
   , HitResponse (..)
   , Movement (..)
   , Orientation (..)
@@ -156,7 +157,15 @@ data Rules = Rules
   , rulesNoviceMode   :: Bool
   , rulesDevMode      :: Bool
   , rulesMaximumTurns :: Int
+  , rulesDifficulty   :: DifficultyLevel
   } deriving (Show, Eq, Read)
+
+-- | Playing strength of the AI.
+data DifficultyLevel
+  = Easy
+  | Medium
+  | Hard
+  deriving (Enum, Eq, Show, Read)
 
 -- | Reponse sent to the AI after a shot.
 data HitResponse
@@ -294,6 +303,7 @@ defaultRules Extra {..} = Rules
   , rulesNoviceMode = False
   , rulesDevMode = False
   , rulesMaximumTurns = extraMaxTurns
+  , rulesDifficulty = Hard
   }
 
 -- | Helper: Creates a grid, filled with one value.
@@ -678,13 +688,18 @@ instance Serialize PlayerState where
     put playerMoves
 
 instance Serialize Rules where
-  get = Rules <$> get <*> get <*> get <*> get <*> getIntegral8
+  get = Rules <$> get <*> get <*> get <*> get <*> getIntegral8 <*> get
   put Rules {..} = do
     put rulesAgainWhenHit
     put rulesMove
     put rulesNoviceMode
     put rulesDevMode
     putIntegral8 rulesMaximumTurns
+    put rulesDifficulty
+
+instance Serialize DifficultyLevel where
+  get = getEnum8
+  put = putEnum8
 
 instance Serialize HitResponse where
   get = getEnum8

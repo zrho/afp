@@ -15,7 +15,6 @@ import Import
 import Logic.Game
 import Handler.Util
 import Data.Maybe
-import Data.Traversable
 
 -------------------------------------------------------------------------------
 -- * Handler
@@ -28,7 +27,7 @@ getRulesR = renderRulePage Nothing
 -- | Handler to accept the configured game rules.
 postRulesR :: Handler Html
 postRulesR = do
-  [r0, r1, r2, r3] <- runInputPost rulesForm
+  (r0, r1, r2, r3, r4) <- runInputPost rulesForm
   extra <- getExtra
   let
     rules = (defaultRules extra)
@@ -36,8 +35,8 @@ postRulesR = do
       , rulesMove         = r1
       , rulesNoviceMode   = r2
       , rulesDevMode      = r3
+      , rulesDifficulty   = r4
       }
-
   redirect $ PlaceShipsR rules
 
 -- | Displays the rule configuration page.
@@ -50,11 +49,20 @@ renderRulePage formError = defaultLayout $ do
 -- * Forms
 -------------------------------------------------------------------------------
 
-rulesForm :: (Monad m, RenderMessage (HandlerSite m) FormMessage) 
-          => FormInput m [Bool]
-rulesForm = sequenceA
-  [ fromMaybe False <$> iopt boolField "againWhenHit"
-  , fromMaybe False <$> iopt boolField "move"
-  , fromMaybe False <$> iopt boolField "noviceMode"
-  , fromMaybe False <$> iopt boolField "devMode"
+rulesForm :: FormInput Handler (Bool, Bool, Bool, Bool, DifficultyLevel)
+rulesForm = (,,,,)
+  <$> (fromMaybe False <$> iopt boolField "againWhenHit")
+  <*> (fromMaybe False <$> iopt boolField "move")
+  <*> (fromMaybe False <$> iopt boolField "noviceMode")
+  <*> (fromMaybe False <$> iopt boolField "devMode")
+  <*> (fromMaybe Hard  <$> iopt (selectFieldList difficultyList) "difficulty")
+
+difficultyList :: [(AppMessage, DifficultyLevel)]
+difficultyList =
+  [ (MsgInputDifficultyHard, Hard)
+  , (MsgInputDifficultyMedium, Medium)
+  , (MsgInputDifficultyEasy, Easy)
   ]
+
+zippedDifficultyList :: [(Int, (AppMessage, DifficultyLevel))]
+zippedDifficultyList = zip [1 ..] difficultyList
