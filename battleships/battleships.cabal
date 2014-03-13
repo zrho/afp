@@ -80,7 +80,7 @@ library
                  , yesod-routes
                  , hamlet                        >= 1.1        && < 1.2
                  , shakespeare-text              >= 1.0        && < 1.1
-                 , monad-logger                  >= 0.3.4
+                 , monad-logger                  >= 0.3.1
                  , wai-extra                 
                  , wai-logger    
                  , cookie
@@ -102,7 +102,7 @@ library
                 -- * other
                  , template-haskell
                  , data-default
-                 , fast-logger                   >= 2.1
+                 , fast-logger                   >= 0.3.3
                  , cereal
                  , transformers
                  , base64-bytestring
