@@ -1,33 +1,52 @@
-module Logic.Benchmark
-  ( playGame
-  , benchmark 
+module Main
+  ( main
+  , playGame
+  , benchmark
   ) where
 
-import           Control.Monad.Random
-import           Control.Monad.State.Class (MonadState)
-import           Control.Monad.Trans.State (runStateT)
+import           Control.Monad
+import           Control.Monad.IO.Class
+import           Control.Monad.Trans.State (runStateT, StateT)
 import qualified Data.Map as Map
 import           Data.List (sort)
 import           Logic.Game
 -- import           Logic.StupidAI
 import           Logic.CleverAI
 import           Logic.AIUtil
-import           Logic.Debug
+import           System.Environment
 import           Data.Maybe
 import           Prelude
 import           Settings (Extra (..))
 
+main :: IO ()
+main = do
+  putStrLn "Usage: aibenchmark (mov|immov) numGames [--verbose]"
+  putStrLn "Example: aibenchmark immov 20 --verbose"
+  a1:a2:rest <- getArgs
+  let
+    moveable    = case a1 of
+      "mov"   -> True
+      "immov" -> False
+      _       -> error $ "Error: `" ++ a2 ++ "` is neither `mov` nor `immov`!"
+    repetitions = read a2
+    verbose     = case rest of
+      "--verbose":_ -> True
+      _      -> False
+  benchmark verbose benchmarkRules { rulesMove = moveable } repetitions
+
 -- | Tests the performance of the AI, that is the average number of shots
 -- | needed to sink all the ships. This way, we can estimate how well the AI plays.
 -- | The AI plays against itself.
-benchmark :: Int -> IO ()
-benchmark repetitions = do
+benchmark :: Bool -> Rules -> Int -> IO ()
+benchmark verbose rules repetitions = do
   shotCounts <- mapM f [1..repetitions]
   let sorted = sort shotCounts
   let avg = (fromIntegral $ sum shotCounts :: Double) / fromIntegral (length shotCounts)
   let mn = minimum shotCounts
   let mx = maximum shotCounts
   let mdn = sorted !! (length sorted `div` 2)
+  putStrLn   "----------\n"
+  putStrLn   "SUMMARY\n"
   putStrLn $ "Average: " ++ show avg ++ " shots."
   putStrLn $ "Minimum: " ++ show mn ++ " shots."
   putStrLn $ "Maximum: " ++ show mx ++ " shots."
@@ -37,28 +56,35 @@ benchmark repetitions = do
     f :: Int -> IO Int
     f i = do
       putStrLn $ "\n---\n" ++ show i ++ "th run:"
-      shotCount <- playGame
+      shotCount <- playGame verbose rules
       putStrLn $ show shotCount ++ " shots needed."
       return shotCount
 
 -- | Returns number of shots the AI needed.
-playGame :: IO Int
-playGame = do
+playGame :: Bool -> Rules -> IO Int
+playGame verbose rules = do
   (ai, fleetPlacement) <- aiInit rules
   putStrLn $ showFleetPlacement fleetPlacement
   let fleet = generateFleet fleetPlacement
-  (count, _newAi) <- runStateT (turn [] fleet Map.empty 0) (ai :: CleverAI)
-  return count 
+  (count, _newAi) <- runStateT (turn verbose rules [] fleet Map.empty 0) (ai :: CleverAI)
+  return count
 
 -- | Let the AI play against itself. Returns the number of shots fired.
-turn :: (AI a, MonadRandom m, MonadState a m) => TrackingList -> Fleet -> Fleet -> Int -> m Int
-turn shots fleet sunk count = do
+turn :: AI a => Bool -> Rules -> TrackingList -> Fleet -> Fleet -> Int -> StateT a IO Int
+turn verbose rules shots fleet sunk count = do
+    when verbose . liftIO $ do
+      putStrLn "Fleet:"
+      putStrLn $ showFleet fleet
+      putStrLn "Sunk:"
+      putStrLn $ showFleet sunk
+      putStrLn "Tracking:"
+      putStrLn $ showTrackingList shots
     -- get target position from AI
     pos <- aiFire
+    when verbose . liftIO . putStrLn $ "AI's target: " ++ show pos
     -- fire the AI's shot against itself
     let
-      (response, fleet', sunk') = case shipAt (fleet Map.\\ sunk)
-                                $ debug' (\p -> "AI's target: " ++ show p) pos of
+      (response, fleet', sunk') = case shipAt (fleet Map.\\ sunk) pos of
         Nothing   ->  (Water, fleet, sunk)
         Just ship ->
           let
@@ -76,27 +102,24 @@ turn shots fleet sunk count = do
     aiResponse pos response
     -- should any ships be moved?
     fleet'' <- if rulesMove rules
-               then do
-                      mMove <- aiMove fleet' shots' {- >>= \a ->  debug' (\_ -> "AI's movement: " ++ show a) $ return a -}
-                      return $ case mMove of
-                        Nothing -> fleet'
-                        Just (sID, movement) -> case Map.lookup sID fleet' of
-                          Just ship -> if not $ isDamaged ship
-                                       then moveShip ship movement fleet'
-                                       else fleet'
-                          Nothing   -> fleet'
-               else return fleet'
+      then do
+        mMove <- aiMove fleet' shots'
+        when verbose . liftIO . putStrLn $ "AI's movement: " ++ show mMove
+        return $ case mMove of
+          Nothing -> fleet'
+          Just (sID, movement) -> case Map.lookup sID fleet' of
+            Just ship -> if not $ isDamaged ship
+              then moveShip ship movement fleet'
+              else fleet'
+            Nothing   -> fleet'
+      else return fleet'
     -- all ships sunk now?
-    if allSunk fleet'' 
+    if allSunk fleet''
       then return (count + 1)
-      else turn
-            shots'
-            ( debug' (\f -> "Fleet:\n" ++ showFleet f) fleet'')
-            ( debug' (\f -> "Sunk:\n" ++ showFleet f) sunk'  )
-            (count + 1)
+      else turn verbose rules shots' fleet'' sunk' (count + 1)
 
-rules :: Rules
-rules = (defaultRules $ Extra 150 "" "" "")
+benchmarkRules :: Rules
+benchmarkRules = (defaultRules $ Extra 150 "" "" "")
   { rulesAgainWhenHit = False
   , rulesMove         = True
   }

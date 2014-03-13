@@ -54,7 +54,6 @@ library
                      Logic.CleverAI
                      Logic.StupidAI
                      Logic.AIUtil
-                     Logic.Benchmark
                      Logic.Render
                      Logic.Debug
 
@@ -152,3 +151,17 @@ executable img-gen
                    , diagrams-svg
                    , diagrams-lib
                    , filepath
+
+executable aibenchmark
+    if flag(library-only)
+        Buildable: False
+
+    main-is:         Main.hs
+    hs-source-dirs:  aibenchmark
+    ghc-options:     -O2 -Wall -Werror
+    build-depends:   base
+                   , battleships
+                   , mtl
+                   , transformers
+                   , containers
+                   , MonadRandom

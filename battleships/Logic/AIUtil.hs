@@ -30,6 +30,7 @@ module Logic.AIUtil
   , showPositions
   , showScoreGrid
   , showTracking
+  , showTrackingList
   ) where
 
 import           Prelude
@@ -180,6 +181,10 @@ showTracking grid = concat
   , x <- [0..width']
   ] where
     ((0,0), (width', height')) = bounds grid
+
+showTrackingList :: TrackingList -> String
+showTrackingList list = showTracking . buildArray ((0,0), (fst boardSize - 1, snd boardSize - 1)) $
+  \pos -> shotResult `fmap` find ((== pos) . shotPos) list
 
 showFleetPlacement :: FleetPlacement -> String
 showFleetPlacement fleet = tail $ concat

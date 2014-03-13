@@ -237,7 +237,7 @@ data ShipMove = ShipMove
   { shipMoveID        :: ShipID
   , shipMoveDirection :: Movement
   , shipMoveTime      :: Int
-  } deriving Eq
+  } deriving (Eq, Show)
 
 -- | A fleet is a map of ship ID's to ships
 type Fleet = Map.Map ShipID Ship
@@ -539,7 +539,7 @@ increaseTurnNumber = modify $ \gs -> gs {turnNumber = turnNumber gs + 1}
 data Movement 
   = Forward  -- ^ -1 for the respective coordinate
   | Backward -- ^ +1 for the respective coordinate
-  deriving (Eq, Enum, Bounded)
+  deriving (Eq, Enum, Bounded, Show)
 
 -- | Tries to move the human player's ship if pos is one of its endings.
 -- Assumes that the human player is the currentPlayer
