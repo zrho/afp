@@ -92,7 +92,7 @@ library
                 -- * data types
                  , bytestring                    >= 0.10       && < 0.11
                  , text                          >= 0.11       && < 0.12
-                 , aeson
+                 , aeson                                          < 0.7.0.0
                  , containers                    
                  , array
                 -- * diagrams
