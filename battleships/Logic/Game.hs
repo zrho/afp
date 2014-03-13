@@ -112,8 +112,9 @@ import           Settings (Extra (..))
 boardSize :: (Int, Int)
 boardSize = (10, 10)
 
+-- | needs to be sorted
 rulesShips :: [Int]
-rulesShips = [ 5, 4, 4, 3, 3, 3, 2, 2, 2, 2 ]
+rulesShips = sort [ 2, 2, 2, 2, 3, 3, 3, 4, 4, 5 ]
 
 -------------------------------------------------------------------------------
 -- * AI
@@ -382,7 +383,7 @@ generateFleet = Map.fromAscList . fmap newShip . zip [1..] where
   newShip (sID, shape) = (sID, Ship sID shape (listArray (0,shipSize shape-1) (repeat False)))
 
 shipSizes :: [Int]
-shipSizes = sort $ nub rulesShips
+shipSizes = nub rulesShips
 
 numberShipsOfSize :: [Int] -> Int -> Int
 numberShipsOfSize ships size = length $ filter (== size) ships

@@ -75,7 +75,7 @@ cleverAI r checkerboardEven = CleverAI
 
 instance AI CleverAI where
   aiInit r = do
-    fleet <- liftM fromJust $ initShips rulesShips []
+    fleet <- liftM fromJust $ initShips []
     checkerboardEven <- getRandom
     return (cleverAI r checkerboardEven, fleet)
   aiFire         = liftM maximumIx $ scoreGrid >>= randomize
