@@ -86,8 +86,9 @@ div.infoBoxV, div.infoBoxH
   background-color: rgba(1, 89, 101, 0.25)
 
 div.infoBoxV
-  width: 300px
+  width: 290px
   height: 600px
+  position: relative
 
 div.infoBoxH
   height: 100%
@@ -110,6 +111,12 @@ div.boardContent
   border: 3px solid #F00
   background: #F00
 
-.watchreplay
-  padding: 20px
+div.infoBoxV .watchreplay
   text-align: center
+  position: absolute
+  bottom: 30px
+  width: 100%
+
+div.infoBoxH .watchreplay
+  padding: 20px
+  margin-top: 30px

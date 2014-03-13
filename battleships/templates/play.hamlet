@@ -29,11 +29,11 @@
 
   <div .infoV>
     <div .infoBoxV>
+      <h3>_{MsgHints}
+      ^{shipsOpponentWidget gameState Vertical}
       <div  .watchreplay>
         <a .linkButton .redButton href="#!" onclick="confirmReplay()">
           _{MsgWatchReplay}
-      <h3>_{MsgHints}
-      ^{shipsOpponentWidget gameState Vertical}
 
   <div .legendV>
     <div .infoBoxV>
