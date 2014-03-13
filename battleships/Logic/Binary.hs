@@ -10,9 +10,6 @@ module Logic.Binary
   ( -- * Import/Export
     impBinary
   , expBinary
-    -- * Misc
-  , fromStrict
-  , toStrict
   ) where
 
 import           Prelude
@@ -31,7 +28,7 @@ impBinary :: Text -> Maybe BL.ByteString
 impBinary
   = eitherToMaybe
   . B64.decode
-  . fromStrict
+  . BL.fromStrict
   . fromBase64Url
   . TE.encodeUtf8
 
@@ -40,7 +37,7 @@ expBinary :: BL.ByteString -> Text
 expBinary
   = TE.decodeUtf8
   . toBase64Url
-  . toStrict
+  . BL.toStrict
   . B64.encode
 
 --------------------------------------------------------------------------------
@@ -71,9 +68,3 @@ eitherToMaybe :: Either a b -> Maybe b
 eitherToMaybe e = case e of
   Right x -> Just x
   _       -> Nothing
-
-toStrict :: BL.ByteString -> BS.ByteString
-toStrict = BS.concat . BL.toChunks
-
-fromStrict :: BS.ByteString -> BL.ByteString
-fromStrict = BL.fromChunks . return

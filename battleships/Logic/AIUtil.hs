@@ -72,10 +72,10 @@ initShips ships fleet = do
 
 -- | Helper for 'initShips'.
 initShips'
-  :: (MonadRandom m)
+  :: RandomGen g
   => FleetPlacement
   -> Int
-  -> ListT m FleetPlacement
+  -> ListT (Rand g) FleetPlacement
 
 initShips' fleet len = do
   let admissible = admissibleShips fleet len

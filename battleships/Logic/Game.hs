@@ -86,7 +86,6 @@ import           Prelude hiding (and, or, foldl, foldr, mapM_)
 import           Logic.Binary
 import           Data.Array
 import           Data.Aeson hiding (Array, encode, decode)
-import           Data.Attoparsec.Number
 import           Data.Maybe
 import           Data.Foldable
 import           Data.Function (on)
@@ -102,6 +101,7 @@ import           Control.Applicative
 import           Control.Monad.Random
 import           Control.Monad.Trans.State (runStateT)
 import           Control.Monad.State.Class (MonadState, gets, modify)
+import           Data.ByteString.Lazy (fromStrict, toStrict)
 import           Yesod (PathPiece (..))
 import           Settings (Extra (..))
 
@@ -821,12 +821,11 @@ instance FromJSON ShipShape where
    parseJSON _          = mzero
 
 instance FromJSON Orientation where
-  parseJSON (Number (I i)) = return $ toEnum $ fromIntegral i
-  parseJSON (Number (D d)) = return $ toEnum $ floor d
-  parseJSON _              = mzero
+  parseJSON (Number n) = return $ toEnum $ floor n
+  parseJSON _          = mzero
 
 instance ToJSON Orientation where
-  toJSON = Number . I . fromIntegral . fromEnum
+  toJSON = Number . fromIntegral . fromEnum
 
 instance ToJSON ShipShape where
   toJSON (ShipShape {..}) = object 
