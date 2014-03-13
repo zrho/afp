@@ -3,10 +3,13 @@ import "battleships" Application (getApplicationDev)
 
 -- Bis auf den Paketnamen muss in dieser Datei im Normalfall nichts geändert werden.
 
-import Network.Wai.Handler.Warp (runSettings, defaultSettings, setPort)
+import Network.Wai.Handler.Warp (runSettings, defaultSettings, Settings(..))
 import Control.Concurrent (forkIO, threadDelay)
 import System.Directory (doesFileExist)
 import System.Exit (exitSuccess)
+
+setPort :: Int -> Settings -> Settings
+setPort port settings = settings { settingsPort = port }
 
 main :: IO ()
 main = do
