@@ -13,6 +13,7 @@
 
 module Handler.Play
   ( getPlayR
+  , playView
   , postMoveR
   , postFireR
   ) where
@@ -25,6 +26,7 @@ import Logic.Game
 import Logic.GameExt
 import Logic.Render
 import Handler.Util
+import Handler.GameEnded
 import Text.Julius (rawJS)
 
 -------------------------------------------------------------------------------
@@ -43,7 +45,10 @@ moveForm = (,) <$> iopt doubleField "X" <*> iopt doubleField "Y"
 
 -- | Displays the game UI to the user.
 getPlayR :: GameStateExt -> Handler Html
-getPlayR gameE = withGame gameE $ \(gameState@GameState {..}) -> defaultLayout $ do
+getPlayR gameE = withGame gameE $ \game -> playView game gameE
+
+playView :: GameState a -> GameStateExt -> Handler Html
+playView game@GameState{..} gameE = defaultLayout $ do
   setNormalTitle
   addScript $ StaticR js_jquery_js
   messageRender <- getMessageRender
@@ -57,17 +62,17 @@ postMoveR gameE = withGame gameE $ \game -> do
     case mpos of 
       (Just x, Just y) -> case fieldPos (x,y) of
         -- invalid click
-        Nothing  -> invalidMove gameE
+        Nothing  -> invalidMove game gameE
         -- valid click
         Just pos -> do 
           let humanFleet = playerFleet $ currentPlayer game
           case expectedAction game of
-            ActionFire -> invalidMove gameE
+            ActionFire -> invalidMove game gameE
             ActionMove -> case desiredMove pos humanFleet of
               Just (ship,movement) 
                 | isMovable movement humanFleet (humanFleet!ship)
                   -> performMove game (Just pos)
-              _   -> invalidMove gameE
+              _   -> invalidMove game gameE
       -- player skips moving
       _ -> performMove game Nothing
   where
@@ -81,10 +86,10 @@ postFireR gameE = withGame gameE $ \game -> do
   (x,y) <- runInputPost fireForm
   case fieldPos (x,y) of
     -- invalid click
-    Nothing  -> invalidMove gameE
+    Nothing  -> invalidMove game gameE
     -- valid click
     Just pos -> case expectedAction game of
-      ActionMove -> invalidMove gameE
+      ActionMove -> invalidMove game gameE
       ActionFire -> do
         (result, game') <- runStateT (humanTurnFire pos) game
         -- evaluate outcome
@@ -98,7 +103,9 @@ postFireR gameE = withGame gameE $ \game -> do
             | otherwise -> performAI game'
 
 shipsOpponentWidget :: GameState a -> Orientation -> WidgetT App IO ()
-shipsOpponentWidget gameState orientation = $(widgetFile "shipsOpponent")
+shipsOpponentWidget game orientation =
+  let sizes = sizesOfShips $ unsunkShips $ playerFleet $ otherPlayer game
+  in $(widgetFile "shipsOpponent")
 
 legendWidget :: Orientation -> Bool -> Widget
 legendWidget orientation movesAllowed = $(widgetFile "legend")
@@ -108,16 +115,16 @@ legendWidget orientation movesAllowed = $(widgetFile "legend")
 -------------------------------------------------------------------------------
 
 -- | Redirects to the game UI in case of an invalid move.
-invalidMove :: GameStateExt -> Handler Html
-invalidMove = getPlayR -- redirect . PlayR
+invalidMove :: GameState a -> GameStateExt -> Handler Html
+invalidMove = playView -- \_ -> redirect . PlayR
 
 -- | Redirects to the game ended screen.
 gameEnded :: (Serialize a, AI a) => GameState a -> Handler Html
-gameEnded game = expGameH game >>= redirect . GameEndedR
+gameEnded game = expGameH game >>= gameEndedView game -- redirect . GameEndedR
 
 -- | Redirects the the game UI in case the game is still on.
 continue :: (Serialize a, AI a) => GameState a -> Handler Html
-continue game = expGameH game >>= getPlayR -- redirect . PlayR
+continue game = expGameH game >>= playView game -- redirect . PlayR
 
 -------------------------------------------------------------------------------
 -- * AI

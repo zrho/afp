@@ -31,7 +31,6 @@ import Handler.Home
 import Handler.Play
 import Handler.Replay
 import Handler.PlaceShips
-import Handler.GameEnded
 import Handler.Rules
 import Handler.About
 

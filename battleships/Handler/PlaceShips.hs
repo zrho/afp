@@ -27,6 +27,7 @@ import Logic.Game
 import Logic.GameExt (DefaultAI)
 import Logic.AIUtil
 import Handler.Util
+import Handler.Play
 
 -------------------------------------------------------------------------------
 -- * Handler
@@ -55,8 +56,7 @@ postPlaceShipsR rules = do
 startGame :: Rules -> FleetPlacement -> Handler Html
 startGame rules fleetPlacement = do
   game  <- liftIO (newGame rules fleetPlacement HumanPlayer :: IO (GameState DefaultAI))
-  gameE <- expGameH game
-  redirect $ PlayR gameE
+  expGameH game >>= playView game -- redirect . PlayR
 
 -------------------------------------------------------------------------------
 -- * Random Completion
