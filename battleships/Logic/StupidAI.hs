@@ -22,7 +22,7 @@ data StupidAI = StupidAI
 
 instance AI StupidAI where
   aiInit _       = do
-    ships <- liftM fromJust $ initShips rulesShips []
+    ships <- liftM fromJust $ initShips []
     return (StupidAI, ships)
   aiFire         = getRandomPos boardSize
   aiResponse _ _ = return ()

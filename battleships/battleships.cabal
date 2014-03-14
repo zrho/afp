@@ -144,6 +144,7 @@ executable img-gen
     extensions:      FlexibleContexts
     main-is:         Main.hs
     hs-source-dirs:  img-gen
+    ghc-options:     -O2 -Wall -Werror
     build-depends:   base
                    , mtl
                    , battleships

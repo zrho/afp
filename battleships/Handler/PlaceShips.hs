@@ -70,7 +70,7 @@ startGame rules fleetPlacement = do
 postPlaceShipsRndR :: Handler TypedContent
 postPlaceShipsRndR = do
   fleet  <- fmap (fromMaybe []) getPostedFleet
-  fleet' <- liftIO $ initShips rulesShips fleet
+  fleet' <- liftIO $ initShips fleet
   return $ jsonFleet $ fromMaybe [] fleet'
 
 -------------------------------------------------------------------------------
