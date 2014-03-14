@@ -29,14 +29,14 @@ function clickableEvent(event, target) {
     form.submit();
 }
 
-$(function() {
-    clickableInit($(".actionMove"), '@{MoveR gameE}');
-    clickableInit($(".actionFire"), '@{FireR gameE}');    
-});
+function playScriptInit(moveUrl, fireUrl) {
+    clickableInit($(".actionMove"), moveUrl);
+    clickableInit($(".actionFire"), fireUrl); 
+}
 
-function confirmReplay() {
+function confirmReplay(replayUrl) {
     conf = window.confirm("#{rawJS (messageRender MsgConfirmReplay)}");
     if (conf == true) {
-        document.location = "@{ReplayR gameE}";
+        document.location = replayUrl;
     }
 }

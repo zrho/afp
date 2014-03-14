@@ -32,7 +32,7 @@
       <h3>_{MsgHints}
       ^{shipsOpponentWidget game Vertical}
       <div  .watchreplay>
-        <a .linkButton .redButton href="#!" onclick="confirmReplay()">
+        <a .linkButton .redButton href="#!" onclick="confirmReplay('@{ReplayR gameE}')">
           _{MsgWatchReplay}
 
   <div .legendV>
@@ -45,7 +45,7 @@
 <div .infoH>
     <div .infoBoxH>
       <div .watchreplay>
-        <a .linkButton .redButton href="#!" onclick="confirmReplay()">
+        <a .linkButton .redButton href="#!" onclick="confirmReplay('@{ReplayR gameE}')">
           _{MsgWatchReplay}
       <h3>_{MsgHints}
       ^{shipsOpponentWidget game Horizontal}
@@ -54,3 +54,5 @@
   <div .infoBoxH>
     <h3>_{MsgLegend}
     ^{legendWidget Horizontal (rulesMove gameRules)}
+<script>
+  \$(playScriptInit('@{MoveR gameE}', '@{FireR gameE}'))
