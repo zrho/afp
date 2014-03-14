@@ -72,6 +72,7 @@ renderReferenceGrid = renderGrid
 renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Int -> Bool -> BattleDia
 renderEnemyGrid fleet shots Rules{..} turnNumber uncoverFleet = mconcat
   [ if uncoverFleet then renderFleetHints else mempty
+  , renderSunkFleet fleet
   , if rulesNoviceMode then mconcat (fmap renderImpossiblePositions nonWaterShots) else mempty
   , mconcat (fmap renderShot shots)
   , contentSquare # fc fogColor
@@ -85,13 +86,12 @@ renderEnemyGrid fleet shots Rules{..} turnNumber uncoverFleet = mconcat
           then waterSquare # opac (fromJust $ sinkTime fleet pos shots)
           else marker # lc markerHitColor <> shipSquare
         Sunk  -> waterSquare # opac time
-    renderFleetHints = fold $ fmap renderFleetHint fleet
-    renderFleetHint Ship{shipShape = ShipShape{shipPosition=(x,y),..}} =
-      let
-        (w,h) = case shipOrientation of
-          Horizontal -> (realToFrac shipSize, 1)
-          Vertical   -> (1, realToFrac shipSize)
-      in rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # lc red # lw 1 # value []
+    renderFleetHints = lc red
+                     . lw 2
+                     . dashing [10] 0
+                     . renderFleetOutline
+                     . Map.filter (not . isShipSunk)
+                     $ fleet
     renderImpossiblePositions (Shot p _ _) = mconcat (fmap (renderImpossiblePos p) $ marginPositions p)
     renderImpossiblePos hitPos impPos = translateToPos impPos $ value [] $ alignTL $
       if rulesMove && isShipAtSunk fleet hitPos
@@ -104,6 +104,7 @@ renderEnemyGrid fleet shots Rules{..} turnNumber uncoverFleet = mconcat
 renderPlayerGrid :: Fleet -> TrackingList -> Action -> Rules -> Int -> BattleDia
 renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
     [ markLastShots
+    , renderSunkFleet fleet
     , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
     , fold $ fmap renderShot $ filter ((/=Water) . shotResult) shots
     , fold $ fmap renderShip $ Map.filter isDamaged fleet         -- ... damaged ones below
@@ -137,12 +138,6 @@ renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
           else marker # lc markerHitColor <> shipSquare
         Sunk  -> marker # lc markerWaterColor # opac time <> waterSquare
 
-timedOpacity :: (Integral i, HasStyle c) => Bool -> i -> i -> c -> c
-timedOpacity True turnNumber shotTime
-  | (turnNumber - shotTime) < 18 = opacity $ 0.05 * fromIntegral (20 + shotTime - turnNumber)
-  | otherwise                    = opacity 0.1
-timedOpacity False _ _           = opacity 1
-
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering
 -------------------------------------------------------------------------------
@@ -172,6 +167,28 @@ marker         = lw 3 $ drawX (markerRadius * sqrt 2) <> circle markerRadius whe
 waterSquare    = square cellSize # fc waterColor
 shipSquare     = rect cellSize cellSize # fc shipColor
 movableSquare  = rect cellSize cellSize # fc movableColor
+
+renderSunkFleet :: Fleet -> BattleDia
+renderSunkFleet = lw 5
+                . lc shipColor
+                . renderFleetOutline
+                . Map.filter isShipSunk
+
+renderFleetOutline :: Fleet -> BattleDia
+renderFleetOutline = fold . fmap renderShipOutline
+
+renderShipOutline :: Ship -> BattleDia
+renderShipOutline Ship {shipShape = ShipShape {shipPosition = (x,y), ..} } =
+  rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # value [] where
+    (w,h) = case shipOrientation of
+        Horizontal -> (realToFrac shipSize, 1)
+        Vertical   -> (1, realToFrac shipSize)
+
+timedOpacity :: (Integral i, HasStyle c) => Bool -> i -> i -> c -> c
+timedOpacity True turnNumber shotTime
+  | (turnNumber - shotTime) < 18 = opacity $ 0.05 * fromIntegral (20 + shotTime - turnNumber)
+  | otherwise                    = opacity 0.1
+timedOpacity False _ _           = opacity 1
 
 lastShotMarker :: (Renderable (Path R2) b, Renderable Text b) 
                => Int -> Diagram b R2
