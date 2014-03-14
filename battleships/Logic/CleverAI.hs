@@ -30,6 +30,11 @@
 -- Now that we have (hopefully) hit all ships, we sink them (essentially) according
 -- to the strategy for immovable ships.
 -- (However, a checkerboard pattern isn't useful now.)
+--
+-- Both movable and immovable ships:
+-- Positions at the edge of the board naturally allow fewer ships to pass through
+-- them. But the AI shouldn't be a bias towards the center, so the scores are divided
+-- by the scores at the beginning of the game.
 -- 
 -- Finally: Some randomness is added to the scores. The highest one is then chosen.
 
@@ -126,9 +131,9 @@ randomize s = do
   let m = Foldable.maximum s
   flip traverseArray s $ \r -> case d of
     Hard   -> liftM (r *) $ getRandomR (0.95,1.05)
-    Medium -> case move of
-      False -> liftM (r +) $ getRandomR (0, m * 2)   -- chosen s.t. AI needs about 10 more shots
-      True  -> liftM (r +) $ getRandomR (0, m * 2.9) -- on average (using aibenchmark)
+    Medium -> if move
+      then liftM (r +) $ getRandomR (0, m * 2)   -- chosen s.t. AI needs about 10 more shots
+      else liftM (r +) $ getRandomR (0, m * 2.9) -- on average (using aibenchmark)
     Easy   -> liftM (r +) $ getRandomR (0, m * 3.5) -- chosen s.t. AI needs about 20 more shots on average
 
 -- | Assigns each cell a score. If it's high, it means that it's beneficial
@@ -242,9 +247,8 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
   -- they are at the edge. We're measuring the "difference" between
   -- the initial scores and the current scores instead.
   considerEdges :: Score -> Score
-  considerEdges = (*) (100 / initialScore) where
-    -- TODO: Use variable instead of constant list in the source code.
-    initialScore = fromIntegral . length $ allShips pos [5,4,4,3,3,3,2,2,2,2]
+  considerEdges = (/ initialScore) where
+    initialScore = fromIntegral . length $ allShips pos rulesShips
 
   -- | Assign a score to a list of ships. Hit ships are scored higher.
   scoreShips :: [ShipShape] -> Score
