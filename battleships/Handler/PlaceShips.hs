@@ -56,7 +56,7 @@ postPlaceShipsR rules = do
 startGame :: Rules -> FleetPlacement -> Handler Html
 startGame rules fleetPlacement = do
   game  <- liftIO (newGame rules fleetPlacement HumanPlayer :: IO (GameState DefaultAI))
-  expGameH game >>= getPlayR -- redirect . PlayR
+  expGameH game >>= playView game -- redirect . PlayR
 
 -------------------------------------------------------------------------------
 -- * Random Completion
