@@ -36,7 +36,9 @@
 -- them. But the AI shouldn't be a bias towards the center, so the scores are divided
 -- by the scores at the beginning of the game.
 -- 
--- Finally: Some randomness is added to the scores. The highest one is then chosen.
+-- Finally: Some randomness is added to the scores. The amount of randomness depends
+-- on the selected difficulty level.
+-- The highest scoring position is then chosen.
 
 module Logic.CleverAI 
   ( CleverAI
