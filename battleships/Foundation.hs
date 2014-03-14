@@ -17,8 +17,8 @@ import Yesod.Core.Types (Logger)
 #else
 import System.Log.FastLogger (Logger)
 #endif
-import System.FilePath ((</>))
-import Web.Cookie (setCookiePath)
+-- import System.FilePath ((</>))
+-- import Web.Cookie (setCookiePath)
 import Logic.GameExt
 import Logic.Game
 import qualified Codec.Crypto.SimpleAES as AES
@@ -42,7 +42,8 @@ instance Yesod App where
 
     -- REPLACE whole right-hand side by "return Nothing" if no cookies needed;
     -- (avoids some potential complications, and makes things more efficient)
-    makeSessionBackend app = 
+    makeSessionBackend _ = return Nothing
+    {-
         fmap (Just . if development
                    then id
                    else customizeSessionCookies $
@@ -52,7 +53,7 @@ instance Yesod App where
           (basePath </> "client_session_key.aes")
       where
         basePath = extraDataDir $ appExtra $ settings app
-
+    -}
 
     defaultLayout widget = do
         -- master <- getYesod
