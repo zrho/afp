@@ -20,10 +20,10 @@ import Logic.Render
 import Handler.Util
 
 getReplayR :: GameStateExt -> Handler Html
-getReplayR gameE = withGame gameE $ \gameState -> defaultLayout $ do
+getReplayR gameE = withGame gameE $ \game -> defaultLayout $ do
   messageRender <- getMessageRender -- needed for i18n in julius
-  let rules       = gameRules gameState
-      history     = zip [0 :: Int ..] $ reconstructHistory gameState
+  let rules       = gameRules game
+      history     = zip [0 :: Int ..] $ reconstructHistory game
       humanGrids  = map (renderHumanGrid rules) history
       aiGrids     = map (renderAIGrid rules) history
       numSteps    = length history

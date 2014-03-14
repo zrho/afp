@@ -5,7 +5,7 @@
         _{MsgYourFleet}
       
       <div .board>
-        #{playerGridHtml gameState expectedAction}
+        #{playerGridHtml game expectedAction}
         <div :expectedAction == ActionMove:.actionMove>&nbsp;
 
       <div .actionBox>
@@ -20,7 +20,7 @@
         _{MsgOpponentsFleet}
 
       <div .board>
-        #{enemyGridHtml gameState False}
+        #{enemyGridHtml game False}
         <div :expectedAction == ActionFire:.actionFire>&nbsp;
 
       <div .actionBox>
@@ -30,7 +30,7 @@
   <div .infoV>
     <div .infoBoxV>
       <h3>_{MsgHints}
-      ^{shipsOpponentWidget gameState Vertical}
+      ^{shipsOpponentWidget game Vertical}
       <div  .watchreplay>
         <a .linkButton .redButton href="#!" onclick="confirmReplay()">
           _{MsgWatchReplay}
@@ -48,7 +48,7 @@
         <a .linkButton .redButton href="#!" onclick="confirmReplay()">
           _{MsgWatchReplay}
       <h3>_{MsgHints}
-      ^{shipsOpponentWidget gameState Horizontal}
+      ^{shipsOpponentWidget game Horizontal}
 
 <div .legendH>
   <div .infoBoxH>

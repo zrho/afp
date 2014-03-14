@@ -48,7 +48,7 @@ getPlayR :: GameStateExt -> Handler Html
 getPlayR gameE = withGame gameE $ \game -> playView game gameE
 
 playView :: GameState a -> GameStateExt -> Handler Html
-playView gameState@GameState{..} gameE = defaultLayout $ do
+playView game@GameState{..} gameE = defaultLayout $ do
   setNormalTitle
   addScript $ StaticR js_jquery_js
   messageRender <- getMessageRender
@@ -103,8 +103,8 @@ postFireR gameE = withGame gameE $ \game -> do
             | otherwise -> performAI game'
 
 shipsOpponentWidget :: GameState a -> Orientation -> WidgetT App IO ()
-shipsOpponentWidget gameState orientation =
-  let sizes = sizesOfShips $ unsunkShips $ playerFleet $ otherPlayer gameState
+shipsOpponentWidget game orientation =
+  let sizes = sizesOfShips $ unsunkShips $ playerFleet $ otherPlayer game
   in $(widgetFile "shipsOpponent")
 
 legendWidget :: Orientation -> Bool -> Widget
