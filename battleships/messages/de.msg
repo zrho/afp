@@ -5,8 +5,10 @@ LinkHome: Zurück zur Startseite
 StartPlacing: Schiffe platzieren
 FireShot: Schuss abfeuern!
 Won: Du hast gewonnen!
+WonByTimeout remShipsHuman@Int remShipsComputer@Int: Du hast durch Timeout gewonnen! Du hast #{show remShipsHuman} ungesunkene Schiffe, der Computer nur #{show remShipsComputer}.
 Lost: Du hast verloren.
-Drawn: Unentschieden!
+LostByTimeout remShipsHuman@Int remShipsComputer@Int: Du hast durch Timeout verloren! Du hast nur #{show remShipsHuman} ungesunkene Schiffe, der Computer #{show remShipsComputer}.
+Drawn remShips@Int: Unentschieden! Die maximale Zuganzahl wurde erreicht und ihr habt beide #{show remShips} ungesunkene Schiffe.
 PlaceShips: Platziere deine Schiffe
 AvailableShips: Verfügbare Flotte
 NoPossiblePlacement: Es konnte keine vollständige Flottenbelegung erzeugt werden.

@@ -5,8 +5,10 @@ LinkHome: Go home
 StartPlacing: Start placing your fleet
 FireShot: Fire a shot!
 Won: You Won!
+WonByTimeout remShipsHuman@Int remShipsComputer@Int: You Won by timeout! You have #{show remShipsHuman} unsunk ships, the computer only has #{show remShipsComputer}.
 Lost: You Lost.
-Drawn: It's a draw.
+LostByTimeout remShipsHuman@Int remShipsComputer@Int: You Lost by timeout! You have only #{show remShipsHuman} unsunk ships, the computer has #{show remShipsComputer}.
+Drawn remShips@Int: It's a draw. The game timed out and both of you have #{show remShips} unsunk ships.
 PlaceShips: Place your Ships
 AvailableShips: Available Ships
 NoPossiblePlacement: Unable to generate a complete placement of ships.

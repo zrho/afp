@@ -45,6 +45,8 @@ module Logic.Game
   , aiPlayerState
   -- * Turn Functions
   , isDrawn
+  , isTimedOut
+  , numRemainingShips
   , remainingTurns
   , showCountdown
   , aiTurn
@@ -376,6 +378,10 @@ damageShip i ship = ship { shipDamage = shipDamage ship // [(i,True)] }
 allSunk :: Fleet -> Bool
 allSunk = and . fmap isShipSunk
 
+-- | Calculates how many ships of a given fleet are not sunk yet
+numRemainingShips :: Fleet -> Int
+numRemainingShips = Map.size . Map.filter (not . isShipSunk)
+
 isDamaged :: Ship -> Bool
 isDamaged = or . elems . shipDamage
 
@@ -416,10 +422,18 @@ aiPlayerState GameState{..} = case playerType currentPlayer of
 data Turn = Over | Again | Next deriving Eq
 
 -- | Checks whether the game is drawn.
--- It is drawn when the number of shots has exceeded the
--- number rulesMaximumTurns from the rules.
+-- It is drawn when it has timed out and both players 
+-- have sunk the same number of ships.
 isDrawn :: GameState a -> Bool
-isDrawn game = curTurns >= maxTurns where
+isDrawn game = isTimedOut game && remA == remB where
+  remA = numRemainingShips $ playerFleet $ currentPlayer game
+  remB = numRemainingShips $ playerFleet $ otherPlayer game
+
+-- | Checks whether the game has timed out.
+-- It is timed out when the number of shots has exceeded the
+-- number rulesMaximumTurns from the rules.
+isTimedOut :: GameState a -> Bool
+isTimedOut game = curTurns >= maxTurns where
   curTurns = turnNumber game
   maxTurns = rulesMaximumTurns . gameRules $ game
 
@@ -538,10 +552,10 @@ executeShot result = do
       | otherwise                -> Again
   where
     handleDraw r = do
-      draw <- gets isDrawn
+      timedOut <- gets isTimedOut
       return $ case r of
-        Next | draw -> Over
-        _           -> r
+        Next | timedOut -> Over
+        _               -> r
 
 
 -- | Switches the roles of active and passive player.

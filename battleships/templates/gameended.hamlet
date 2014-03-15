@@ -20,18 +20,32 @@
     $if drawn
       <div .infoBoxH .bannerDrawn>
         <h3 .bannerText>
-          _{MsgDrawn}
+          _{MsgDrawn remShipsHuman}
         <a .linkButton .redButton href="@{ReplayR gameE}">
           _{MsgWatchReplay}
-    $elseif humanWon
-      <div .infoBoxH .bannerWon>
-        <h3 .bannerText>
-          _{MsgWon}
-        <a .linkButton .redButton href="@{ReplayR gameE}">
-          _{MsgWatchReplay}
+    $elseif timedOut
+      $if humanWon
+        <div .infoBoxH .bannerWon>
+          <h3 .bannerText>
+            _{MsgWonByTimeout remShipsHuman remShipsComputer}
+          <a .linkButton .redButton href="@{ReplayR gameE}">
+            _{MsgWatchReplay}
+      $else 
+        <div .infoBoxH .bannerLost>
+          <h3 .bannerText>
+            _{MsgLostByTimeout remShipsHuman remShipsComputer}
+          <a .linkButton .redButton href="@{ReplayR gameE}">
+            _{MsgWatchReplay}
     $else
-      <div .infoBoxH .bannerLost>
-        <h3 .bannerText>
-          _{MsgLost}
-        <a .linkButton .redButton href="@{ReplayR gameE}">
-          _{MsgWatchReplay}
+      $if humanWon
+        <div .infoBoxH .bannerWon>
+          <h3 .bannerText>
+            _{MsgWon}
+          <a .linkButton .redButton href="@{ReplayR gameE}">
+            _{MsgWatchReplay}
+      $else 
+        <div .infoBoxH .bannerLost>
+          <h3 .bannerText>
+            _{MsgLost}
+          <a .linkButton .redButton href="@{ReplayR gameE}">
+            _{MsgWatchReplay}
