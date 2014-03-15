@@ -45,6 +45,8 @@ module Logic.Game
   , aiPlayerState
   -- * Turn Functions
   , isDrawn
+  , remainingTurns
+  , showCountdown
   , aiTurn
   , desiredMove
   , executeMove
@@ -153,12 +155,13 @@ class AI a where
 -------------------------------------------------------------------------------
 
 data Rules = Rules
-  { rulesAgainWhenHit :: Bool
-  , rulesMove         :: Bool
-  , rulesNoviceMode   :: Bool
-  , rulesDevMode      :: Bool
-  , rulesMaximumTurns :: Int
-  , rulesDifficulty   :: DifficultyLevel
+  { rulesAgainWhenHit   :: Bool
+  , rulesMove           :: Bool
+  , rulesNoviceMode     :: Bool
+  , rulesDevMode        :: Bool
+  , rulesMaximumTurns   :: Int
+  , rulesCountdownTurns :: Int
+  , rulesDifficulty     :: DifficultyLevel
   } deriving (Show, Eq, Read)
 
 -- | Playing strength of the AI.
@@ -304,6 +307,7 @@ defaultRules Extra {..} = Rules
   , rulesNoviceMode = False
   , rulesDevMode = False
   , rulesMaximumTurns = extraMaxTurns
+  , rulesCountdownTurns = extraCountdownTurns
   , rulesDifficulty = Hard
   }
 
@@ -418,6 +422,19 @@ isDrawn :: GameState a -> Bool
 isDrawn game = curTurns >= maxTurns where
   curTurns = turnNumber game
   maxTurns = rulesMaximumTurns . gameRules $ game
+
+-- | Calculates the number of remaining turns per player.
+remainingTurns :: GameState a -> Int
+remainingTurns game = (maxTurns - curTurns) `div` 2 + 1 where
+  curTurns = turnNumber game
+  maxTurns = rulesMaximumTurns . gameRules $ game
+
+-- | Determines whether the countdown should already be shown.
+-- Should be shown when at most countdownTurns turns remain.
+showCountdown :: GameState a -> Bool
+showCountdown game = remTurns <= cdTurns where
+  remTurns = remainingTurns game 
+  cdTurns = rulesCountdownTurns . gameRules $ game
 
 -- | Performs a full AI turn. 
 -- This function takes care of swapping the current player.
@@ -689,13 +706,14 @@ instance Serialize PlayerState where
     put playerMoves
 
 instance Serialize Rules where
-  get = Rules <$> get <*> get <*> get <*> get <*> getIntegral8 <*> get
+  get = Rules <$> get <*> get <*> get <*> get <*> getIntegral8 <*> getIntegral8 <*> get
   put Rules {..} = do
     put rulesAgainWhenHit
     put rulesMove
     put rulesNoviceMode
     put rulesDevMode
     putIntegral8 rulesMaximumTurns
+    putIntegral8 rulesCountdownTurns
     put rulesDifficulty
 
 instance Serialize DifficultyLevel where

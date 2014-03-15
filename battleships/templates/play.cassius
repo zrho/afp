@@ -74,7 +74,7 @@ div.actionBox
   padding-top: 16px
   height: 64px
 
-div.boards h3
+div.boards h3, div.boards h4
   text-align: center
 
 div.leftBoard
@@ -110,6 +110,9 @@ div.boardContent
 .red
   border: 3px solid #F00
   background: #F00
+
+.alert
+  color: #F00
 
 div.infoBoxV .watchreplay
   text-align: center

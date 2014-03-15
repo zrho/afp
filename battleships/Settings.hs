@@ -62,11 +62,12 @@ widgetFile = (if development then widgetFileReload
               widgetFileSettings
 
 data Extra = Extra
-  { extraMaxTurns :: Int
+  { extraCountdownTurns :: Int
+  , extraMaxTurns :: Int
   , extraDataDir :: String
   , extraStaticDir :: String
   , extraSourceURL :: String
   }
 
 parseExtra :: DefaultEnv -> Object -> Parser Extra
-parseExtra _ o = Extra <$> o .: "maxturns" <*> o .: "datadir" <*> o .: "staticdir" <*> o .: "sourceURL"
+parseExtra _ o = Extra <$> o .: "countdownturns" <*> o .: "maxturns" <*> o .: "datadir" <*> o .: "staticdir" <*> o .: "sourceURL"

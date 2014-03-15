@@ -8,9 +8,7 @@ import qualified Data.ByteString.Lazy as BSL
 import           Diagrams.Prelude
 import           Diagrams.Backend.SVG
 import           Text.Blaze.Svg.Renderer.Utf8 (renderSvg)
-import           System.Environment
 import           System.FilePath
-import           System.IO
 import qualified Settings (staticDir)
 
 
@@ -18,6 +16,7 @@ data ImgGenOpt = ImgGenOpt
   { optOutputDir :: FilePath
   } deriving (Show)
 
+defaultOptions :: ImgGenOpt
 defaultOptions = ImgGenOpt
   { optOutputDir = Settings.staticDir </> "img"
   }
