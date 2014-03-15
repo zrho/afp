@@ -1,6 +1,7 @@
 GameName: Schiffe versenken
 Credits: Präsentiert von Projektgruppe AFP
 GameDescription: 
+IEWarning: Anscheinend betrachtest du unsere Seite im IE. Wenn du dabei auf irgendwelche Probleme stößt, benutze bitte einen Browser wie z.B. Chrome oder Firefox.
 LinkHome: Zurück zur Startseite
 StartPlacing: Schiffe platzieren
 FireShot: Schuss abfeuern!

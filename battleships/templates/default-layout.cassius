@@ -68,6 +68,10 @@ div.content
   margin: 0px auto
   width: 800px
 
+.IEWarning
+  color: #F00
+  display: none
+
 .linkButton
   padding: 10px 15px
   color: #EEE

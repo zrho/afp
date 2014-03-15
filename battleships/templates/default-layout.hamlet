@@ -3,6 +3,7 @@
     <h1 .gameName>_{MsgGameName}
     $if isHome
       <h2 .credits>_{MsgCredits}
+    <h2 .IEWarning>_{MsgIEWarning}
 
   <div .content>
     $maybe msg <- mmsg

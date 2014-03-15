@@ -4,3 +4,10 @@ function confirmLeave() {
 		document.location = "@{HomeR}";
 	}
 }
+
+window.onload = function() {
+	var ua = window.navigator.userAgent;
+	if (ua.indexOf("MSIE") > 0 || ua.indexOf("Trident/") > 0) {
+		document.getElementsByClassName('IEWarning')[0].style.display = 'block';
+	}
+};

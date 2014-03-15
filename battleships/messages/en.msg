@@ -1,6 +1,7 @@
 GameName: Battleships
 Credits: Brought to you by Projektgruppe AFP
 GameDescription: 
+IEWarning: Looks like you're using IE. If you experience any problems using our site, please use a browser like Chrome or Firefox instead.
 LinkHome: Go home
 StartPlacing: Start placing your fleet
 FireShot: Fire a shot!
