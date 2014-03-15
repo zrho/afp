@@ -18,4 +18,6 @@ getAboutR = do extra <- getExtra
                plainLayout $ do 
                  setNormalTitle
                  let sourceURL = extraSourceURL extra
+                 let maxTurns = (extraMaxTurns extra) `div` 2
+                 let countdownTurns = extraCountdownTurns extra
                  $(widgetFile "about")

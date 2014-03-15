@@ -3,6 +3,8 @@
 <p> _{MsgHowToPlaceShipsFull}
 <h2> _{MsgHowToPlayHeading}
 <p> _{MsgHowToPlayFull}
+<h2> _{MsgHowToWinHeading}
+<p> _{MsgHowToWinFull maxTurns countdownTurns}
 
 <h1> _{MsgReallyFair}
 <p> _{MsgReallyFairFull sourceURL}
