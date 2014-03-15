@@ -28,7 +28,6 @@ import           Data.Colour.SRGB
 import           Data.Foldable (fold, foldMap)
 import           Data.Function (on)
 import           Data.Ix
-import           Data.Maybe
 
 type BattleDia = QDiagram SVG R2 [Pos]
 
@@ -51,7 +50,7 @@ data LegendIcon
 -- * Legend Rendering
 -------------------------------------------------------------------------------
 
-renderLegend :: LegendIcon -> QDiagram SVG R2 Any
+renderLegend :: LegendIcon -> Diagram SVG R2
 renderLegend icon = case icon of
   LIShipWithArrow -> renderArrow ArrowRight <> movableSquare
   LIShipMovable   -> movableSquare
@@ -69,58 +68,40 @@ renderLegend icon = case icon of
 renderReferenceGrid :: BattleDia
 renderReferenceGrid = renderGrid
 
-renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Int -> Bool -> BattleDia
-renderEnemyGrid fleet shots Rules{..} turnNumber uncoverFleet = mconcat
+renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Int -> Bool -> Diagram SVG R2
+renderEnemyGrid fleet shots rules@Rules{..} turnNumber uncoverFleet = mconcat
   [ if uncoverFleet then renderFleetHints else mempty
   , renderSunkFleet fleet
-  , if rulesNoviceMode then mconcat (fmap renderImpossiblePositions nonWaterShots) else mempty
-  , mconcat (fmap renderShot shots)
+  , renderPositions $ renderMarker fleet shots rules turnNumber True
+  , if rulesNoviceMode then renderPositions $ renderImpossible fleet shots rules turnNumber else mempty
+  , renderPositions $ renderCell fleet shots rules turnNumber
   , contentSquare # fc fogColor
   ]
   where
-    opac = timedOpacity rulesMove turnNumber
-    renderShot (Shot pos val time) = translateToPos pos . value [] . alignTL $
-      case val of
-        Water -> waterSquare # opac time
-        Hit   -> if isShipAtSunk fleet pos
-          then waterSquare # opac (fromJust $ sinkTime fleet pos shots)
-          else marker # lc markerHitColor <> shipSquare
-        Sunk  -> waterSquare # opac time
     renderFleetHints = lc red
                      . lw 2
                      . dashing [10] 0
                      . renderFleetOutline
                      . Map.filter (not . isShipSunk)
                      $ fleet
-    renderImpossiblePositions (Shot p _ _) = mconcat (fmap (renderImpossiblePos p) $ marginPositions p)
-    renderImpossiblePos hitPos impPos = translateToPos impPos $ value [] $ alignTL $
-      if rulesMove && isShipAtSunk fleet hitPos
-        then waterSquare # opac (fromJust $ sinkTime fleet hitPos shots)
-        else waterSquare
-    marginPositions (x,y) = filter (inRange gridRange) [(x+i, y+j) | i <- [-1,1], j <- [-1,1]]
-    gridRange             = ((0, 0), (fst boardSize - 1, snd boardSize - 1))
-    nonWaterShots         = filter (\s -> shotResult s /= Water) shots
 
-renderPlayerGrid :: Fleet -> TrackingList -> Action -> Rules -> Int -> BattleDia
-renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
+renderPlayerGrid :: Fleet -> TrackingList -> Action -> Rules -> Int -> Diagram SVG R2
+renderPlayerGrid fleet shots requiredAction rules@Rules{..} turnNumber = mconcat
     [ markLastShots
     , renderSunkFleet fleet
-    , fold $ fmap renderShip $ Map.filter (not . isDamaged) fleet -- show movable ships on top ...
-    , fold $ fmap renderShot $ filter ((/=Water) . shotResult) shots
-    , fold $ fmap renderShip $ Map.filter isDamaged fleet         -- ... damaged ones below
-    , fold $ fmap renderShot $ filter ((==Water) . shotResult) shots
+    , renderPositions $ renderMarker fleet shots rules turnNumber False
+    , fold . fmap renderShip . Map.filter (not . isShipSunk) $ fleet
+    , renderPositions $ renderCell fleet shots rules turnNumber
     , contentSquare # fc waterColor
     ]
   where
-    opac = timedOpacity rulesMove turnNumber
     markLastShots = case L.groupBy ((==) `on` shotTime) shots of
       shotsLastRound:_ 
         -> flip foldMap (zip [1::Int ..] (reverse shotsLastRound)) $ \(idx, Shot lastShotPos _ _) ->
-                 lastShotMarker idx # translateToPos lastShotPos # value []
-      _ -> mempty # value []
-
+                 lastShotMarker idx # translateToPos lastShotPos
+      _ -> mempty
     renderShip ship@Ship{shipShape = ShipShape{shipPosition=(x,y),..},..} = 
-      translateToPos (x,y) $ value [] $ case shipOrientation of
+      translateToPos (x,y) $ case shipOrientation of
         Horizontal -> hcat [shipCell i | i <- [0..shipSize-1]] # alignTL
         Vertical   -> vcat [shipCell i | i <- [0..shipSize-1]] # alignTL
       where
@@ -129,14 +110,73 @@ renderPlayerGrid fleet shots requiredAction Rules{..} turnNumber = mconcat
           case requiredAction of
             ActionMove -> maybe mempty renderArrow (movementArrowAt ship i fleet) <> movableSquare
             _          -> movableSquare
-        
-    renderShot (Shot pos val time) = translateToPos pos . value [] . alignTL $
-      case val of
-        Water -> marker # lc markerWaterColor # opac time <> waterSquare
-        Hit   -> if isShipAtSunk fleet pos
-          then marker # lc markerWaterColor # opac time <> waterSquare
-          else marker # lc markerHitColor <> shipSquare
-        Sunk  -> marker # lc markerWaterColor # opac time <> waterSquare
+
+gridRange :: (Pos, Pos)
+gridRange = ((0, 0), (fst boardSize - 1, snd boardSize - 1))
+
+renderPositions :: (Pos -> Diagram SVG R2) -> Diagram SVG R2
+renderPositions f = mconcat . map renderPos $ range gridRange where
+  renderPos p = translateToPos p $ f p
+
+-- | Gives the result of the last shot at the given position
+-- and the corresponding shot time.
+lastShotResult :: Fleet -> TrackingList -> Int -> Pos -> Maybe (HitResponse, Int)
+lastShotResult fleet shots turnNumber pos =
+  case L.find ((pos == ) . shotPos) shots of
+    Nothing -> Nothing
+    Just (Shot _ Hit _) -> Just $ case sinkTime fleet pos shots of
+      Just t | isShipAtSunk fleet pos -> (Sunk, t)
+      _ -> (Hit, turnNumber) -- hit information is always up-to-date -> turnNumber instead of t
+    Just (Shot _ res t) -> Just (res, t)
+
+renderMarker :: Fleet -> TrackingList -> Rules -> Int -> Bool -> Pos -> Diagram SVG R2
+renderMarker fleet shots Rules{..} turnNumber showOnlyHit pos
+ = alignMarker
+ $ case lastShotResult fleet shots turnNumber pos of
+    Nothing            -> mempty
+    Just (Water, time) -> if showOnlyHit then mempty else marker # lc markerWaterColor # opac time
+    Just (Hit,   time) -> marker # lc markerHitColor # opac time
+    Just (Sunk,  _   ) -> mempty
+  where
+    opac = timedOpacity rulesMove turnNumber
+    alignMarker = translate (r2 (halfCellSize, -halfCellSize))
+
+renderImpossible :: Fleet -> TrackingList -> Rules -> Int -> Pos -> Diagram SVG R2
+renderImpossible fleet shots Rules{..} turnNumber pos@(x,y)
+ = alignTL $ case impossibleInfo of
+    Nothing -> mempty
+    Just time -> case lastShotResult fleet shots turnNumber pos of
+      Just (_, t) | t >= time -> mempty -- hint is older than actual player's actual information
+      _                       -> waterSquare # opac time
+  where
+    opac = timedOpacity rulesMove turnNumber
+    impossibleInfo = findMostRecentHit diagonalCells
+      `mostRecent` findMostRecentlySunkShip diagonalCells
+    diagonalCells = [(x + dx, y + dy) | dx <- [-1,1], dy <- [-1,1]]
+    findMostRecentHit = foldr (mostRecent . getTimeOfHit) Nothing
+    getTimeOfHit p = case lastShotResult fleet shots turnNumber p of
+      Just (Hit, time) -> Just time
+      _                -> Nothing
+    findMostRecentlySunkShip = foldr (mostRecent . \p -> sinkTime sunkFleet p shots) Nothing
+    sunkFleet = Map.filter isShipSunk fleet
+
+-- | Finds the most recent time, i.e. chooses the maximum.
+mostRecent :: Maybe Int -> Maybe Int -> Maybe Int
+mostRecent Nothing t2 = t2
+mostRecent t1 Nothing = t1
+mostRecent (Just t1) (Just t2) = Just $ max t1 t2
+
+renderCell :: Fleet -> TrackingList -> Rules -> Int -> Pos -> Diagram SVG R2
+renderCell fleet shots Rules{..} turnNumber pos
+ = alignTL
+ $ case lastShotResult fleet shots turnNumber pos of
+    Nothing            -> mempty
+    Just (Water, time) -> waterSquare # opac time
+    Just (Hit,   time) -> shipSquare # opac time
+    Just (Sunk,  time) -> waterSquare # opac time
+  where
+    opac = timedOpacity rulesMove turnNumber
+
 
 -------------------------------------------------------------------------------
 -- * Low-Level Rendering
@@ -168,18 +208,18 @@ waterSquare    = square cellSize # fc waterColor
 shipSquare     = rect cellSize cellSize # fc shipColor
 movableSquare  = rect cellSize cellSize # fc movableColor
 
-renderSunkFleet :: Fleet -> BattleDia
+renderSunkFleet :: Fleet -> Diagram SVG R2
 renderSunkFleet = lw 5
                 . lc shipColor
                 . renderFleetOutline
                 . Map.filter isShipSunk
 
-renderFleetOutline :: Fleet -> BattleDia
+renderFleetOutline :: Fleet -> Diagram SVG R2
 renderFleetOutline = fold . fmap renderShipOutline
 
-renderShipOutline :: Ship -> BattleDia
+renderShipOutline :: Ship -> Diagram SVG R2
 renderShipOutline Ship {shipShape = ShipShape {shipPosition = (x,y), ..} } =
-  rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) # value [] where
+  rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) where
     (w,h) = case shipOrientation of
         Horizontal -> (realToFrac shipSize, 1)
         Vertical   -> (1, realToFrac shipSize)
@@ -197,11 +237,10 @@ lastShotMarker idx =
      <> text (show idx) # numberStyle # fc white
     ) # alignTL # translate (r2 (2,-2))
 
-contentSquare :: BattleDia
+contentSquare :: Diagram SVG R2
 contentSquare
   = rect (cellSize * realToFrac nx) (cellSize * realToFrac ny)
   # alignTL
-  # value []
   # translateToPos (0,0)
   where
     (nx, ny) = boardSize
@@ -219,7 +258,7 @@ movementArrowAt ship@Ship{..} i fleet =
     where 
       canMove dir = isMovable dir fleet ship
 
-renderArrow :: MoveArrow -> QDiagram SVG R2 Any
+renderArrow :: MoveArrow -> Diagram SVG R2
 renderArrow arrType = arrowShape # rotateBy circleFraction # arrowStyle  where 
   circleFraction = fromIntegral (fromEnum arrType) / 4
   arrowShape     = fromVertices [ p2 (0, -0.8 * halfCellSize)
