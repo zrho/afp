@@ -6,7 +6,7 @@ var paused = false;
 function updateStep(f) {
     oldStep = step;
     newStep = f(step);
-    if(newStep < 0 || newStep >= #{toJSON numSteps})
+    if(newStep < 0 || newStep >= numSteps)
       return;
     $("#humanboard" + oldStep).hide();
     $("#humanboard" + newStep).show();
@@ -61,6 +61,6 @@ $(function() {
     });
     $("#last").click(function(event) {
         paused = true;
-        updateStep(function(s) { return #{toJSON (numSteps - 1)}; })
+        updateStep(function(s) { return (numSteps - 1); })
     })
 });

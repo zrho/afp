@@ -29,3 +29,6 @@
       &gt;&gt;
     <a .linkButton .redButton href="#" #last>
       &gt;&gt;|
+
+<script>
+  var numSteps = #{numSteps};
