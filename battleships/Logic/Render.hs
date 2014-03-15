@@ -151,8 +151,9 @@ renderImpossible fleet shots Rules{..} turnNumber pos@(x,y)
   where
     opac = timedOpacity rulesMove turnNumber
     impossibleInfo = findMostRecentHit diagonalCells
-      `mostRecent` findMostRecentlySunkShip diagonalCells
+      `mostRecent` findMostRecentlySunkShip adjacentCells
     diagonalCells = [(x + dx, y + dy) | dx <- [-1,1], dy <- [-1,1]]
+    adjacentCells = [(x + dx, y + dy) | dx <- [-1,0,1], dy <- [-1,0,1]]
     findMostRecentHit = foldr (mostRecent . getTimeOfHit) Nothing
     getTimeOfHit p = case lastShotResult fleet shots turnNumber p of
       Just (Hit, time) -> Just time
