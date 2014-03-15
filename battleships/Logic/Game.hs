@@ -549,7 +549,8 @@ executeShot result = do
       | otherwise               -> Next
     Sunk
       | allSunk $ playerFleet op -> Over
-      | otherwise                -> Again
+      | rulesAgainWhenHit rules  -> Again
+      | otherwise                -> Next
   where
     handleDraw r = do
       timedOut <- gets isTimedOut
