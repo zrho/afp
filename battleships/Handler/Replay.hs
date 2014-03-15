@@ -112,9 +112,6 @@ execMove (move:moves) = do
 
 -- | Reconstruct the original fleet given the moves performed.
 reconstructOriginalFleet :: [ShipMove] -> Fleet -> Fleet
--- The order is crucial here!
--- The ships must be unsunk first, otherwise they might not be movable.
--- (cf. `isMovable`)
 reconstructOriginalFleet moves = undoMoves moves . unsinkFleet
 
 unsinkFleet :: Fleet -> Fleet
@@ -124,7 +121,7 @@ unsinkFleet = fmap unsinkShip where
 undoMoves :: [ShipMove] -> Fleet -> Fleet
 undoMoves ms fleet = foldl undo fleet ms where
   undo f m = case Data.Map.lookup (shipMoveID m) f of
-    Just ship -> moveShip ship (reverseDirection $ shipMoveDirection m) f
+    Just ship -> uncheckedMoveShip ship (reverseDirection $ shipMoveDirection m) f
     Nothing   -> error "Replay preparation: Irreversible ship movement. This shouldn't happen!"
 
 reverseDirection :: Movement -> Movement
