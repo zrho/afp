@@ -76,6 +76,7 @@ module Logic.Game
   , isShipAtSunk
   , sinkTime
   , moveShip
+  , uncheckedMoveShip
   , numberShipsOfSize
   , shipAdmissible
   , shipAt
@@ -651,9 +652,14 @@ desiredMove pos fleet = do
 moveShip :: Ship -> Movement -> Fleet -> Fleet
 moveShip ship movement fleet = 
   if isMovable movement fleet ship
-    then Map.adjust (\s -> s{shipShape = newShape}) (shipID ship) fleet
+    then uncheckedMoveShip ship movement fleet
     else fleet
-  where newShape = movedShipShape movement (shipShape ship)
+
+-- | Like moveShip but without movability check; needed for replay.
+uncheckedMoveShip :: Ship -> Movement -> Fleet -> Fleet
+uncheckedMoveShip ship movement fleet = 
+  Map.adjust (\s -> s{shipShape = newShape}) (shipID ship) fleet
+    where newShape = movedShipShape movement (shipShape ship)
 
 -- | Checks whether a ship can be moved.
 isMovable :: Movement -> Fleet -> Ship -> Bool
