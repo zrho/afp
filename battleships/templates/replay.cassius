@@ -37,7 +37,7 @@ div.boardContent
   box-shadow: 0 0 5px #36BBCE
   background-color: rgba(1, 89, 101, 0.25)
   width: 480px
-  height: 480px
+  height: 600px
 
 div.board
   width: 480px
@@ -69,13 +69,7 @@ div.board div
   border: 3px solid #F00
   background: #F00
 
-
-div.infoH
-  width: 1002px
-  margin: 0px auto
+div.actionBox
   text-align: center
-  padding-top: 15px
-
-div.infoBoxH
-  height: 100%
-  width: 100%
+  padding-top: 20px
+  height: 64px

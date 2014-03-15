@@ -3,32 +3,36 @@
     <div .boardContent>
       <h3>
         _{MsgYourFleet}
-          $forall (i, humanGrid) <- humanGrids
-            <div .board id="humanboard#{show i}">
-              #{humanGrid}
+
+      $forall (i, humanGrid) <- humanGrids
+        <div .board id="humanboard#{show i}">
+          #{humanGrid}
+          <div>&nbsp;
 
   <div .rightBoard>
     <div .boardContent>
       <h3>
         _{MsgOpponentsFleet}
-          $forall (i, aiGrid) <- aiGrids
-            <div .board id="aiboard#{show i}">
-              #{aiGrid}
+
+      $forall (i, aiGrid) <- aiGrids
+        <div .board id="aiboard#{show i}">
+          #{aiGrid}
+          <div>&nbsp;
+
+      <div .actionBox>
+        <a .linkButton .redButton href="#" #first>
+          |&lt;&lt;
+        <a .linkButton .redButton href="#" #prev>
+          &lt;&lt;
+        <a .linkButton .redButton href="#" #pause>
+          _{MsgPauseButtonLabel}
+        <a .linkButton .redButton href="#" #next>
+          &gt;&gt;
+        <a .linkButton .redButton href="#" #last>
+          &gt;&gt;|
 
 <div .clear>
-
-<div .infoH>
-  <div .infoBoxH .replay-controls>
-    <a .linkButton .redButton href="#" #first>
-      |&lt;&lt;
-    <a .linkButton .redButton href="#" #prev>
-      &lt;&lt;
-    <a .linkButton .redButton href="#" #pause>
-      _{MsgPauseButtonLabel}
-    <a .linkButton .redButton href="#" #next>
-      &gt;&gt;
-    <a .linkButton .redButton href="#" #last>
-      &gt;&gt;|
+    
 
 <script>
   var numSteps = #{numSteps};

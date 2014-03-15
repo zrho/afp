@@ -29,6 +29,7 @@ getReplayR gameE = withGame gameE $ \game -> defaultLayout $ do
       numSteps    = length history
   setNormalTitle
   addScript $ StaticR js_jquery_js
+  $(widgetFile "board")
   $(widgetFile "replay") where
     renderHumanGrid rules (time, (humansState, aisState)) = (time, renderSvgHtml $
       renderPlayerGrid (playerFleet humansState) (playerShots aisState) ActionFire rules time)
