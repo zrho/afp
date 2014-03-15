@@ -1,0 +1,6 @@
+Change the markdown files, run
+
+> runhaskell site.hs clean
+> runhaskell site.hs build
+
+and copy the files from /src/_site to /
