@@ -15,9 +15,6 @@ import Logic.Game
 import Handler.Util
 
 getHomeR :: Handler Html
-getHomeR = do
-  extra <- getExtra
-  let rules = defaultRules extra
-  defaultLayout $ do 
+getHomeR = defaultLayout $ do 
     setNormalTitle
     $(widgetFile "home")

@@ -123,4 +123,4 @@ turn verbose rules shots fleet sunk count = do
       else turn verbose rules shots' fleet'' sunk' (count + 1)
 
 benchmarkRules :: Rules
-benchmarkRules = (defaultRules $ Extra 20 150 "" "" "") { rulesAgainWhenHit = False }
+benchmarkRules = Rules { rulesAgainWhenHit = False }

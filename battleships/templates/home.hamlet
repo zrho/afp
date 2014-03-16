@@ -1,4 +1,4 @@
 <p .linkBlock>
   <a .linkButton .yellowButton href=@{RulesR}> _{MsgAdjustRules}
-  <a .linkButton .yellowButton href=@{PlaceShipsR rules}>_{MsgStartPlacing}
+  <a .linkButton .yellowButton href=@{PlaceShipsR defaultRules}>_{MsgStartPlacing}
   <a .linkButton .yellowButton href=@{AboutR}  onclick="window.open('@{AboutR}', 'newwindow', 'width=800, height=650'); return false;">_{MsgAbout}

@@ -34,7 +34,7 @@ import Handler.Play
 -------------------------------------------------------------------------------
 
 -- | Displays a client side UI for placing the player's fleet.
-getPlaceShipsR :: Rules -> Handler Html
+getPlaceShipsR :: PreRules -> Handler Html
 getPlaceShipsR rules = defaultLayout $ do
   setNormalTitle
   messageRender <- getMessageRender
@@ -45,7 +45,7 @@ getPlaceShipsR rules = defaultLayout $ do
   $(widgetFile "placeships")
 
 -- | Validates the player's fleet; if it's correct, the game is started.
-postPlaceShipsR :: Rules -> Handler Html
+postPlaceShipsR :: PreRules -> Handler Html
 postPlaceShipsR rules = do
   ships <- getPostedFleet
   case ships of
@@ -53,16 +53,20 @@ postPlaceShipsR rules = do
     Just fleetPlacement -> startGame rules fleetPlacement
 
 -- | Starts a game, given the placement of the player's fleet.
-startGame :: Rules -> FleetPlacement -> Handler Html
-startGame rules@Rules{..} fleetPlacement = do
+startGame :: PreRules -> FleetPlacement -> Handler Html
+startGame PreRules{..} fleetPlacement = do
   extra <- getExtra
   let
-    rules' = rules
-      { rulesDevMode        = development && rulesDevMode
+    rules = Rules
+      { rulesAgainWhenHit   = againWhenHit
+      , rulesMove           = move
+      , rulesNoviceMode     = noviceMode
+      , rulesDevMode        = development && devMode
+      , rulesDifficulty     = difficulty
       , rulesMaximumTurns   = extraMaxTurns extra
       , rulesCountdownTurns = extraCountdownTurns extra
       }
-  game  <- liftIO (newGame rules' fleetPlacement HumanPlayer :: IO (GameState DefaultAI))
+  game  <- liftIO (newGame rules fleetPlacement HumanPlayer :: IO (GameState DefaultAI))
   expGameH game >>= playView game -- redirect . PlayR
 
 -------------------------------------------------------------------------------
