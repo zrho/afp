@@ -55,7 +55,13 @@ postPlaceShipsR rules = do
 -- | Starts a game, given the placement of the player's fleet.
 startGame :: Rules -> FleetPlacement -> Handler Html
 startGame rules@Rules{..} fleetPlacement = do
-  let rules' = rules { rulesDevMode = development && rulesDevMode }
+  extra <- getExtra
+  let
+    rules' = rules
+      { rulesDevMode        = development && rulesDevMode
+      , rulesMaximumTurns   = extraMaxTurns extra
+      , rulesCountdownTurns = extraCountdownTurns extra
+      }
   game  <- liftIO (newGame rules' fleetPlacement HumanPlayer :: IO (GameState DefaultAI))
   expGameH game >>= playView game -- redirect . PlayR
 
