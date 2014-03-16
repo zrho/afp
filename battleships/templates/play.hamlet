@@ -52,6 +52,10 @@
         <a .linkButton .redButton href="#!" onclick="confirmReplay('@{ReplayR gameE}')">
           _{MsgWatchReplay}
       <h3>_{MsgHints}
+      $if rulesDevMode gameRules
+        <h4>_{MsgRemainingTurns $ remainingTurns game}
+      $if showCountdown game
+        <h4 .alert>_{MsgRemainingTurns $ remainingTurns game}
       ^{shipsOpponentWidget game Horizontal}
 
 <div .legendH>
