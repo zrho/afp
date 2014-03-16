@@ -23,6 +23,7 @@ module Logic.Game
   , Orientation (..)
   , Player (..)
   , PlayerState (..)
+  , PreRules (..)
   , Rules (..)
   , Ship (..)
   , ShipShape (..)
@@ -108,7 +109,6 @@ import           Control.Monad.Trans.State (runStateT)
 import           Control.Monad.State.Class (MonadState, gets, modify)
 import           Data.ByteString.Lazy (fromStrict, toStrict)
 import           Yesod (PathPiece (..))
-import           Settings (Extra (..))
 
 -------------------------------------------------------------------------------
 -- * Constants
@@ -157,15 +157,23 @@ class AI a where
 -- * Game State
 -------------------------------------------------------------------------------
 
+data PreRules = PreRules
+  { againWhenHit   :: Bool
+  , move           :: Bool
+  , noviceMode     :: Bool
+  , devMode        :: Bool
+  , difficulty     :: DifficultyLevel
+  } deriving (Show, Eq, Read)
+
 data Rules = Rules
   { rulesAgainWhenHit   :: Bool
   , rulesMove           :: Bool
   , rulesNoviceMode     :: Bool
   , rulesDevMode        :: Bool
+  , rulesDifficulty     :: DifficultyLevel
   , rulesMaximumTurns   :: Int
   , rulesCountdownTurns :: Int
-  , rulesDifficulty     :: DifficultyLevel
-  } deriving (Show, Eq, Read)
+  }
 
 -- | Playing strength of the AI.
 data DifficultyLevel
@@ -303,15 +311,13 @@ newGame r pFleet begin = do
   return gameState
 
 -- | The battleship default rules
-defaultRules :: Extra -> Rules 
-defaultRules Extra {..} = Rules
-  { rulesAgainWhenHit = True
-  , rulesMove  = True
-  , rulesNoviceMode = False
-  , rulesDevMode = False
-  , rulesMaximumTurns = extraMaxTurns
-  , rulesCountdownTurns = extraCountdownTurns
-  , rulesDifficulty = Hard
+defaultRules :: PreRules 
+defaultRules = PreRules
+  { againWhenHit = True
+  , move  = True
+  , noviceMode = False
+  , devMode = False
+  , difficulty = Hard
   }
 
 -- | Helper: Creates a grid, filled with one value.
@@ -695,7 +701,7 @@ movedShipShape movement ship = case (shipOrientation ship, movement) of
 -- * Path Pieces
 -------------------------------------------------------------------------------
 
-instance PathPiece Rules where
+instance PathPiece PreRules where
   fromPathPiece = impBinary >=> eitherToMaybe . decode . toStrict
   toPathPiece   = expBinary . fromStrict . encode
 
@@ -726,16 +732,25 @@ instance Serialize PlayerState where
     put playerType
     put playerMoves
 
+instance Serialize PreRules where
+  get = PreRules <$> get <*> get <*> get <*> get <*> get
+  put PreRules {..} = do
+    put againWhenHit
+    put move
+    put noviceMode
+    put devMode
+    put difficulty
+
 instance Serialize Rules where
-  get = Rules <$> get <*> get <*> get <*> get <*> getIntegral8 <*> getIntegral8 <*> get
+  get = Rules <$> get <*> get <*> get <*> get <*> get <*> getIntegral8 <*> getIntegral8
   put Rules {..} = do
     put rulesAgainWhenHit
     put rulesMove
     put rulesNoviceMode
     put rulesDevMode
+    put rulesDifficulty
     putIntegral8 rulesMaximumTurns
     putIntegral8 rulesCountdownTurns
-    put rulesDifficulty
 
 instance Serialize DifficultyLevel where
   get = getEnum8
