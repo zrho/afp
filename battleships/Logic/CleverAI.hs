@@ -134,8 +134,8 @@ randomize s = do
   flip traverseArray s $ \r -> case d of
     Hard   -> liftM (r *) $ getRandomR (0.95,1.05)
     Medium -> if move
-      then liftM (r +) $ getRandomR (0, m * 2)   -- chosen s.t. AI needs about 10 more shots
-      else liftM (r +) $ getRandomR (0, m * 2.9) -- on average (using aibenchmark)
+      then liftM (r +) $ getRandomR (0, m * 2.9) -- chosen s.t. AI needs about 10 more shots
+      else liftM (r +) $ getRandomR (0, m * 2)   -- on average (using aibenchmark)
     Easy   -> liftM (r +) $ getRandomR (0, m * 3.5) -- chosen s.t. AI needs about 20 more shots on average
 
 -- | Assigns each cell a score. If it's high, it means that it's beneficial
