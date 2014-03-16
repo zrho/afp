@@ -34,7 +34,7 @@ function playScriptInit(moveUrl, fireUrl) {
     clickableInit($(".actionFire"), fireUrl); 
 }
 
-function confirmReplay(replayUrl) {
+function confirmReplay() {
     conf = window.confirm("#{rawJS (messageRender MsgConfirmReplay)}");
     if (conf == true) {
         document.location = replayUrl;
