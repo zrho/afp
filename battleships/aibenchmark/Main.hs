@@ -16,7 +16,6 @@ import           Logic.AIUtil
 import           System.Environment
 import           Data.Maybe
 import           Prelude
-import           Settings (Extra (..))
 
 main :: IO ()
 main = do
@@ -28,14 +27,14 @@ main = do
       "mov"   -> True
       "immov" -> False
       _       -> error $ "Error: `" ++ a2 ++ "` is neither `mov` nor `immov`!"
-    difficulty  = read a2
-    repetitions = read a3
-    verbose     = case rest of
+    difficultyLvl = read a2
+    repetitions   = read a3
+    verbose       = case rest of
       "--verbose":_ -> True
       _      -> False
   benchmark
     verbose
-    benchmarkRules { rulesMove = moveable, rulesDifficulty = difficulty }
+    benchmarkRules { rulesMove = moveable, rulesDifficulty = difficultyLvl }
     repetitions
 
 -- | Tests the performance of the AI, that is the average number of shots
@@ -123,4 +122,12 @@ turn verbose rules shots fleet sunk count = do
       else turn verbose rules shots' fleet'' sunk' (count + 1)
 
 benchmarkRules :: Rules
-benchmarkRules = Rules { rulesAgainWhenHit = False }
+benchmarkRules = Rules
+  { rulesAgainWhenHit   = True
+  , rulesMove           = undefined
+  , rulesNoviceMode     = False
+  , rulesDevMode        = False
+  , rulesDifficulty     = undefined
+  , rulesMaximumTurns   = 150
+  , rulesCountdownTurns = 10
+  }
