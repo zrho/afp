@@ -34,8 +34,8 @@ import Handler.Play
 -------------------------------------------------------------------------------
 
 -- | Displays a client side UI for placing the player's fleet.
-getPlaceShipsR :: PreRules -> Handler Html
-getPlaceShipsR rules = defaultLayout $ do
+getPlaceShipsR :: Options -> Handler Html
+getPlaceShipsR options = defaultLayout $ do
   setNormalTitle
   messageRender <- getMessageRender
   addScript $ StaticR js_jquery_js
@@ -45,16 +45,16 @@ getPlaceShipsR rules = defaultLayout $ do
   $(widgetFile "placeships")
 
 -- | Validates the player's fleet; if it's correct, the game is started.
-postPlaceShipsR :: PreRules -> Handler Html
-postPlaceShipsR rules = do
+postPlaceShipsR :: Options -> Handler Html
+postPlaceShipsR options = do
   ships <- getPostedFleet
   case ships of
-    Nothing             -> redirect $ PlaceShipsR rules
-    Just fleetPlacement -> startGame rules fleetPlacement
+    Nothing             -> redirect $ PlaceShipsR options
+    Just fleetPlacement -> startGame options fleetPlacement
 
 -- | Starts a game, given the placement of the player's fleet.
-startGame :: PreRules -> FleetPlacement -> Handler Html
-startGame PreRules{..} fleetPlacement = do
+startGame :: Options -> FleetPlacement -> Handler Html
+startGame Options{..} fleetPlacement = do
   extra <- getExtra
   let
     rules = Rules

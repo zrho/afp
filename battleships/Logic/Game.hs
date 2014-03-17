@@ -23,7 +23,7 @@ module Logic.Game
   , Orientation (..)
   , Player (..)
   , PlayerState (..)
-  , PreRules (..)
+  , Options (..)
   , Rules (..)
   , Ship (..)
   , ShipShape (..)
@@ -39,7 +39,7 @@ module Logic.Game
   -- * Game Functions
   , boardSize
   , rulesShips
-  , defaultRules
+  , defaultOptions
   , newGame
   , newGrid
   , humanPlayerState
@@ -157,7 +157,7 @@ class AI a where
 -- * Game State
 -------------------------------------------------------------------------------
 
-data PreRules = PreRules
+data Options = Options
   { againWhenHit   :: Bool
   , move           :: Bool
   , noviceMode     :: Bool
@@ -314,9 +314,9 @@ newGame r noviceMode devMode pFleet begin = do
       AIPlayer    -> template { currentPlayer = aiPlayer, otherPlayer = humanPlayer }
   return gameState
 
--- | The battleship default rules
-defaultRules :: PreRules 
-defaultRules = PreRules
+-- | The default options
+defaultOptions :: Options 
+defaultOptions = Options
   { againWhenHit = True
   , move  = True
   , noviceMode = False
@@ -705,7 +705,7 @@ movedShipShape movement ship = case (shipOrientation ship, movement) of
 -- * Path Pieces
 -------------------------------------------------------------------------------
 
-instance PathPiece PreRules where
+instance PathPiece Options where
   fromPathPiece = impBinary >=> eitherToMaybe . decode . toStrict
   toPathPiece   = expBinary . fromStrict . encode
 
@@ -738,9 +738,9 @@ instance Serialize PlayerState where
     put playerType
     put playerMoves
 
-instance Serialize PreRules where
-  get = PreRules <$> get <*> get <*> get <*> get <*> get
-  put PreRules {..} = do
+instance Serialize Options where
+  get = Options <$> get <*> get <*> get <*> get <*> get
+  put Options {..} = do
     put againWhenHit
     put move
     put noviceMode

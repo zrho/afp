@@ -40,8 +40,8 @@ renderRulePage formError = defaultLayout $ do
 -- * Forms
 -------------------------------------------------------------------------------
 
-rulesForm :: FormInput Handler PreRules
-rulesForm = PreRules
+rulesForm :: FormInput Handler Options
+rulesForm = Options
   <$> (fromMaybe False <$> iopt boolField "againWhenHit")
   <*> (fromMaybe False <$> iopt boolField "move")
   <*> (fromMaybe False <$> iopt boolField "noviceMode")
