@@ -22,7 +22,7 @@ function animationStep() {
 }
 
 function updatePauseButton() {
-    if(step == #{toJSON (numSteps - 1)}) {
+    if(step == numSteps - 1) {
         paused = true;
         $("#pause").text(#{toJSON $ messageRender MsgRestartButtonLabel});
     } else {
@@ -34,7 +34,7 @@ function updatePauseButton() {
 }
 
 function handlePause() {
-    if(step == #{toJSON (numSteps - 1)}) {
+    if(step == numSteps - 1) {
         paused = false;
         updateStep(function(s) { return 0; })
     } else {
