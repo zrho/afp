@@ -69,8 +69,10 @@ div.content
   width: 800px
 
 .IEWarning
-  color: #F00
   display: none
+
+.warning
+  color: #F00
 
 .linkButton
   padding: 10px 15px

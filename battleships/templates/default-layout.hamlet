@@ -3,7 +3,9 @@
     <h1 .gameName>_{MsgGameName}
     $if isHome
       <h2 .credits>_{MsgCredits}
-    <h2 .IEWarning>_{MsgIEWarning}
+    <h2 .IEWarning .warning>_{MsgIEWarning}
+    <noscript>
+      <h2 .warning>_{MsgNoJavaScriptWarning}
 
   <div .content>
     $maybe msg <- mmsg
