@@ -123,11 +123,11 @@ turn verbose rules shots fleet sunk count = do
 
 benchmarkRules :: Rules
 benchmarkRules = Rules
-  { rulesAgainWhenHit   = True
+  { rulesAgainWhenHit   = False
   , rulesMove           = undefined
-  , rulesNoviceMode     = False
-  , rulesDevMode        = False
+  , rulesNoviceMode     = undefined
+  , rulesDevMode        = undefined
   , rulesDifficulty     = undefined
   , rulesMaximumTurns   = 150
-  , rulesCountdownTurns = 10
+  , rulesCountdownTurns = 20
   }
