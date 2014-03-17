@@ -19,6 +19,7 @@ module Handler.Play
   ) where
 
 import Import
+import Data.List (nub)
 import Control.Monad.State
 import Data.Map ((!))
 import Data.Serialize (Serialize)

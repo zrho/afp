@@ -38,7 +38,7 @@ module Logic.Game
   , TrackingList
   -- * Game Functions
   , boardSize
-  , rulesShips
+  , fleetShips
   , defaultOptions
   , newGame
   , newGrid
@@ -83,7 +83,6 @@ module Logic.Game
   , shipAt
   , shipCellIndex
   , shipCoordinates
-  , shipSizes     -- TODO: think of better names for these two functions: shipSizes, sizesOfShips
   , sizesOfShips
   , unsunkShips
   ) where
@@ -118,8 +117,8 @@ boardSize :: (Int, Int)
 boardSize = (10, 10)
 
 -- | needs to be sorted
-rulesShips :: [Int]
-rulesShips = sort [ 2, 2, 2, 2, 3, 3, 3, 4, 4, 5 ]
+fleetShips :: [Int]
+fleetShips = sort [ 2, 2, 2, 2, 3, 3, 3, 4, 4, 5 ]
 
 -------------------------------------------------------------------------------
 -- * AI
@@ -402,9 +401,6 @@ isShipSunk = and . elems . shipDamage
 generateFleet :: FleetPlacement -> Fleet
 generateFleet = Map.fromAscList . fmap newShip . zip [1..] where
   newShip (sID, shape) = (sID, Ship sID shape (listArray (0,shipSize shape-1) (repeat False)))
-
-shipSizes :: [Int]
-shipSizes = nub rulesShips
 
 numberShipsOfSize :: [Int] -> Int -> Int
 numberShipsOfSize ships size = length $ filter (== size) ships

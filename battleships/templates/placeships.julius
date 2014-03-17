@@ -3,7 +3,7 @@ var nx = #{toJSON $ fst boardSize};
 var ny = #{toJSON $ snd boardSize};
 var map;
 var safetyMargin = 1;
-var shipDef = ShipDef.fromList(#{toJSON rulesShips});
+var shipDef = ShipDef.fromList(#{toJSON fleetShips});
 var shipLenTD = {};
 
 $(window).load(function() {

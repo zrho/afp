@@ -9,7 +9,7 @@
 -- JSON encoded to the handler.
 --
 -- Random completion of a fleet is implemented using a POST request
--- to the 'PlaceShipsRndR' route by the javascript code, which uses 'initShips'
+-- to the 'PlaceShipsRndR' route by the javascript code, which uses 'completeFleet'
 -- to try and complete the player's ship placement.
 
 module Handler.PlaceShips
@@ -79,7 +79,7 @@ startGame Options{..} fleetPlacement = do
 postPlaceShipsRndR :: Handler TypedContent
 postPlaceShipsRndR = do
   fleet  <- fmap (fromMaybe []) getPostedFleet
-  fleet' <- liftIO $ initShips fleet
+  fleet' <- liftIO $ completeFleet fleet
   return $ jsonFleet $ fromMaybe [] fleet'
 
 -------------------------------------------------------------------------------
