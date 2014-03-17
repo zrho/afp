@@ -27,6 +27,8 @@ main :: IO ()
 main = flip runReaderT defaultOptions $ do
   liftIO $ putStrLn "generating legend icons..."
   forM_ [minBound..maxBound :: LegendIcon] writeImageFile
+  forM_ [0,5,10,15,20] $ writeImageFile . TLIWater
+  forM_ [0,5,10,15,20] $ writeImageFile . TLIMarker
   writeImageFile GridBG
 
 -------------------------------------------------------------------------------
@@ -52,6 +54,10 @@ class ImageFile a where
 instance ImageFile LegendIcon where
   imageName   = show
   imageRender = renderLegend
+
+instance ImageFile TimedLegendIcon where
+  imageName = show
+  imageRender = renderTimedLegend
 
 -------------------------------------------------------------------------------
 -- * Grid Background

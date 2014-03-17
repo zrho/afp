@@ -50,6 +50,10 @@ LegendShipSunk: hit and sunk
 LegendFogOfWar: undiscovered area
 LegendWater: water
 LegendLastShot: shot(s) of enemy's last turn
+LegendWaterShots: Shots at water
+LegendRightNow: Right now
+LegendTurnsAgo n@Int: #{show n} turns ago
+LegendMinTurnsAgo n@Int: At least #{show n} turns ago
 
 PauseButtonLabel: Pause
 UnpauseButtonLabel: Unpause

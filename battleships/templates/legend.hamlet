@@ -5,9 +5,10 @@ $case orientation
         <td>
           <img src="@{legendStatic LIFogOfWar}">
         <td>_{MsgLegendFogOfWar}
-        <td>
-          <img src="@{legendStatic LIWater}">
-        <td>_{MsgLegendWater}
+        $if not movesAllowed
+          <td>
+            <img src="@{legendStatic LIWater}">
+          <td>_{MsgLegendWater}
         <td>
           <img src="@{legendStatic LIShipHit}">
         <td>_{MsgLegendShipHit}
@@ -29,6 +30,20 @@ $case orientation
           <td>
             <img src="@{legendStatic LIShipWithArrow }">
           <td>_{MsgLegendShipWithArrow }
+        <tr>
+          <td colspan="2"> _{MsgLegendWaterShots}:
+          <td colspan="2">
+            <img src="@{timedLegendStatic $ TLIWater 0}" title="_{MsgLegendRightNow}">
+            <img src="@{timedLegendStatic $ TLIWater 5}" title="_{MsgLegendTurnsAgo 5}">
+            <img src="@{timedLegendStatic $ TLIWater 10}" title="_{MsgLegendTurnsAgo 10}">
+            <img src="@{timedLegendStatic $ TLIWater 15}" title="_{MsgLegendTurnsAgo 15}">
+            <img src="@{timedLegendStatic $ TLIWater 20}" title="_{MsgLegendMinTurnsAgo 20}">
+          <td colspan="2">
+            <img src="@{timedLegendStatic $ TLIMarker 0}" title="_{MsgLegendRightNow}">
+            <img src="@{timedLegendStatic $ TLIMarker 5}" title="_{MsgLegendTurnsAgo 5}">
+            <img src="@{timedLegendStatic $ TLIMarker 10}" title="_{MsgLegendTurnsAgo 10}">
+            <img src="@{timedLegendStatic $ TLIMarker 15}" title="_{MsgLegendTurnsAgo 15}">
+            <img src="@{timedLegendStatic $ TLIMarker 20}" title="_{MsgLegendMinTurnsAgo 20}">
           
   $of Vertical
     <table .legendV>
@@ -37,9 +52,10 @@ $case orientation
           <img src="@{legendStatic LIFogOfWar}">
         <td>_{MsgLegendFogOfWar}
       <tr>
-        <td>
-          <img src="@{legendStatic LIWater}">
-        <td>_{MsgLegendWater}
+        $if not movesAllowed
+          <td>
+            <img src="@{legendStatic LIWater}">
+          <td>_{MsgLegendWater}
       <tr>
         <td>
           <img src="@{legendStatic LIShipHit}">
@@ -61,6 +77,22 @@ $case orientation
           <td>
             <img src="@{legendStatic LIShipWithArrow }">
           <td>_{MsgLegendShipWithArrow }
+        <tr>
+          <td> _{MsgLegendWaterShots}:
+        <tr>
+          <td>
+            <img src="@{timedLegendStatic $ TLIWater 0}" title="_{MsgLegendRightNow}">
+            <img src="@{timedLegendStatic $ TLIWater 5}" title="_{MsgLegendTurnsAgo 5}">
+            <img src="@{timedLegendStatic $ TLIWater 10}" title="_{MsgLegendTurnsAgo 10}">
+            <img src="@{timedLegendStatic $ TLIWater 15}" title="_{MsgLegendTurnsAgo 15}">
+            <img src="@{timedLegendStatic $ TLIWater 20}" title="_{MsgLegendMinTurnsAgo 20}">
+        <tr>
+          <td>
+            <img src="@{timedLegendStatic $ TLIMarker 0}" title="_{MsgLegendRightNow}">
+            <img src="@{timedLegendStatic $ TLIMarker 5}" title="_{MsgLegendTurnsAgo 5}">
+            <img src="@{timedLegendStatic $ TLIMarker 10}" title="_{MsgLegendTurnsAgo 10}">
+            <img src="@{timedLegendStatic $ TLIMarker 15}" title="_{MsgLegendTurnsAgo 15}">
+            <img src="@{timedLegendStatic $ TLIMarker 20}" title="_{MsgLegendMinTurnsAgo 20}">
       $else 
         <tr>
           <td>

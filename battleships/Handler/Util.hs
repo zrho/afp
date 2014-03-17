@@ -11,6 +11,7 @@ module Handler.Util
   , fieldPos
   , setNormalTitle
   , legendStatic
+  , timedLegendStatic
   , gridStatic
   , impGameH
   , expGameH
@@ -71,6 +72,20 @@ legendStatic ico = StaticR $ case ico of
   LIFogOfWar      -> img_LIFogOfWar_svg
   LIWater         -> img_LIWater_svg
   LILastShot      -> img_LILastShot_svg
+
+timedLegendStatic :: TimedLegendIcon -> Route App
+timedLegendStatic ico = StaticR $ case ico of
+  TLIWater 0   -> img_TLIWater_0_svg
+  TLIWater 5   -> img_TLIWater_5_svg
+  TLIWater 10  -> img_TLIWater_10_svg
+  TLIWater 15  -> img_TLIWater_15_svg
+  TLIWater 20  -> img_TLIWater_20_svg
+  TLIMarker 0  -> img_TLIMarker_0_svg
+  TLIMarker 5  -> img_TLIMarker_5_svg
+  TLIMarker 10 -> img_TLIMarker_10_svg
+  TLIMarker 15 -> img_TLIMarker_15_svg
+  TLIMarker 20 -> img_TLIMarker_20_svg
+  _            -> img_LIFogOfWar_svg
 
 -- | Static route for the grid.
 gridStatic :: Route App

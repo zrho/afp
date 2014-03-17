@@ -12,8 +12,10 @@ module Logic.Render
   , renderEnemyGrid
   , renderPlayerGrid
   , renderLegend
+  , renderTimedLegend
   , renderGrid
   , LegendIcon (..)
+  , TimedLegendIcon (..)
   , BattleDia
   ) where
 
@@ -46,6 +48,11 @@ data LegendIcon
   | LILastShot
   deriving (Show, Enum, Bounded)
 
+data TimedLegendIcon
+  = TLIWater Int
+  | TLIMarker Int
+  deriving (Show)
+
 -------------------------------------------------------------------------------
 -- * Legend Rendering
 -------------------------------------------------------------------------------
@@ -60,6 +67,11 @@ renderLegend icon = case icon of
   LIFogOfWar      -> square cellSize # fc fogColor
   LIWater         -> waterSquare
   LILastShot      -> square cellSize # alignTL <> lastShotMarker 1
+
+renderTimedLegend :: TimedLegendIcon -> Diagram SVG R2
+renderTimedLegend icon = case icon of
+  TLIWater timeDiff  -> waterSquare # opacityAfter timeDiff <> fogSquare
+  TLIMarker timeDiff -> marker # lc markerWaterColor # opacityAfter timeDiff <> waterSquare
 
 -------------------------------------------------------------------------------
 -- * High-Level Rendering for Grids
@@ -194,11 +206,11 @@ colNumbers n = hcat [num i | i <- [0..n-1]] # value [] where
   strNum i = [toEnum $ fromEnum 'A' + i]
 
 #if MIN_VERSION_diagrams_lib(0,7,0)
-marker, waterSquare, shipSquare, movableSquare
+marker, waterSquare, shipSquare, movableSquare, fogSquare
   :: (Alignable b, HasOrigin b, TrailLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #else
-marker, waterSquare, shipSquare, movableSquare
+marker, waterSquare, shipSquare, movableSquare, fogSquare
   :: (Alignable b, HasOrigin b, PathLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #endif
@@ -206,6 +218,7 @@ marker         = lw 3 $ drawX (markerRadius * sqrt 2) <> circle markerRadius whe
   drawX s      = p2 (-0.5 * s, -0.5 * s) ~~ p2 (0.5 * s, 0.5 * s)
                <> p2 (-0.5 * s, 0.5 * s) ~~ p2 (0.5 * s, -0.5 * s)
 waterSquare    = square cellSize # fc waterColor
+fogSquare      = square cellSize # fc fogColor
 shipSquare     = rect cellSize cellSize # fc shipColor
 movableSquare  = rect cellSize cellSize # fc movableColor
 
@@ -226,10 +239,13 @@ renderShipOutline Ship {shipShape = ShipShape {shipPosition = (x,y), ..} } =
         Vertical   -> (1, realToFrac shipSize)
 
 timedOpacity :: (Integral i, HasStyle c) => Bool -> i -> i -> c -> c
-timedOpacity True turnNumber shotTime
-  | (turnNumber - shotTime) < 18 = opacity $ 0.05 * fromIntegral (20 + shotTime - turnNumber)
-  | otherwise                    = opacity 0.1
-timedOpacity False _ _           = opacity 1
+timedOpacity True turnNumber shotTime = opacityAfter $ turnNumber - shotTime
+timedOpacity False _ _                = opacity 1
+
+opacityAfter :: (Integral i, HasStyle c) => i -> c -> c
+opacityAfter timeDiff
+  | timeDiff < 18 = opacity $ 0.05 * fromIntegral (20 - timeDiff)
+  | otherwise     = opacity 0.1
 
 lastShotMarker :: (Renderable (Path R2) b, Renderable Text b) 
                => Int -> Diagram b R2

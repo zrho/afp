@@ -50,6 +50,10 @@ LegendShipSunk: Treffer, Versenkt
 LegendFogOfWar: Nicht kartografierter Bereich
 LegendWater: Wasser
 LegendLastShot: Feindliche Schüsse des letzten Zugs
+LegendWaterShots: Schüsse auf Wasser
+LegendRightNow: Jetzt gerade
+LegendTurnsAgo n@Int: Vor #{show n} Zügen
+LegendMinTurnsAgo n@Int: Vor mindestens #{show n} Zügen
 
 PauseButtonLabel: Anhalten
 UnpauseButtonLabel: Weiter
