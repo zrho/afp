@@ -30,7 +30,7 @@
   <div .infoV>
     <div .infoBoxV>
       <h3>_{MsgHints}
-      $if rulesDevMode gameRules
+      $if devModeOpt
         <h4>_{MsgRemainingTurns $ remainingTurns game}
       $if showCountdown game
         <h4 .alert>_{MsgRemainingTurns $ remainingTurns game}
@@ -52,7 +52,7 @@
         <a .linkButton .redButton href="#!" onclick="confirmReplay()">
           _{MsgWatchReplay}
       <h3>_{MsgHints}
-      $if rulesDevMode gameRules
+      $if devModeOpt
         <h4>_{MsgRemainingTurns $ remainingTurns game}
       $if showCountdown game
         <h4 .alert>_{MsgRemainingTurns $ remainingTurns game}

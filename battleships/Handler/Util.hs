@@ -120,8 +120,9 @@ enemyGridHtml (GameState {..}) uncoverFleet
     (playerFleet otherPlayer)
     (playerShots currentPlayer)
     gameRules
+    noviceModeOpt
     turnNumber
-    (uncoverFleet || rulesDevMode gameRules)
+    (uncoverFleet || devModeOpt)
 
 -- | Renders a diagram as an SVG text.
 --

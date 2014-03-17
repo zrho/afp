@@ -60,13 +60,11 @@ startGame PreRules{..} fleetPlacement = do
     rules = Rules
       { rulesAgainWhenHit   = againWhenHit
       , rulesMove           = move
-      , rulesNoviceMode     = noviceMode
-      , rulesDevMode        = development && devMode
       , rulesDifficulty     = difficulty
       , rulesMaximumTurns   = extraMaxTurns extra
       , rulesCountdownTurns = extraCountdownTurns extra
       }
-  game  <- liftIO (newGame rules fleetPlacement HumanPlayer :: IO (GameState DefaultAI))
+  game  <- liftIO (newGame rules noviceMode (development && devMode) fleetPlacement HumanPlayer :: IO (GameState DefaultAI))
   expGameH game >>= playView game -- redirect . PlayR
 
 -------------------------------------------------------------------------------

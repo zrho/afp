@@ -168,8 +168,6 @@ data PreRules = PreRules
 data Rules = Rules
   { rulesAgainWhenHit   :: Bool
   , rulesMove           :: Bool
-  , rulesNoviceMode     :: Bool
-  , rulesDevMode        :: Bool
   , rulesDifficulty     :: DifficultyLevel
   , rulesMaximumTurns   :: Int
   , rulesCountdownTurns :: Int
@@ -225,6 +223,8 @@ data GameState a = GameState
   , otherPlayer    :: PlayerState -- ^ the other player's state
   , aiState        :: a           -- ^ state of the AI
   , gameRules      :: Rules
+  , noviceModeOpt  :: Bool
+  , devModeOpt     :: Bool
   , expectedAction :: Action
   , turnNumber     :: Int
   }
@@ -289,10 +289,12 @@ type ShipID = Int
 newGame
   :: (AI a, MonadRandom m)
   => Rules          -- ^ rules of the game
+  -> Bool           -- ^ novice mode?
+  -> Bool           -- ^ developer mode?
   -> FleetPlacement -- ^ fleet of the human player
   -> Player         -- ^ beginning player
   -> m (GameState a)
-newGame r pFleet begin = do 
+newGame r noviceMode devMode pFleet begin = do 
   (ai, eFleet) <- aiInit r
   let
     humanPlayer = PlayerState [] (generateFleet pFleet) HumanPlayer []
@@ -302,6 +304,8 @@ newGame r pFleet begin = do
       , otherPlayer    = undefined
       , aiState        = ai
       , gameRules      = r
+      , noviceModeOpt  = noviceMode
+      , devModeOpt     = devMode
       , expectedAction = ActionFire -- the human is expected to fire a shot
       , turnNumber     = 0
       }
@@ -715,12 +719,14 @@ eitherToMaybe e = case e of
 -------------------------------------------------------------------------------
 
 instance Serialize a => Serialize (GameState a) where
-  get = GameState <$> get <*> get <*> get <*> get <*> get <*> getIntegral8
+  get = GameState <$> get <*> get <*> get <*> get <*> get <*> get <*> get <*> getIntegral8
   put GameState {..} = do
     put currentPlayer
     put otherPlayer
     put aiState
     put gameRules
+    put noviceModeOpt
+    put devModeOpt
     put expectedAction
     putIntegral8 turnNumber
 
@@ -742,12 +748,10 @@ instance Serialize PreRules where
     put difficulty
 
 instance Serialize Rules where
-  get = Rules <$> get <*> get <*> get <*> get <*> get <*> getIntegral8 <*> getIntegral8
+  get = Rules <$> get <*> get <*> get <*> getIntegral8 <*> getIntegral8
   put Rules {..} = do
     put rulesAgainWhenHit
     put rulesMove
-    put rulesNoviceMode
-    put rulesDevMode
     put rulesDifficulty
     putIntegral8 rulesMaximumTurns
     putIntegral8 rulesCountdownTurns

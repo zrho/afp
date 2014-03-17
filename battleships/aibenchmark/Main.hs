@@ -125,8 +125,6 @@ benchmarkRules :: Rules
 benchmarkRules = Rules
   { rulesAgainWhenHit   = False
   , rulesMove           = undefined
-  , rulesNoviceMode     = undefined
-  , rulesDevMode        = undefined
   , rulesDifficulty     = undefined
   , rulesMaximumTurns   = 150
   , rulesCountdownTurns = 20
