@@ -6,7 +6,7 @@
         <td>_{MsgShipLength}
         <td>#_{MsgShipsUnsunk}
     <tbody>
-      $forall size <- shipSizes
+      $forall size <- nub fleetShips
         <tr>
           <td>#{show size}
           <td>#{show $ numberShipsOfSize sizes size}

@@ -4,13 +4,13 @@
     <form method="post" action="@{RulesR}">
       <div .rulesFields>
         <div .ruleEntry>
-          <input #inputAgain type="checkbox" name="againWhenHit" value="yes" :(againWhenHit defaultRules):checked>
+          <input #inputAgain type="checkbox" name="againWhenHit" value="yes" :(againWhenHit defaultOptions):checked>
           <label for="inputAgain">_{MsgInputAgainWhenHit}
         <div .ruleEntry>
-          <input #inputMove type="checkbox" name="move" value="yes" :(move defaultRules):checked>
+          <input #inputMove type="checkbox" name="move" value="yes" :(move defaultOptions):checked>
           <label for="inputMove">_{MsgInputMove}
         <div .ruleEntry>
-          <input #inputNoviceMode type="checkbox" name="noviceMode" value="yes" :(noviceMode defaultRules):checked>
+          <input #inputNoviceMode type="checkbox" name="noviceMode" value="yes" :(noviceMode defaultOptions):checked>
           <label for="inputNoviceMode">_{MsgInputNoviceMode}
         <div .ruleEntry>
           <label for="inputDifficulty">_{MsgInputDifficulty}
@@ -21,7 +21,7 @@
         $if development
           <hr>
           <div .ruleEntry>
-            <input #inputDevMode type="checkbox" name="devMode" value="yes" :(devMode defaultRules):checked>
+            <input #inputDevMode type="checkbox" name="devMode" value="yes" :(devMode defaultOptions):checked>
             <label for="inputDevMode">_{MsgInputDevMode}
 
       $case formError

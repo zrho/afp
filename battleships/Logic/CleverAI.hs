@@ -82,7 +82,7 @@ cleverAI r checkerboardEven = CleverAI
 
 instance AI CleverAI where
   aiInit r = do
-    fleet <- liftM fromJust $ initShips []
+    fleet <- liftM fromJust $ completeFleet []
     checkerboardEven <- getRandom
     return (cleverAI r checkerboardEven, fleet)
   aiFire         = liftM maximumIx $ scoreGrid >>= randomize
@@ -148,7 +148,7 @@ scoreGrid' :: CleverAI -> ScoreGrid
 scoreGrid' ai@(CleverAI {..}) = buildArray bs $ scorePosition ai remaining where
   (w, h)    = boardSize
   bs        = ((0, 0), (w - 1, h - 1))
-  remaining = rulesShips \\ map shipSize sunk
+  remaining = fleetShips \\ map shipSize sunk
 
 -- | Given a position, look in all directions to find out whether it's part of a sunk ship.
 findSunkShip :: TrackingGrid    -- ^ AI's tracking array
@@ -250,7 +250,7 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
   -- the initial scores and the current scores instead.
   considerEdges :: Score -> Score
   considerEdges = (/ initialScore) where
-    initialScore = fromIntegral . length $ allShips pos rulesShips
+    initialScore = fromIntegral . length $ allShips pos fleetShips
 
   -- | Assign a score to a list of ships. Hit ships are scored higher.
   scoreShips :: [ShipShape] -> Score

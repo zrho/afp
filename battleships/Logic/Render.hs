@@ -80,12 +80,12 @@ renderTimedLegend icon = case icon of
 renderReferenceGrid :: BattleDia
 renderReferenceGrid = renderGrid
 
-renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Int -> Bool -> Diagram SVG R2
-renderEnemyGrid fleet shots rules@Rules{..} turnNumber uncoverFleet = mconcat
+renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Bool -> Int -> Bool -> Diagram SVG R2
+renderEnemyGrid fleet shots rules noviceMode turnNumber uncoverFleet = mconcat
   [ if uncoverFleet then renderFleetHints else mempty
   , renderSunkFleet fleet
   , renderPositions $ renderMarker fleet shots rules turnNumber True
-  , if rulesNoviceMode then renderPositions $ renderImpossible fleet shots rules turnNumber else mempty
+  , if noviceMode then renderPositions $ renderImpossible fleet shots rules turnNumber else mempty
   , renderPositions $ renderCell fleet shots rules turnNumber
   , contentSquare # fc fogColor
   ]

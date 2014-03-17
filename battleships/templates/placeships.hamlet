@@ -25,6 +25,6 @@
         <button .linkButton .yellowButton id="btnRandom">_{MsgPlaceRandom}
       <hr>
       <div>
-        <form id="fleetForm" action="@{PlaceShipsR rules}" method="POST">
+        <form id="fleetForm" action="@{PlaceShipsR options}" method="POST">
           <input id="fleetData" name="fleetData" type="hidden" >
           <input .linkButton .redButton id="btnSubmit" type="submit" value=_{MsgStartPlaying} disabled>

@@ -46,6 +46,8 @@ reconstructHistory g = evalState (reconstructAndCheck g) initialGameState where
     , otherPlayer    = aiPlayer
     , aiState        = undefined
     , gameRules      = gameRules g
+    , noviceModeOpt  = undefined
+    , devModeOpt     = undefined
     , expectedAction = ActionFire
     , turnNumber     = 0
     }

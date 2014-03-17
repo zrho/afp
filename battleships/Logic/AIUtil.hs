@@ -17,7 +17,7 @@ module Logic.AIUtil
   , isHitOrSunk
   , isWater
   -- * Ship Functions
-  , initShips
+  , completeFleet
   -- * Helper Functions
   , buildArray
   , traverseArray
@@ -64,20 +64,20 @@ type TrackingGrid = Grid (Maybe HitResponse)
 --------------------------------------------------------------------------------
 
 -- | Random completion of a given fleet, if one exists.
-initShips :: MonadRandom m => FleetPlacement -> m (Maybe FleetPlacement)
-initShips fleet = do
-  let ships' = reverse rulesShips \\ fmap shipSize fleet
-  fleets <- runRandM $ runListT $ foldM initShips' fleet ships'
+completeFleet :: MonadRandom m => FleetPlacement -> m (Maybe FleetPlacement)
+completeFleet fleet = do
+  let ships' = reverse fleetShips \\ fmap shipSize fleet
+  fleets <- runRandM $ runListT $ foldM completeFleet' fleet ships'
   return $ listToMaybe fleets
 
--- | Helper for 'initShips'.
-initShips'
+-- | Helper for 'completeFleet'.
+completeFleet'
   :: RandomGen g
   => FleetPlacement
   -> Int
   -> ListT (Rand g) FleetPlacement
 
-initShips' fleet len = do
+completeFleet' fleet len = do
   let admissible = admissibleShips fleet len
   shuffled  <- lift $ shuffleRandom admissible
   placement <- choose shuffled

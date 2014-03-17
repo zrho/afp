@@ -9,7 +9,7 @@
 -- JSON encoded to the handler.
 --
 -- Random completion of a fleet is implemented using a POST request
--- to the 'PlaceShipsRndR' route by the javascript code, which uses 'initShips'
+-- to the 'PlaceShipsRndR' route by the javascript code, which uses 'completeFleet'
 -- to try and complete the player's ship placement.
 
 module Handler.PlaceShips
@@ -34,8 +34,8 @@ import Handler.Play
 -------------------------------------------------------------------------------
 
 -- | Displays a client side UI for placing the player's fleet.
-getPlaceShipsR :: PreRules -> Handler Html
-getPlaceShipsR rules = defaultLayout $ do
+getPlaceShipsR :: Options -> Handler Html
+getPlaceShipsR options = defaultLayout $ do
   setNormalTitle
   messageRender <- getMessageRender
   addScript $ StaticR js_jquery_js
@@ -45,28 +45,26 @@ getPlaceShipsR rules = defaultLayout $ do
   $(widgetFile "placeships")
 
 -- | Validates the player's fleet; if it's correct, the game is started.
-postPlaceShipsR :: PreRules -> Handler Html
-postPlaceShipsR rules = do
+postPlaceShipsR :: Options -> Handler Html
+postPlaceShipsR options = do
   ships <- getPostedFleet
   case ships of
-    Nothing             -> redirect $ PlaceShipsR rules
-    Just fleetPlacement -> startGame rules fleetPlacement
+    Nothing             -> redirect $ PlaceShipsR options
+    Just fleetPlacement -> startGame options fleetPlacement
 
 -- | Starts a game, given the placement of the player's fleet.
-startGame :: PreRules -> FleetPlacement -> Handler Html
-startGame PreRules{..} fleetPlacement = do
+startGame :: Options -> FleetPlacement -> Handler Html
+startGame Options{..} fleetPlacement = do
   extra <- getExtra
   let
     rules = Rules
       { rulesAgainWhenHit   = againWhenHit
       , rulesMove           = move
-      , rulesNoviceMode     = noviceMode
-      , rulesDevMode        = development && devMode
       , rulesDifficulty     = difficulty
       , rulesMaximumTurns   = extraMaxTurns extra
       , rulesCountdownTurns = extraCountdownTurns extra
       }
-  game  <- liftIO (newGame rules fleetPlacement HumanPlayer :: IO (GameState DefaultAI))
+  game  <- liftIO (newGame rules noviceMode (development && devMode) fleetPlacement HumanPlayer :: IO (GameState DefaultAI))
   expGameH game >>= playView game -- redirect . PlayR
 
 -------------------------------------------------------------------------------
@@ -81,7 +79,7 @@ startGame PreRules{..} fleetPlacement = do
 postPlaceShipsRndR :: Handler TypedContent
 postPlaceShipsRndR = do
   fleet  <- fmap (fromMaybe []) getPostedFleet
-  fleet' <- liftIO $ initShips fleet
+  fleet' <- liftIO $ completeFleet fleet
   return $ jsonFleet $ fromMaybe [] fleet'
 
 -------------------------------------------------------------------------------

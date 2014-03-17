@@ -1,5 +1,5 @@
 /battleships                                        HomeR          GET
-/battleships/place/#PreRules                        PlaceShipsR    GET POST
+/battleships/place/#Options                         PlaceShipsR    GET POST
 /battleships/place-random                           PlaceShipsRndR POST
 /battleships/play/#GameStateExt/fire                FireR          POST
 /battleships/play/#GameStateExt/move                MoveR          POST

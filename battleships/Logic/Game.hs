@@ -23,7 +23,7 @@ module Logic.Game
   , Orientation (..)
   , Player (..)
   , PlayerState (..)
-  , PreRules (..)
+  , Options (..)
   , Rules (..)
   , Ship (..)
   , ShipShape (..)
@@ -38,8 +38,8 @@ module Logic.Game
   , TrackingList
   -- * Game Functions
   , boardSize
-  , rulesShips
-  , defaultRules
+  , fleetShips
+  , defaultOptions
   , newGame
   , newGrid
   , humanPlayerState
@@ -83,7 +83,6 @@ module Logic.Game
   , shipAt
   , shipCellIndex
   , shipCoordinates
-  , shipSizes     -- TODO: think of better names for these two functions: shipSizes, sizesOfShips
   , sizesOfShips
   , unsunkShips
   ) where
@@ -118,8 +117,8 @@ boardSize :: (Int, Int)
 boardSize = (10, 10)
 
 -- | needs to be sorted
-rulesShips :: [Int]
-rulesShips = sort [ 2, 2, 2, 2, 3, 3, 3, 4, 4, 5 ]
+fleetShips :: [Int]
+fleetShips = sort [ 2, 2, 2, 2, 3, 3, 3, 4, 4, 5 ]
 
 -------------------------------------------------------------------------------
 -- * AI
@@ -157,7 +156,7 @@ class AI a where
 -- * Game State
 -------------------------------------------------------------------------------
 
-data PreRules = PreRules
+data Options = Options
   { againWhenHit   :: Bool
   , move           :: Bool
   , noviceMode     :: Bool
@@ -168,8 +167,6 @@ data PreRules = PreRules
 data Rules = Rules
   { rulesAgainWhenHit   :: Bool
   , rulesMove           :: Bool
-  , rulesNoviceMode     :: Bool
-  , rulesDevMode        :: Bool
   , rulesDifficulty     :: DifficultyLevel
   , rulesMaximumTurns   :: Int
   , rulesCountdownTurns :: Int
@@ -225,6 +222,8 @@ data GameState a = GameState
   , otherPlayer    :: PlayerState -- ^ the other player's state
   , aiState        :: a           -- ^ state of the AI
   , gameRules      :: Rules
+  , noviceModeOpt  :: Bool
+  , devModeOpt     :: Bool
   , expectedAction :: Action
   , turnNumber     :: Int
   }
@@ -289,10 +288,12 @@ type ShipID = Int
 newGame
   :: (AI a, MonadRandom m)
   => Rules          -- ^ rules of the game
+  -> Bool           -- ^ novice mode?
+  -> Bool           -- ^ developer mode?
   -> FleetPlacement -- ^ fleet of the human player
   -> Player         -- ^ beginning player
   -> m (GameState a)
-newGame r pFleet begin = do 
+newGame r noviceMode devMode pFleet begin = do 
   (ai, eFleet) <- aiInit r
   let
     humanPlayer = PlayerState [] (generateFleet pFleet) HumanPlayer []
@@ -302,6 +303,8 @@ newGame r pFleet begin = do
       , otherPlayer    = undefined
       , aiState        = ai
       , gameRules      = r
+      , noviceModeOpt  = noviceMode
+      , devModeOpt     = devMode
       , expectedAction = ActionFire -- the human is expected to fire a shot
       , turnNumber     = 0
       }
@@ -310,9 +313,9 @@ newGame r pFleet begin = do
       AIPlayer    -> template { currentPlayer = aiPlayer, otherPlayer = humanPlayer }
   return gameState
 
--- | The battleship default rules
-defaultRules :: PreRules 
-defaultRules = PreRules
+-- | The default options
+defaultOptions :: Options 
+defaultOptions = Options
   { againWhenHit = True
   , move  = True
   , noviceMode = False
@@ -398,9 +401,6 @@ isShipSunk = and . elems . shipDamage
 generateFleet :: FleetPlacement -> Fleet
 generateFleet = Map.fromAscList . fmap newShip . zip [1..] where
   newShip (sID, shape) = (sID, Ship sID shape (listArray (0,shipSize shape-1) (repeat False)))
-
-shipSizes :: [Int]
-shipSizes = nub rulesShips
 
 numberShipsOfSize :: [Int] -> Int -> Int
 numberShipsOfSize ships size = length $ filter (== size) ships
@@ -701,7 +701,7 @@ movedShipShape movement ship = case (shipOrientation ship, movement) of
 -- * Path Pieces
 -------------------------------------------------------------------------------
 
-instance PathPiece PreRules where
+instance PathPiece Options where
   fromPathPiece = impBinary >=> eitherToMaybe . decode . toStrict
   toPathPiece   = expBinary . fromStrict . encode
 
@@ -715,12 +715,14 @@ eitherToMaybe e = case e of
 -------------------------------------------------------------------------------
 
 instance Serialize a => Serialize (GameState a) where
-  get = GameState <$> get <*> get <*> get <*> get <*> get <*> getIntegral8
+  get = GameState <$> get <*> get <*> get <*> get <*> get <*> get <*> get <*> getIntegral8
   put GameState {..} = do
     put currentPlayer
     put otherPlayer
     put aiState
     put gameRules
+    put noviceModeOpt
+    put devModeOpt
     put expectedAction
     putIntegral8 turnNumber
 
@@ -732,9 +734,9 @@ instance Serialize PlayerState where
     put playerType
     put playerMoves
 
-instance Serialize PreRules where
-  get = PreRules <$> get <*> get <*> get <*> get <*> get
-  put PreRules {..} = do
+instance Serialize Options where
+  get = Options <$> get <*> get <*> get <*> get <*> get
+  put Options {..} = do
     put againWhenHit
     put move
     put noviceMode
@@ -742,12 +744,10 @@ instance Serialize PreRules where
     put difficulty
 
 instance Serialize Rules where
-  get = Rules <$> get <*> get <*> get <*> get <*> get <*> getIntegral8 <*> getIntegral8
+  get = Rules <$> get <*> get <*> get <*> getIntegral8 <*> getIntegral8
   put Rules {..} = do
     put rulesAgainWhenHit
     put rulesMove
-    put rulesNoviceMode
-    put rulesDevMode
     put rulesDifficulty
     putIntegral8 rulesMaximumTurns
     putIntegral8 rulesCountdownTurns
