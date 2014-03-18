@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 ----------------------------------------------------------------------------
 -- |
 -- Module      :  Logic.Binary
@@ -10,6 +11,9 @@ module Logic.Binary
   ( -- * Import/Export
     impBinary
   , expBinary
+    -- * Misc
+  , fromStrict
+  , toStrict
   ) where
 
 import           Prelude
@@ -28,7 +32,7 @@ impBinary :: Text -> Maybe BL.ByteString
 impBinary
   = eitherToMaybe
   . B64.decode
-  . BL.fromStrict
+  . fromStrict
   . fromBase64Url
   . TE.encodeUtf8
 
@@ -37,7 +41,7 @@ expBinary :: BL.ByteString -> Text
 expBinary
   = TE.decodeUtf8
   . toBase64Url
-  . BL.toStrict
+  . toStrict
   . B64.encode
 
 --------------------------------------------------------------------------------
@@ -68,3 +72,17 @@ eitherToMaybe :: Either a b -> Maybe b
 eitherToMaybe e = case e of
   Right x -> Just x
   _       -> Nothing
+
+#if MIN_VERSION_bytestring(0,10,0)
+toStrict :: BL.ByteString -> BS.ByteString
+toStrict = BL.toStrict
+
+fromStrict :: BS.ByteString -> BL.ByteString
+fromStrict = BL.fromStrict
+#else
+toStrict :: BL.ByteString -> BS.ByteString
+toStrict = BS.concat . BL.toChunks
+
+fromStrict :: BS.ByteString -> BL.ByteString
+fromStrict = BL.fromChunks . return
+#endif

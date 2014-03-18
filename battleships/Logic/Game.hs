@@ -106,7 +106,6 @@ import           Control.Applicative
 import           Control.Monad.Random
 import           Control.Monad.Trans.State (runStateT)
 import           Control.Monad.State.Class (MonadState, gets, modify)
-import           Data.ByteString.Lazy (fromStrict, toStrict)
 import           Yesod (PathPiece (..))
 
 -------------------------------------------------------------------------------

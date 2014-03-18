@@ -42,14 +42,14 @@ type DefaultAI = CleverAI
 impGame :: Serialize a => Key -> GameStateExt -> Either String (GameState a)
 impGame key game = decode dec where
   enc = fromStateExt game
-  dec = BL.toStrict $ decryptMsg CBC key enc
+  dec = toStrict $ decryptMsg CBC key enc
 
 -- | Exports a game, given the key.
 expGame
   :: (MonadIO m, Serialize a)
   => Key -> GameState a -> m GameStateExt
 expGame key game = liftIO $ do
-  let dec = BL.fromStrict $ encode game
+  let dec = fromStrict $ encode game
   enc <- encryptMsg CBC key dec
   return $ GameStateExt enc
 
