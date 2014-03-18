@@ -34,6 +34,8 @@ module Logic.Types
   , Pos
   , ShipID
   , TrackingList
+  -- * Smart Constructors
+  , newGrid
   -- * Serialization Helpers
   , getPos
   , getSmallGrid
@@ -228,6 +230,15 @@ data Movement
   | Backward -- ^ +1 for the respective coordinate
   deriving (Eq, Enum, Bounded, Show)
 
+-------------------------------------------------------------------------------
+-- * Smart Constructors
+-------------------------------------------------------------------------------
+
+-- | Creates a grid, filled with one value.
+newGrid :: (Int, Int) -> a -> Grid a
+newGrid (w, h) a
+  = array ((0, 0), (w - 1, h - 1))
+    [((x, y), a) | x <- [0 .. w - 1], y <- [0 .. h - 1]]
 
 -------------------------------------------------------------------------------
 -- * Random

@@ -17,7 +17,6 @@ module Logic.Game
   , fleetShips
   , defaultOptions
   , newGame
-  , newGrid
   , humanPlayerState
   , aiPlayerState
   -- * Turn Functions
@@ -120,12 +119,6 @@ defaultOptions = Options
   , difficulty = Hard
   }
 
--- | Helper: Creates a grid, filled with one value.
-newGrid :: (Int, Int) -> a -> Grid a
-newGrid (w, h) a
-  = array ((0, 0), (w - 1, h - 1))
-    [((x, y), a) | x <- [0 .. w - 1], y <- [0 .. h - 1]]
-
 -------------------------------------------------------------------------------
 -- * Helper Functions
 -------------------------------------------------------------------------------
@@ -219,7 +212,7 @@ aiPlayerState GameState{..} = case playerType currentPlayer of
   AIPlayer    -> currentPlayer
 
 -------------------------------------------------------------------------------
--- * Turn
+-- * Turn Common
 -------------------------------------------------------------------------------
 
 -- | Checks whether the game is drawn.
@@ -251,46 +244,20 @@ isCountdownStart game = remTurns == cdTurns where
   remTurns = remainingTurns game 
   cdTurns = rulesCountdownTurns . gameRules $ game
 
--- | Performs a full AI turn. 
--- This function takes care of swapping the current player.
--- If the AI player won, the currentPlayer is not swapped back.
--- 1. according to the rules, the AI may fire once or more
--- 2. according to the rules, the AI may move one ship
-aiTurn :: (MonadState (GameState a) m, MonadRandom m, AI a)
-        => m Turn
-aiTurn = do
-    switchRoles
-    result <- shots
-    rules <- gets gameRules
-    when (result /= Over && rulesMove rules) $ moveAI >>= executeMove
-    switchRoles
-    return result
-  where
-    shots = do
-      result <- aiShot >>= executeShot
-      case result of
-        -- the AI player is allowed to shoot once more, when enabled
-        Again -> shots
-        _     -> return result
+-- | Switches the roles of active and passive player.
+-- Every time the roles are switched, the turn number is increased.
+switchRoles :: (MonadState (GameState a) m) => m ()
+switchRoles = do
+  modify(\g -> g
+    { currentPlayer = otherPlayer g
+    , otherPlayer = currentPlayer g
+    })
+  increaseTurnNumber
 
--- | This function executes the fire-part of the human's turn
--- It updates the "expectedAction" field of the state appropriately
-humanTurnFire :: (MonadState (GameState a) m)
-        => Pos -> m Turn
-humanTurnFire target = do
-  -- assert, that the human is allowed to fire a shot
-  ActionFire <- gets expectedAction
-  -- setup common actions
-  rules <- gets gameRules
-  -- fire
-  result <- fireAt target >>= executeShot
-  when (result == Next) $ do
-      -- update the action to "move" if appropriate
-      humanFleet <- gets $ playerFleet . currentPlayer
-      when (rulesMove rules && anyShipMovable rules humanFleet) $
-        modify (\gs -> gs { expectedAction = ActionMove})
-  return result
-
+-- | increases the turn number. This function is called by `switchRoles`
+-- and is not meant to be called directly.
+increaseTurnNumber :: (MonadState (GameState a) m) => m ()
+increaseTurnNumber = modify $ \gs -> gs {turnNumber = turnNumber gs + 1}
 
 -- | The current player fires at the other player
 -- Modifies the list of shots fired by the player and
@@ -322,21 +289,6 @@ fireAt pos = do
   modify (\gs -> gs{currentPlayer = self'})
   return result
 
--- | Performs the enemies turn
--- assumes, that the enemy is the currentPlayer
-aiShot :: (MonadState (GameState a) m, MonadRandom m, AI a) => m HitResponse
-aiShot = do
-  -- let the AI decide where to shoot
-  ai <- gets aiState
-  (pos, s) <- runStateT aiFire ai
-  -- fire shot
-  result <- fireAt pos
-  -- give feedback to the AI
-  (_, s')  <- runStateT (aiResponse pos result) s
-  -- save modified AI state
-  modify (\g -> g{aiState = s'})
-  return result
-
 -- | Executes the supplied turn.
 executeShot :: (MonadState (GameState a) m)
             => HitResponse -> m Turn
@@ -359,25 +311,81 @@ executeShot result = do
         Next | timedOut -> Over
         _               -> r
 
+-------------------------------------------------------------------------------
+-- * Turn AI
+-------------------------------------------------------------------------------
 
--- | Switches the roles of active and passive player.
--- Every time the roles are switched, the turn number is increased.
-switchRoles :: (MonadState (GameState a) m) => m ()
-switchRoles = do
-  modify(\g -> g
-    { currentPlayer = otherPlayer g
-    , otherPlayer = currentPlayer g
-    })
-  increaseTurnNumber
+-- | Performs a full AI turn. 
+-- This function takes care of swapping the current player.
+-- 1. according to the rules, the AI may fire once or more
+-- 2. according to the rules, the AI may move one ship
+aiTurn :: (MonadState (GameState a) m, MonadRandom m, AI a)
+        => m Turn
+aiTurn = do
+    switchRoles
+    result <- shots
+    rules <- gets gameRules
+    when (result /= Over && rulesMove rules) $ moveAI >>= executeMove
+    switchRoles
+    return result
+  where
+    shots = do
+      result <- aiShot >>= executeShot
+      case result of
+        -- the AI player is allowed to shoot once more, when enabled
+        Again -> shots
+        _     -> return result
 
--- | increases the turn number. This function is called by `switchRoles`
--- and is not meant to be called directly.
-increaseTurnNumber :: (MonadState (GameState a) m) => m ()
-increaseTurnNumber = modify $ \gs -> gs {turnNumber = turnNumber gs + 1}
+-- | Performs the enemies turn
+-- assumes, that the enemy is the currentPlayer
+aiShot :: (MonadState (GameState a) m, MonadRandom m, AI a) => m HitResponse
+aiShot = do
+  -- let the AI decide where to shoot
+  ai <- gets aiState
+  (pos, s) <- runStateT aiFire ai
+  -- fire shot
+  result <- fireAt pos
+  -- give feedback to the AI
+  (_, s')  <- runStateT (aiResponse pos result) s
+  -- save modified AI state
+  modify (\g -> g{aiState = s'})
+  return result
+
+-- | Lets the AI decide on a move
+-- Assumes that the ai player is the currentPlayer
+moveAI :: (MonadState (GameState a) m, MonadRandom m, AI a) 
+     => m (Maybe (ShipID, Movement))
+moveAI = do
+  ai <- gets aiState
+  fleet <- gets (playerFleet . currentPlayer)
+  shots <- gets (playerShots . otherPlayer)
+  (mov, s) <- runStateT (aiMove fleet shots) ai
+  modify (\g -> g{aiState = s})
+  return mov
+
+
 
 -------------------------------------------------------------------------------
--- * Move a ship
+-- * Turn Human
 -------------------------------------------------------------------------------
+
+-- | This function executes the fire-part of the human's turn
+-- It updates the "expectedAction" field of the state appropriately
+humanTurnFire :: (MonadState (GameState a) m)
+        => Pos -> m Turn
+humanTurnFire target = do
+  -- assert, that the human is allowed to fire a shot
+  ActionFire <- gets expectedAction
+  -- setup common actions
+  rules <- gets gameRules
+  -- fire
+  result <- fireAt target >>= executeShot
+  when (result == Next) $ do
+      -- update the action to "move" if appropriate
+      humanFleet <- gets $ playerFleet . currentPlayer
+      when (rulesMove rules && anyShipMovable rules humanFleet) $
+        modify (\gs -> gs { expectedAction = ActionMove})
+  return result
 
 -- | Tries to move the human player's ship if pos is one of its endings.
 -- Assumes that the human player is the currentPlayer
@@ -393,17 +401,26 @@ moveHuman pos = do
     Nothing -> return Nothing
     Just p  -> desiredMove p `liftM` gets (playerFleet . currentPlayer)
 
--- | Lets the AI decide on a move
--- Assumes that the ai player is the currentPlayer
-moveAI :: (MonadState (GameState a) m, MonadRandom m, AI a) 
-     => m (Maybe (ShipID, Movement))
-moveAI = do
-  ai <- gets aiState
-  fleet <- gets (playerFleet . currentPlayer)
-  shots <- gets (playerShots . otherPlayer)
-  (mov, s) <- runStateT (aiMove fleet shots) ai
-  modify (\g -> g{aiState = s})
-  return mov
+-- | Find out which ship the player wants to move into which direction.
+desiredMove :: Pos -> Fleet -> Maybe (ShipID, Movement)
+desiredMove pos fleet = do 
+  Ship{..} <- shipAt remainingFleet pos
+  let 
+    (x,y) = shipPosition shipShape
+    size  = shipSize shipShape
+  case shipOrientation shipShape of
+    Horizontal 
+      | pos == (x, y)            -> Just (shipID, Forward)
+      | pos == (x + size - 1, y) -> Just (shipID, Backward)
+    Vertical
+      | pos == (x, y)            -> Just (shipID, Forward)
+      | pos == (x, y + size - 1) -> Just (shipID, Backward)
+    _ -> Nothing
+  where remainingFleet = Map.filter (not . isDamaged) fleet
+
+-------------------------------------------------------------------------------
+-- * Moving Ships
+-------------------------------------------------------------------------------
 
 -- | executes a move for the current player
 executeMove :: (MonadState (GameState a) m)
@@ -424,23 +441,6 @@ executeMove move = do
             }
         modify (\gs -> gs { currentPlayer = curPlayer' })
       Nothing -> return ()
-
--- | Find out which ship the player wants to move into which direction.
-desiredMove :: Pos -> Fleet -> Maybe (ShipID, Movement)
-desiredMove pos fleet = do 
-  Ship{..} <- shipAt remainingFleet pos
-  let 
-    (x,y) = shipPosition shipShape
-    size  = shipSize shipShape
-  case shipOrientation shipShape of
-    Horizontal 
-      | pos == (x, y)            -> Just (shipID, Forward)
-      | pos == (x + size - 1, y) -> Just (shipID, Backward)
-    Vertical
-      | pos == (x, y)            -> Just (shipID, Forward)
-      | pos == (x, y + size - 1) -> Just (shipID, Backward)
-    _ -> Nothing
-  where remainingFleet = Map.filter (not . isDamaged) fleet
 
 -- | Only moves the ship if it complies with the given rules.
 moveShip :: Ship -> Movement -> Fleet -> Fleet
