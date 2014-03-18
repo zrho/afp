@@ -84,5 +84,5 @@ toStrict :: BL.ByteString -> BS.ByteString
 toStrict = BS.concat . BL.toChunks
 
 fromStrict :: BS.ByteString -> BL.ByteString
-fromStrict = BL.fromChunks . return
+fromStrict = BL.fromChunks . (:[])
 #endif
