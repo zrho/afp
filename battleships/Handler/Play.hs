@@ -54,6 +54,8 @@ playView game@GameState{..} gameE = defaultLayout $ do
   setNormalTitle
   addScript $ StaticR js_jquery_js
   messageRender <- getMessageRender
+  let showAlert = case expectedAction of ActionFire -> True
+                                         _          -> False
   $(widgetFile "board")
   $(widgetFile "play")
 

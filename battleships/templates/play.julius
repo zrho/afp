@@ -31,9 +31,9 @@ function clickableEvent(event, target) {
 
 function playScriptInit(moveUrl, fireUrl) {
     clickableInit($(".actionMove"), moveUrl);
-    clickableInit($(".actionFire"), fireUrl); 
-    if(#{isCountdownStart game}) {
-        alert("#{rawJS (messageRender $ MsgRemainingTurns $ remainingTurns game)}");
+    clickableInit($(".actionFire"), fireUrl);
+    if(alertCountdown == "True") {
+        alert(alertMessage);
     }
 }
 
