@@ -67,7 +67,7 @@ renderLegend icon = case icon of
   LIShipMovable   -> movableSquare
   LIShipImmovable -> shipSquare
   LIShipHit       -> marker # lc markerHitColor <> shipSquare
-  LIShipSunk      -> rect cellSize cellSize # lw 5 # lc shipColor <> waterSquare
+  LIShipSunk      -> rect (2 * cellSize) cellSize # innerGridLineStyle <> vrule cellSize # innerGridLineStyle <> rect (2 * cellSize + 5) (cellSize + 5) # lw 10 # lc shipColor # fc waterColor
   LIFogOfWar      -> square cellSize # fc fogColor
   LIWater         -> waterSquare
   LILastShot      -> square cellSize # alignTL <> lastShotMarker 1

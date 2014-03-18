@@ -61,6 +61,10 @@ $case orientation
         <td>_{MsgLegendShipHit}
       <tr>
         <td>
+          <img src="@{legendStatic LIShipSunk}">
+        <td>_{MsgLegendShipSunk}
+      <tr>
+        <td>
           <img src="@{legendStatic LILastShot}">
         <td>_{MsgLegendLastShot}
       $if movesAllowed
@@ -92,8 +96,3 @@ $case orientation
             <img src="@{timedLegendStatic $ TLIMarker 10}" title="_{MsgLegendTurnsAgo 10}">
             <img src="@{timedLegendStatic $ TLIMarker 15}" title="_{MsgLegendTurnsAgo 15}">
             <img src="@{timedLegendStatic $ TLIMarker 20}" title="_{MsgLegendMinTurnsAgo 20}">
-      $else 
-        <tr>
-          <td>
-            <img src="@{legendStatic LIShipSunk}">
-          <td>_{MsgLegendShipSunk}
