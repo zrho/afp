@@ -244,8 +244,8 @@ timedOpacity False _ _                = opacity 1
 
 opacityAfter :: (Integral i, HasStyle c) => i -> c -> c
 opacityAfter timeDiff
-  | timeDiff < 20 = opacity $ 0.1 + 0.045 * fromIntegral (20 - timeDiff)
-  | otherwise     = opacity 0.1
+  | timeDiff < 20 = opacity $ 0.25 + 0.04 * fromIntegral (20 - timeDiff)
+  | otherwise     = opacity 0.25
 
 lastShotMarker :: (Renderable (Path R2) b, Renderable Text b) 
                => Int -> Diagram b R2
