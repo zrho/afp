@@ -22,9 +22,9 @@ import Import
 import Data.Aeson (encode, decode)
 import Data.Maybe
 import qualified Data.Text.Encoding as TE
-import qualified Data.ByteString.Lazy as BL
 import Logic.Game
 import Logic.GameExt (DefaultAI)
+import Logic.Binary (fromStrict)
 import Logic.AIUtil
 import Handler.Util
 import Handler.Play
@@ -89,7 +89,7 @@ postPlaceShipsRndR = do
 getPostedFleet :: Handler (Maybe [ShipShape])
 getPostedFleet = do
   jsonStr <- runInputPost $ ireq textField "fleetData"
-  return $ decode (BL.fromChunks [TE.encodeUtf8 jsonStr])
+  return $ decode (fromStrict $ TE.encodeUtf8 jsonStr)
 
 jsonFleet :: FleetPlacement -> TypedContent
 jsonFleet
