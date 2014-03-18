@@ -10,14 +10,15 @@ module Handler.Replay
   ( getReplayR
   ) where
 
-import Import
-import Prelude (last)
+import           Import
+import           Prelude (last)
+import           Control.Monad.State
 import qualified Data.Map (lookup)
-import Control.Monad.State
-import Logic.Game
-import Logic.GameExt
-import Logic.Render
-import Handler.Util
+import           Handler.Util
+import           Logic.Game
+import           Logic.GameExt
+import           Logic.Render
+import           Logic.Types
 
 getReplayR :: GameStateExt -> Handler Html
 getReplayR gameE = withGame gameE $ \game -> defaultLayout $ do

@@ -12,9 +12,10 @@ module Handler.Rules
   ) where
 
 import Import
-import Logic.Game
-import Handler.Util
 import Data.Maybe
+import Handler.Util
+import Logic.Game
+import Logic.Types
 
 -------------------------------------------------------------------------------
 -- * Handler

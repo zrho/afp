@@ -11,12 +11,13 @@ module Logic.StupidAI
   ) where
 
 import           Prelude
-import           Logic.Game
-import           Logic.AIUtil
 import           Control.Monad
 import           Control.Monad.Random
 import           Data.Maybe (fromJust)
 import           Data.Serialize (Serialize(..))
+import           Logic.AIUtil
+import           Logic.Game
+import           Logic.Types
 
 data StupidAI = StupidAI
 

@@ -15,15 +15,15 @@ module Logic.GameExt
   ) where
 
 import           Prelude
-import           Logic.Game
-import           Logic.Binary
-import           Logic.CleverAI (CleverAI)
-import           Yesod (PathPiece (..))
 import           Codec.Crypto.SimpleAES
 import           Control.Monad.IO.Class
-import           Data.Serialize (Serialize, encode, decode)
 import qualified Data.ByteString             as BS
 import qualified Data.ByteString.Lazy        as BL
+import           Data.Serialize (Serialize, encode, decode)
+import           Logic.Binary
+import           Logic.CleverAI (CleverAI)
+import           Logic.Types
+import           Yesod (PathPiece (..))
 
 -- | External encrypted game state representation.
 data GameStateExt = GameStateExt

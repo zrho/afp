@@ -18,16 +18,17 @@ module Handler.PlaceShips
   , postPlaceShipsRndR
   ) where
 
-import Import
-import Data.Aeson (encode, decode)
-import Data.Maybe
+import           Import
+import           Data.Aeson (encode, decode)
+import           Data.Maybe
 import qualified Data.Text.Encoding as TE
-import Logic.Game
-import Logic.GameExt (DefaultAI)
-import Logic.Binary (fromStrict)
-import Logic.AIUtil
-import Handler.Util
-import Handler.Play
+import           Handler.Util
+import           Handler.Play
+import           Logic.AIUtil
+import           Logic.Game
+import           Logic.GameExt (DefaultAI)
+import           Logic.Binary (fromStrict)
+import           Logic.Types
 
 -------------------------------------------------------------------------------
 -- * Handler

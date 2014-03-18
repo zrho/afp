@@ -20,16 +20,17 @@ module Logic.Render
   ) where
 
 import           Prelude
-import           Logic.Game
-import qualified Data.Map as Map
-import qualified Data.List as L
-import           Diagrams.Prelude
-import           Diagrams.Backend.SVG
-import           Diagrams.TwoD.Text
 import           Data.Colour.SRGB
 import           Data.Foldable (fold, foldMap)
 import           Data.Function (on)
 import           Data.Ix
+import qualified Data.List as L
+import qualified Data.Map as Map
+import           Diagrams.Prelude
+import           Diagrams.Backend.SVG
+import           Diagrams.TwoD.Text
+import           Logic.Game
+import           Logic.Types
 
 type BattleDia = QDiagram SVG R2 [Pos]
 

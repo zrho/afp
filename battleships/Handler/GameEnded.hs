@@ -10,9 +10,10 @@
 module Handler.GameEnded (getGameEndedR, gameEndedView) where
 
 import Import
+import Handler.Util
 import Logic.Game
 import Logic.GameExt
-import Handler.Util
+import Logic.Types
 
 getGameEndedR :: GameStateExt -> Handler Html
 getGameEndedR gameE = withGame gameE $ \game -> gameEndedView game gameE

@@ -22,18 +22,18 @@ module Handler.Util
   ) where
 
 import Import
-import Diagrams.Prelude
-import Diagrams.Backend.SVG
-import Text.Blaze.Svg.Internal (Svg)
 import Data.Maybe
-import Logic.Game
-import Logic.GameExt
-import Logic.Render
-import Yesod.Routes.Class
 import Data.Serialize (Serialize)
-import Text.Blaze.Svg.Renderer.Text (renderSvg)
 import Data.Text.Lazy (toStrict)
 import Data.Text as T
+import Diagrams.Prelude
+import Diagrams.Backend.SVG
+import Logic.GameExt
+import Logic.Render
+import Logic.Types
+import Text.Blaze.Svg.Internal (Svg)
+import Text.Blaze.Svg.Renderer.Text (renderSvg)
+import Yesod.Routes.Class
 
 -------------------------------------------------------------------------------
 -- * Game Import/Export

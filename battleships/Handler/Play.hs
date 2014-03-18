@@ -19,15 +19,16 @@ module Handler.Play
   ) where
 
 import Import
-import Data.List (nub)
 import Control.Monad.State
+import Data.List (nub)
 import Data.Map ((!))
 import Data.Serialize (Serialize)
+import Handler.Util
+import Handler.GameEnded
 import Logic.Game
 import Logic.GameExt
 import Logic.Render
-import Handler.Util
-import Handler.GameEnded
+import Logic.Types
 import Text.Julius (rawJS)
 
 -------------------------------------------------------------------------------
