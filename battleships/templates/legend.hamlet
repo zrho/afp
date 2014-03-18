@@ -78,16 +78,16 @@ $case orientation
             <img src="@{legendStatic LIShipWithArrow }">
           <td>_{MsgLegendShipWithArrow }
         <tr>
-          <td> _{MsgLegendWaterShots}:
+          <td colspan="2"> _{MsgLegendWaterShots}:
         <tr>
-          <td>
+          <td colspan="2">
             <img src="@{timedLegendStatic $ TLIWater 0}" title="_{MsgLegendRightNow}">
             <img src="@{timedLegendStatic $ TLIWater 5}" title="_{MsgLegendTurnsAgo 5}">
             <img src="@{timedLegendStatic $ TLIWater 10}" title="_{MsgLegendTurnsAgo 10}">
             <img src="@{timedLegendStatic $ TLIWater 15}" title="_{MsgLegendTurnsAgo 15}">
             <img src="@{timedLegendStatic $ TLIWater 20}" title="_{MsgLegendMinTurnsAgo 20}">
         <tr>
-          <td>
+          <td colspan="2">
             <img src="@{timedLegendStatic $ TLIMarker 0}" title="_{MsgLegendRightNow}">
             <img src="@{timedLegendStatic $ TLIMarker 5}" title="_{MsgLegendTurnsAgo 5}">
             <img src="@{timedLegendStatic $ TLIMarker 10}" title="_{MsgLegendTurnsAgo 10}">
