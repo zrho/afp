@@ -64,6 +64,6 @@
     ^{legendWidget Horizontal (rulesMove gameRules)}
 <script>
   var replayUrl = '@{ReplayR gameE}';
-  var alertCountdown = '#{isCountdownStart game && showAlert}';
+  var alertCountdown = '#{showAlert}';
   var alertMessage = '_{MsgRemainingTurns $ remainingTurns game}';
   \$(playScriptInit('@{MoveR gameE}', '@{FireR gameE}'))

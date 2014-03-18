@@ -57,7 +57,7 @@ playView game@GameState{..} gameE = defaultLayout $ do
   setNormalTitle
   addScript $ StaticR js_jquery_js
   messageRender <- getMessageRender
-  let showAlert = case expectedAction of ActionFire -> True
+  let showAlert = case expectedAction of ActionFire -> isCountdownStart game
                                          _          -> False
   $(widgetFile "board")
   $(widgetFile "play")
