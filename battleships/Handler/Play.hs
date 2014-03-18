@@ -142,3 +142,10 @@ performAI game = do
     Over  -> gameEnded game'
     Next  -> continue game'
     Again -> error "impossible. `Again` is handled by aiTurn"
+
+-- | Determines whether the countdown should already be shown.
+-- Should be shown when at most countdownTurns turns remain.
+showCountdown :: GameState a -> Bool
+showCountdown game = remTurns <= cdTurns where
+  remTurns = remainingTurns game 
+  cdTurns = rulesCountdownTurns . gameRules $ game

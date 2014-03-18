@@ -25,7 +25,6 @@ module Logic.Game
   , isTimedOut
   , numRemainingShips
   , remainingTurns
-  , showCountdown
   , isCountdownStart
   , aiTurn
   , desiredMove
@@ -244,13 +243,6 @@ remainingTurns :: GameState a -> Int
 remainingTurns game = (maxTurns - curTurns) `div` 2 + 1 where
   curTurns = turnNumber game
   maxTurns = rulesMaximumTurns . gameRules $ game
-
--- | Determines whether the countdown should already be shown.
--- Should be shown when at most countdownTurns turns remain.
-showCountdown :: GameState a -> Bool
-showCountdown game = remTurns <= cdTurns where
-  remTurns = remainingTurns game 
-  cdTurns = rulesCountdownTurns . gameRules $ game
 
 -- | Determines whether the countdown starts right now.
 -- It starts when exactly countdownTurns turns remain.
@@ -492,5 +484,3 @@ movedShipShape movement ship = case (shipOrientation ship, movement) of
   (Vertical, Forward)    -> ship {shipPosition = (x, y - 1)}
   (Vertical, Backward)   -> ship {shipPosition = (x, y + 1)}
   where (x,y) = shipPosition ship
-
-
