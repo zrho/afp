@@ -87,11 +87,13 @@ postPlaceShipsRndR = do
 -- * JSON Fleet Import/Export
 -------------------------------------------------------------------------------
 
-getPostedFleet :: Handler (Maybe [ShipShape])
+-- | Parses fleet submitted by POST in a field named "fleetData".
+getPostedFleet :: Handler (Maybe FleetPlacement)
 getPostedFleet = do
   jsonStr <- runInputPost $ ireq textField "fleetData"
   return $ decode (fromStrict $ TE.encodeUtf8 jsonStr)
 
+-- | Converts a FleetPlacement to JSON data
 jsonFleet :: FleetPlacement -> TypedContent
 jsonFleet
   = TypedContent typeJson

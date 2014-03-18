@@ -15,7 +15,7 @@
         <div .ruleEntry>
           <label for="inputDifficulty">_{MsgInputDifficulty}
           <select #inputDifficulty name="difficulty">
-            $forall (i, (msg, _)) <- zippedDifficultyList
+            $forall (i, (msg, _)) <- indexedDifficultyList
               <option value="#{show i}">
                 _{msg}
         $if development

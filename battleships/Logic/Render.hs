@@ -32,6 +32,8 @@ import           Diagrams.TwoD.Text
 import           Logic.Game
 import           Logic.Types
 
+-- | Specialised diagram type. Backend is `SVG`, vector space is `R2` and
+-- annotations `[Pos]`.
 type BattleDia = QDiagram SVG R2 [Pos]
 
 -- | Arrows displayed on the bow and stern of undamaged ships.
@@ -49,6 +51,7 @@ data LegendIcon
   | LILastShot
   deriving (Show, Enum, Bounded)
 
+-- | time-dependent legend icon to render
 data TimedLegendIcon
   = TLIWater Int
   | TLIMarker Int

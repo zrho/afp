@@ -72,7 +72,7 @@ import           Logic.Types
 boardSize :: (Int, Int)
 boardSize = (10, 10)
 
--- | needs to be sorted
+-- | A sorted list of available ships
 fleetShips :: [Int]
 fleetShips = sort [ 2, 2, 2, 2, 3, 3, 3, 4, 4, 5 ]
 

@@ -60,7 +60,8 @@ expBinary
 --
 -- Some characters used in base 64 encoding are problematic when used in URLs.
 -- These functions convert from and into a representation in which these
--- characters are replaced with non problematic ones.
+-- characters are replaced with non problematic ones, using "base64url" 
+-- according to RFC 4648 (http://tools.ietf.org/html/rfc4648).
 --------------------------------------------------------------------------------
 
 toBase64Url :: BS.ByteString -> BS.ByteString
@@ -100,6 +101,10 @@ fromStrict = BL.fromChunks . (:[])
 
 -------------------------------------------------------------------------------
 -- * General Serialization Helpers
+--
+-- These functions serialize Enums with up to 255 values, integrals in the
+-- range from 0 to 255 and lists with at most 255 items. These constraints
+-- are not enforced, so usage of these functions may be unsafe.
 -------------------------------------------------------------------------------
 
 putEnum8 :: Enum a => Putter a

@@ -35,9 +35,11 @@ import Text.Julius (rawJS)
 -- * Forms
 -------------------------------------------------------------------------------
 
+-- | A form with two required double fields named "X" and "Y".
 fireForm :: FormInput Handler (Double, Double)
 fireForm = (,) <$> ireq doubleField "X" <*> ireq doubleField "Y"
 
+-- | A form with two optional double fields named "X" and "Y".
 moveForm :: FormInput Handler (Maybe Double, Maybe Double)
 moveForm = (,) <$> iopt doubleField "X" <*> iopt doubleField "Y"
 
@@ -106,11 +108,13 @@ postFireR gameE = withGame gameE $ \game -> do
             | expectedAction game' == ActionMove -> continue game'
             | otherwise -> performAI game'
 
+-- | A widget that displays a table showing which ships of the opponent are remaining.
 shipsOpponentWidget :: GameState a -> Orientation -> WidgetT App IO ()
 shipsOpponentWidget game orientation =
   let sizes = sizesOfShips $ unsunkShips $ playerFleet $ otherPlayer game
   in $(widgetFile "shipsOpponent")
 
+-- | A widget that renders the legend in the given orientation.
 legendWidget :: Orientation -> Bool -> Widget
 legendWidget orientation movesAllowed = $(widgetFile "legend")
 

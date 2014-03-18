@@ -16,5 +16,5 @@ import Handler.Util
 
 getHomeR :: Handler Html
 getHomeR = defaultLayout $ do 
-    setNormalTitle
-    $(widgetFile "home")
+  setNormalTitle
+  $(widgetFile "home")

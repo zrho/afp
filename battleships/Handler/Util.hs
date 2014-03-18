@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 -- |
 -- Module      :  Handler.Util
 -- Stability   :  experimental
@@ -73,6 +73,7 @@ legendStatic ico = StaticR $ case ico of
   LIWater         -> img_LIWater_svg
   LILastShot      -> img_LILastShot_svg
 
+-- | Static route for the specified time-dependent icon.
 timedLegendStatic :: TimedLegendIcon -> Route App
 timedLegendStatic ico = StaticR $ case ico of
   TLIWater 0   -> img_TLIWater_0_svg
@@ -103,6 +104,7 @@ fieldPos p = listToMaybe $ sample renderReferenceGrid $ p2 p
 setNormalTitle :: Widget 
 setNormalTitle = setTitleI MsgGameName
 
+-- | Renders the player grid as inline SVG for HTML
 playerGridHtml :: GameState a -> Action -> Html
 playerGridHtml (GameState {..}) requiredAction
   = renderSvgHtml
@@ -113,6 +115,7 @@ playerGridHtml (GameState {..}) requiredAction
     gameRules
     turnNumber
 
+-- | Renders the enemy grid as inline SVG for HTML
 enemyGridHtml :: GameState a -> Bool -> Html
 enemyGridHtml (GameState {..}) uncoverFleet
   = renderSvgHtml
@@ -138,6 +141,7 @@ renderSvgHtml
   . renderSvg
   . renderDiaSVG
 
+-- | Renders a diagram to SVG
 renderDiaSVG :: (Monoid m, Semigroup m) =>
                 QDiagram SVG R2 m -> Text.Blaze.Svg.Internal.Svg
 renderDiaSVG =

@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 -- |
 -- Module      :  Handler.Rules
 -- Stability   :  experimental
@@ -56,5 +56,5 @@ difficultyList =
   , (MsgInputDifficultyEasy, Easy)
   ]
 
-zippedDifficultyList :: [(Int, (AppMessage, DifficultyLevel))]
-zippedDifficultyList = zip [1 ..] difficultyList
+indexedDifficultyList :: [(Int, (AppMessage, DifficultyLevel))]
+indexedDifficultyList = zip [1 ..] difficultyList
