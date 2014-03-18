@@ -50,6 +50,7 @@ module Logic.Game
   , numRemainingShips
   , remainingTurns
   , showCountdown
+  , isCountdownStart
   , aiTurn
   , desiredMove
   , executeMove
@@ -453,6 +454,13 @@ remainingTurns game = (maxTurns - curTurns) `div` 2 + 1 where
 -- Should be shown when at most countdownTurns turns remain.
 showCountdown :: GameState a -> Bool
 showCountdown game = remTurns <= cdTurns where
+  remTurns = remainingTurns game 
+  cdTurns = rulesCountdownTurns . gameRules $ game
+
+-- | Determines whether the countdown starts right now.
+-- It starts when exactly countdownTurns turns remain.
+isCountdownStart :: GameState a -> Bool
+isCountdownStart game = remTurns == cdTurns where
   remTurns = remainingTurns game 
   cdTurns = rulesCountdownTurns . gameRules $ game
 
