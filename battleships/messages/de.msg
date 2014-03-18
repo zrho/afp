@@ -46,7 +46,7 @@ LegendShipWithArrow: Schiff durch Klick bewegen
 LegendShipMovable: Bewegliches Schiff
 LegendShipImmovable: Unbewegliches Schiff
 LegendShipHit: Treffer
-LegendShipSunk: Treffer, Versenkt
+LegendShipSunk: Versenktes Schiff
 LegendFogOfWar: Nicht kartografierter Bereich
 LegendWater: Wasser
 LegendLastShot: Feindliche Schüsse des letzten Zugs

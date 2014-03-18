@@ -46,7 +46,7 @@ LegendShipWithArrow: click to move the ship
 LegendShipMovable: movable ship
 LegendShipImmovable: immovable ship
 LegendShipHit: hit
-LegendShipSunk: hit and sunk
+LegendShipSunk: sunk ship
 LegendFogOfWar: undiscovered area
 LegendWater: water
 LegendLastShot: shot(s) of enemy's last turn

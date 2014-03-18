@@ -13,12 +13,11 @@ $case orientation
           <img src="@{legendStatic LIShipHit}">
         <td>_{MsgLegendShipHit}
         <td>
+          <img src="@{legendStatic LIShipSunk}">
+        <td>_{MsgLegendShipSunk}
+        <td>
          <img src="@{legendStatic LILastShot}">
         <td>_{MsgLegendLastShot}
-        $if not movesAllowed
-          <td>
-            <img src="@{legendStatic LIShipSunk}">
-          <td>_{MsgLegendShipSunk}
       $if movesAllowed
         <tr>
           <td>

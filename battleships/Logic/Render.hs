@@ -63,7 +63,7 @@ renderLegend icon = case icon of
   LIShipMovable   -> movableSquare
   LIShipImmovable -> shipSquare
   LIShipHit       -> marker # lc markerHitColor <> shipSquare
-  LIShipSunk      -> marker # lc markerSunkColor <> shipSquare
+  LIShipSunk      -> rect cellSize cellSize # lw 5 # lc shipColor <> waterSquare
   LIFogOfWar      -> square cellSize # fc fogColor
   LIWater         -> waterSquare
   LILastShot      -> square cellSize # alignTL <> lastShotMarker 1
@@ -147,7 +147,7 @@ renderMarker fleet shots Rules{..} turnNumber showOnlyHit pos
  $ case lastShotResult fleet shots turnNumber pos of
     Nothing            -> mempty
     Just (Water, time) -> if showOnlyHit then mempty else marker # lc markerWaterColor # opac time
-    Just (Hit,   time) -> marker # lc markerHitColor # opac time
+    Just (Hit,   _   ) -> marker # lc markerHitColor
     Just (Sunk,  _   ) -> mempty
   where
     opac = timedOpacity rulesMove turnNumber
@@ -339,14 +339,13 @@ arrowStyle         = lw 3 . lc gray
 numberStyle :: HasStyle c => c -> c
 numberStyle = fontSize 30 . font "Monospace"
 
-gridColor, fogColor, waterColor, markerHitColor, markerSunkColor, markerWaterColor, 
+gridColor, fogColor, waterColor, markerHitColor, markerWaterColor, 
   shipColor, lastShotColor, movableColor
   :: Colour Double
 gridColor        = sRGB24 0xD2 0xF8 0x70
 fogColor         = sRGB 0.7 0.7 0.7
 waterColor       = sRGB24 0x36 0xBB 0xCE
 markerHitColor   = sRGB24 0xFE 0x3F 0x44
-markerSunkColor  = sRGB24 0xA4 0x00 0x04
 markerWaterColor = sRGB24 0x00 0x00 0xFF
 shipColor        = gray
 lastShotColor    = red
