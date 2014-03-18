@@ -10,21 +10,23 @@
 module Handler.GameEnded (getGameEndedR, gameEndedView) where
 
 import Import
+import Handler.Util
 import Logic.Game
 import Logic.GameExt
-import Handler.Util
+import Logic.Types
 
 getGameEndedR :: GameStateExt -> Handler Html
 getGameEndedR gameE = withGame gameE $ \game -> gameEndedView game gameE
 
 gameEndedView :: GameState a -> GameStateExt -> Handler Html
 gameEndedView game gameE = do
-  let remShipsComputer = numRemainingShips $ playerFleet $ otherPlayer game
-  let remShipsHuman    = numRemainingShips $ playerFleet $ currentPlayer game
-  let timedOut = isTimedOut game
-  let humanWon = allSunk (playerFleet $ otherPlayer game) ||
+  let 
+    remShipsComputer = numRemainingShips $ playerFleet $ otherPlayer game
+    remShipsHuman    = numRemainingShips $ playerFleet $ currentPlayer game
+    timedOut = isTimedOut game
+    humanWon = allSunk (playerFleet $ otherPlayer game) ||
                  timedOut && remShipsComputer < remShipsHuman
-  let drawn    = isDrawn game
+    drawn    = isDrawn game
   defaultLayout $ do
     setNormalTitle
     $(widgetFile "board")

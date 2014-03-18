@@ -4,18 +4,17 @@ module Main
   , benchmark
   ) where
 
+import           Prelude
 import           Control.Monad
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.State (runStateT, StateT)
-import qualified Data.Map as Map
 import           Data.List (sort)
-import           Logic.Game
--- import           Logic.StupidAI
-import           Logic.CleverAI
+import qualified Data.Map as Map
 import           Logic.AIUtil
+import           Logic.CleverAI
+import           Logic.Game
+import           Logic.Types
 import           System.Environment
-import           Data.Maybe
-import           Prelude
 
 main :: IO ()
 main = do

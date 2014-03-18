@@ -34,19 +34,20 @@ module Logic.AIUtil
   ) where
 
 import           Prelude
-import           Logic.Game
-import           Logic.Random
-import           Data.Array
-import           Data.List
-import           Data.Function
-import           Data.Maybe (isJust, listToMaybe)
-import qualified Data.Map as Map
-import qualified Data.Traversable (mapM)
 import           Control.Arrow
 import           Control.Monad
 import           Control.Monad.Trans
 import           Control.Monad.Trans.List
 import           Control.Monad.Random
+import           Data.Array
+import           Data.Function
+import           Data.List
+import qualified Data.Map as Map
+import           Data.Maybe (isJust, listToMaybe)
+import qualified Data.Traversable (mapM)
+import           Logic.Game
+import           Logic.Random
+import           Logic.Types
 import           Text.Printf
 
 --------------------------------------------------------------------------------

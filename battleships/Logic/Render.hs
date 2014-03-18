@@ -20,17 +20,20 @@ module Logic.Render
   ) where
 
 import           Prelude
-import           Logic.Game
-import qualified Data.Map as Map
-import qualified Data.List as L
-import           Diagrams.Prelude
-import           Diagrams.Backend.SVG
-import           Diagrams.TwoD.Text
 import           Data.Colour.SRGB
 import           Data.Foldable (fold, foldMap)
 import           Data.Function (on)
 import           Data.Ix
+import qualified Data.List as L
+import qualified Data.Map as Map
+import           Diagrams.Prelude
+import           Diagrams.Backend.SVG
+import           Diagrams.TwoD.Text
+import           Logic.Game
+import           Logic.Types
 
+-- | Specialised diagram type. Backend is `SVG`, vector space is `R2` and
+-- annotations `[Pos]`.
 type BattleDia = QDiagram SVG R2 [Pos]
 
 -- | Arrows displayed on the bow and stern of undamaged ships.
@@ -48,6 +51,7 @@ data LegendIcon
   | LILastShot
   deriving (Show, Enum, Bounded)
 
+-- | time-dependent legend icon to render
 data TimedLegendIcon
   = TLIWater Int
   | TLIMarker Int

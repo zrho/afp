@@ -2,26 +2,24 @@
 module Foundation where
 
 import Prelude
-import Yesod
-import Yesod.Static
-import Yesod.Default.Config
-import Yesod.Default.Util
+import qualified Codec.Crypto.SimpleAES as AES
+import Logic.GameExt
+import Logic.Types
 import Settings.Development (development)
 import Settings (widgetFile, Extra (..))
 import Settings.StaticFiles
 import Text.Hamlet (hamletFile)
 import Text.Jasmine (minifym)
 import Text.Julius (rawJS)
+import Yesod
+import Yesod.Static
+import Yesod.Default.Config
+import Yesod.Default.Util
 #if MIN_VERSION_fast_logger(2,1,0)
 import Yesod.Core.Types (Logger)
 #else
 import System.Log.FastLogger (Logger)
 #endif
--- import System.FilePath ((</>))
--- import Web.Cookie (setCookiePath)
-import Logic.GameExt
-import Logic.Game
-import qualified Codec.Crypto.SimpleAES as AES
 
 data App = App
     { settings :: AppConfig DefaultEnv Extra
@@ -43,17 +41,6 @@ instance Yesod App where
     -- REPLACE whole right-hand side by "return Nothing" if no cookies needed;
     -- (avoids some potential complications, and makes things more efficient)
     makeSessionBackend _ = return Nothing
-    {-
-        fmap (Just . if development
-                   then id
-                   else customizeSessionCookies $
-                        \cookie -> cookie { setCookiePath = Just "/battleships" })
-        $ defaultClientSessionBackend
-          (120 * 60) -- session idle timeout is 120 minutes
-          (basePath </> "client_session_key.aes")
-      where
-        basePath = extraDataDir $ appExtra $ settings app
-    -}
 
     defaultLayout widget = do
         -- master <- getYesod

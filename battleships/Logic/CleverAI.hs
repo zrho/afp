@@ -45,20 +45,22 @@ module Logic.CleverAI
   ) where
 
 import           Prelude
-import           Data.Array
-import           Data.List ((\\), elemIndex, intersect, delete)
-import           Data.Maybe (fromMaybe, fromJust)
-import qualified Data.Map as Map
-import qualified Data.Foldable as Foldable
-import           Logic.Game
-import           Logic.AIUtil
-import           Logic.Random
+import           Control.Applicative
 import           Control.Monad.Random
 import           Control.Monad.Reader
 import           Control.Monad.State
-import           Control.Applicative
+import           Data.Array
+import qualified Data.Foldable as Foldable
+import           Data.List ((\\), elemIndex, intersect, delete)
+import qualified Data.Map as Map
+import           Data.Maybe (fromMaybe, fromJust)
 import           Data.Serialize (Serialize)
 import qualified Data.Serialize as S
+import           Logic.AIUtil
+import           Logic.Binary
+import           Logic.Game
+import           Logic.Random
+import           Logic.Types
 
 data CleverAI = CleverAI
   { rules            :: Rules        -- ^ rules of this game

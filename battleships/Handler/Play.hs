@@ -19,26 +19,30 @@ module Handler.Play
   ) where
 
 import Import
-import Data.List (nub)
+import Control.Applicative
 import Control.Monad.State
+import Data.List (nub)
 import Data.Map ((!))
 import Data.Serialize (Serialize)
+import Handler.Util
+import Handler.GameEnded
 import Logic.Game
 import Logic.GameExt
 import Logic.Render
-import Handler.Util
-import Handler.GameEnded
+import Logic.Types
 import Text.Julius (rawJS)
 
 -------------------------------------------------------------------------------
 -- * Forms
 -------------------------------------------------------------------------------
 
+-- | A form with two required double fields named "X" and "Y".
 fireForm :: FormInput Handler (Double, Double)
 fireForm = (,) <$> ireq doubleField "X" <*> ireq doubleField "Y"
 
-moveForm :: FormInput Handler (Maybe Double, Maybe Double)
-moveForm = (,) <$> iopt doubleField "X" <*> iopt doubleField "Y"
+-- | A form with two optional double fields named "X" and "Y".
+moveForm :: FormInput Handler (Maybe (Double, Double))
+moveForm = liftA2 (liftA2 (,)) (iopt doubleField "X") (iopt doubleField "Y")
 
 -------------------------------------------------------------------------------
 -- * Handler
@@ -63,7 +67,7 @@ postMoveR :: GameStateExt -> Handler Html
 postMoveR gameE = withGame gameE $ \game -> do
     mpos <- runInputPost moveForm
     case mpos of 
-      (Just x, Just y) -> case fieldPos (x,y) of
+      Just (x, y) -> case fieldPos (x,y) of
         -- invalid click
         Nothing  -> invalidMove game gameE
         -- valid click
@@ -105,11 +109,13 @@ postFireR gameE = withGame gameE $ \game -> do
             | expectedAction game' == ActionMove -> continue game'
             | otherwise -> performAI game'
 
+-- | A widget that displays a table showing which ships of the opponent are remaining.
 shipsOpponentWidget :: GameState a -> Orientation -> WidgetT App IO ()
 shipsOpponentWidget game orientation =
   let sizes = sizesOfShips $ unsunkShips $ playerFleet $ otherPlayer game
   in $(widgetFile "shipsOpponent")
 
+-- | A widget that renders the legend in the given orientation.
 legendWidget :: Orientation -> Bool -> Widget
 legendWidget orientation movesAllowed = $(widgetFile "legend")
 
@@ -141,3 +147,10 @@ performAI game = do
     Over  -> gameEnded game'
     Next  -> continue game'
     Again -> error "impossible. `Again` is handled by aiTurn"
+
+-- | Determines whether the countdown should already be shown.
+-- Should be shown when at most countdownTurns turns remain.
+showCountdown :: GameState a -> Bool
+showCountdown game = remTurns <= cdTurns where
+  remTurns = remainingTurns game 
+  cdTurns = rulesCountdownTurns . gameRules $ game

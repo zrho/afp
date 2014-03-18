@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 -- |
 -- Module      :  Handler.Rules
 -- Stability   :  experimental
@@ -12,9 +12,10 @@ module Handler.Rules
   ) where
 
 import Import
-import Logic.Game
-import Handler.Util
 import Data.Maybe
+import Handler.Util
+import Logic.Game
+import Logic.Types
 
 -------------------------------------------------------------------------------
 -- * Handler
@@ -55,5 +56,5 @@ difficultyList =
   , (MsgInputDifficultyEasy, Easy)
   ]
 
-zippedDifficultyList :: [(Int, (AppMessage, DifficultyLevel))]
-zippedDifficultyList = zip [1 ..] difficultyList
+indexedDifficultyList :: [(Int, (AppMessage, DifficultyLevel))]
+indexedDifficultyList = zip [1 ..] difficultyList

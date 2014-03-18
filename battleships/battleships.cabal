@@ -39,23 +39,24 @@ library
                      Settings
                      Settings.Development
                      Settings.StaticFiles
+                     Handler.About
+                     Handler.GameEnded
                      Handler.Home
                      Handler.PlaceShips
                      Handler.Play
-                     Handler.Util
-                     Handler.GameEnded
                      Handler.Replay
                      Handler.Rules
-                     Handler.About
-                     Logic.Random
+                     Handler.Util
+                     Logic.AIUtil
                      Logic.Binary
+                     Logic.CleverAI
+                     Logic.Debug
                      Logic.Game
                      Logic.GameExt
-                     Logic.CleverAI
-                     Logic.StupidAI
-                     Logic.AIUtil
+                     Logic.Random
                      Logic.Render
-                     Logic.Debug
+                     Logic.StupidAI
+                     Logic.Types
 
     ghc-options:   -threaded -Wall -Werror 
 

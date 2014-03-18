@@ -30,6 +30,7 @@ shuffleRandom xs = extractRandom xs >>= \r -> case r of
   Nothing      -> return []
   Just (y, ys) -> liftM (y :) $ shuffleRandom ys
 
+-- | Returns a random item of the list.
 chooseRandom :: MonadRandom m => [a] -> m (Maybe a)
 chooseRandom = (liftM . liftM) fst . extractRandom
 

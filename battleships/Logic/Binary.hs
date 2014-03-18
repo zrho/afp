@@ -14,9 +14,20 @@ module Logic.Binary
     -- * Misc
   , fromStrict
   , toStrict
+    -- * General Serialization Helpers
+  , getEnum8
+  , getIntegral8
+  , getList8
+  , putEnum8
+  , putIntegral8
+  , putList8
   ) where
 
 import           Prelude
+import           Control.Applicative
+import           Control.Monad
+import           Data.Serialize.Get
+import           Data.Serialize.Put
 import           Data.Text (Text)
 import qualified Data.Text.Encoding          as TE
 import qualified Data.ByteString             as BS
@@ -49,7 +60,8 @@ expBinary
 --
 -- Some characters used in base 64 encoding are problematic when used in URLs.
 -- These functions convert from and into a representation in which these
--- characters are replaced with non problematic ones.
+-- characters are replaced with non problematic ones, using "base64url" 
+-- according to RFC 4648 (http://tools.ietf.org/html/rfc4648).
 --------------------------------------------------------------------------------
 
 toBase64Url :: BS.ByteString -> BS.ByteString
@@ -86,3 +98,32 @@ toStrict = BS.concat . BL.toChunks
 fromStrict :: BS.ByteString -> BL.ByteString
 fromStrict = BL.fromChunks . (:[])
 #endif
+
+-------------------------------------------------------------------------------
+-- * General Serialization Helpers
+--
+-- These functions serialize Enums with up to 255 values, integrals in the
+-- range from 0 to 255 and lists with at most 255 items. These constraints
+-- are not enforced, so usage of these functions may be unsafe.
+-------------------------------------------------------------------------------
+
+putEnum8 :: Enum a => Putter a
+putEnum8 = putWord8 . fromIntegral . fromEnum
+
+getEnum8 :: Enum a => Get a
+getEnum8 = toEnum . fromIntegral <$> getWord8
+
+putIntegral8 :: Integral a => Putter a
+putIntegral8 = putWord8 . fromIntegral
+
+getIntegral8 :: Integral a => Get a
+getIntegral8 = fromIntegral <$> getWord8
+
+putList8 :: Putter a -> Putter [a]
+putList8 pel xs = do
+  putIntegral8 $ length xs
+  forM_ xs pel
+
+getList8 :: Get a -> Get [a]
+getList8 gel = getIntegral8 >>= getList where
+  getList len = replicateM len gel

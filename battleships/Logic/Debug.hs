@@ -1,3 +1,12 @@
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Logic.Debug
+-- Stability   :  experimental
+-- Portability :  portable
+--
+-- Some functions for debugging purposes, wrapping the functions from 
+-- `Debug.Trace`. These functions inhibit output when `development` is `False`
+
 module Logic.Debug
   ( debugShow
   , debugId
