@@ -19,6 +19,7 @@ module Handler.Play
   ) where
 
 import Import
+import Control.Applicative
 import Control.Monad.State
 import Data.List (nub)
 import Data.Map ((!))
@@ -40,8 +41,8 @@ fireForm :: FormInput Handler (Double, Double)
 fireForm = (,) <$> ireq doubleField "X" <*> ireq doubleField "Y"
 
 -- | A form with two optional double fields named "X" and "Y".
-moveForm :: FormInput Handler (Maybe Double, Maybe Double)
-moveForm = (,) <$> iopt doubleField "X" <*> iopt doubleField "Y"
+moveForm :: FormInput Handler (Maybe (Double, Double))
+moveForm = liftA2 (liftA2 (,)) (iopt doubleField "X") (iopt doubleField "Y")
 
 -------------------------------------------------------------------------------
 -- * Handler
@@ -66,7 +67,7 @@ postMoveR :: GameStateExt -> Handler Html
 postMoveR gameE = withGame gameE $ \game -> do
     mpos <- runInputPost moveForm
     case mpos of 
-      (Just x, Just y) -> case fieldPos (x,y) of
+      Just (x, y) -> case fieldPos (x,y) of
         -- invalid click
         Nothing  -> invalidMove game gameE
         -- valid click
