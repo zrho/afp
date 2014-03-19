@@ -68,6 +68,7 @@ data CleverAI = CleverAI
   , shots            :: [Pos]        -- ^ AI's previous shots
   , sunk             :: [ShipShape]  -- ^ ships of the user's fleet that are already sunk
   , sunkTime         :: [Int]        -- ^ what was the number of shots fired when the respective ship was sunk
+  , curTurnNumber    :: Int          -- ^ approximate (maybe off by 1) turn number only in movable mode
   , checkerboardEven :: Bool
   }
 
@@ -79,6 +80,7 @@ cleverAI r checkerboardEven = CleverAI
   , shots            = []
   , sunk             = []
   , sunkTime         = []
+  , curTurnNumber    = 0
   , checkerboardEven = checkerboardEven
   }
 
@@ -90,6 +92,7 @@ instance AI CleverAI where
   aiFire         = liftM maximumIx $ scoreGrid >>= randomize
   aiResponse p r = modify (cleverResponse p r)
   aiMove fleet _ = do
+    modify increaseTurnNumber
     move <- chooseRandom $
       [ (shipID ship, mvmt)
       | ship <- Map.elems fleet
@@ -97,7 +100,12 @@ instance AI CleverAI where
       , isMovable mvmt fleet ship
       ]
     rand <- getRandomR (0.0, 1.0)
-    return $ if rand < probMove then move else Nothing
+    return $ if rand < probMove then move else Nothing where
+      -- curTurnNumber is only increased in aiMove which is invoked every other turn,
+      -- so we increase the number by 2. So this number may be off by 1, but fixing this
+      -- isn't worth the effort. (Because curTurnNumber is only needed to decide whether
+      -- one switches to phase 2 in movable mode.)
+      increaseTurnNumber ai@CleverAI{..} = ai { curTurnNumber = curTurnNumber + 2 }
 
 -- | How often should the AI use its right to move?
 probMove :: Double
@@ -119,7 +127,8 @@ cleverResponse p r ai = case r of
     ai' = ai
       { tracking = tracking ai // [(p, Just r)]
       , shots    = p : shots ai
-      }    
+      } 
+
 
 --------------------------------------------------------------------------------
 -- * Firing shots
@@ -197,6 +206,8 @@ scorePosition ai@(CleverAI {..}) remaining pos@(x,y) =
   scoreMovable :: Score
   scoreMovable = if hitCellsCount < minRequiredHits
     -- This condition determines when we have hit enough ships to move on to the second phase.
+                 && curTurnNumber < rulesMaximumTurns rules - rulesCountdownTurns rules
+    -- This condition checks whether the countdown hasn't started yet.
     then phase1 else phase2 where
     -- | Minimum number of hits required to move on to the 2nd phase.
     -- | When a checkerboard pattern is applied, this is the minimum number of
@@ -365,10 +376,12 @@ instance Serialize CleverAI where
                  <*> getList8 S.get
                  <*> getList8 getIntegral8
                  <*> S.get
+                 <*> S.get
   put CleverAI {..} = do
     S.put rules
     putSmallGrid S.put tracking
     putList8 putPos shots
     putList8 S.put sunk
     putList8 putIntegral8 sunkTime
+    S.put curTurnNumber
     S.put checkerboardEven
