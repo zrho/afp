@@ -89,9 +89,7 @@ instance Yesod App where
         addStaticContentExternal mini genFileName staticContentPath (StaticR . flip StaticRoute []) fileExt mimeType content
       where
         -- Generate a unique filename based on the content itself
-        genFileName lbs
-            | development = "autogen-" ++ base64md5 lbs
-            | otherwise   = base64md5 lbs
+        genFileName = base64md5
         mini
             | development = Right 
             | otherwise   = minifym
