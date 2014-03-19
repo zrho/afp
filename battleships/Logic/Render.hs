@@ -105,6 +105,7 @@ renderPlayerGrid :: Fleet -> TrackingList -> Action -> Rules -> Int -> Diagram S
 renderPlayerGrid fleet shots requiredAction rules@Rules{..} turnNumber = mconcat
     [ markLastShots
     , renderSunkFleet fleet
+    , fold . fmap renderArrows . Map.filter (not . isDamaged) $ fleet
     , renderPositions $ renderMarker fleet shots rules turnNumber False
     , fold . fmap renderShip . Map.filter (not . isShipSunk) $ fleet
     , renderPositions $ renderCell fleet shots rules turnNumber
@@ -116,16 +117,20 @@ renderPlayerGrid fleet shots requiredAction rules@Rules{..} turnNumber = mconcat
         -> flip foldMap (zip [1::Int ..] (reverse shotsLastRound)) $ \(idx, Shot lastShotPos _ _) ->
                  lastShotMarker idx # translateToPos lastShotPos
       _ -> mempty
+    renderArrows ship@Ship{shipShape = ShipShape{shipPosition=(x,y),..},..} =
+      translateToPos (x,y) $ case shipOrientation of
+        Horizontal -> hcat [arrowCell i | i <- [0..shipSize-1]] # alignTL
+        Vertical   -> vcat [arrowCell i | i <- [0..shipSize-1]] # alignTL
+      where
+        arrowCell i = case requiredAction of
+          ActionMove -> maybe mempty renderArrow (movementArrowAt ship i fleet) <> transparentSquare
+          _          -> mempty
     renderShip ship@Ship{shipShape = ShipShape{shipPosition=(x,y),..},..} = 
       translateToPos (x,y) $ case shipOrientation of
-        Horizontal -> hcat [shipCell i | i <- [0..shipSize-1]] # alignTL
-        Vertical   -> vcat [shipCell i | i <- [0..shipSize-1]] # alignTL
+        Horizontal -> hcat (replicate shipSize shipCell) # alignTL
+        Vertical   -> vcat (replicate shipSize shipCell) # alignTL
       where
-        shipCell = if isDamaged ship then const shipSquare else movableShipCell
-        movableShipCell i =
-          case requiredAction of
-            ActionMove -> maybe mempty renderArrow (movementArrowAt ship i fleet) <> movableSquare
-            _          -> movableSquare
+        shipCell = if isDamaged ship then shipSquare else movableSquare
 
 gridRange :: (Pos, Pos)
 gridRange = ((0, 0), (fst boardSize - 1, snd boardSize - 1))
@@ -210,11 +215,11 @@ colNumbers n = hcat [num i | i <- [0..n-1]] # value [] where
   strNum i = [toEnum $ fromEnum 'A' + i]
 
 #if MIN_VERSION_diagrams_lib(0,7,0)
-marker, waterSquare, shipSquare, movableSquare, fogSquare
+marker, waterSquare, shipSquare, movableSquare, fogSquare, transparentSquare
   :: (Alignable b, HasOrigin b, TrailLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #else
-marker, waterSquare, shipSquare, movableSquare, fogSquare
+marker, waterSquare, shipSquare, movableSquare, fogSquare, transparentSquare
   :: (Alignable b, HasOrigin b, PathLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #endif
@@ -225,6 +230,7 @@ waterSquare    = square cellSize # fc waterColor
 fogSquare      = square cellSize # fc fogColor
 shipSquare     = rect cellSize cellSize # fc shipColor
 movableSquare  = rect cellSize cellSize # fc movableColor
+transparentSquare = rect cellSize cellSize # opacity 0
 
 renderSunkFleet :: Fleet -> Diagram SVG R2
 renderSunkFleet = lw 5
@@ -341,7 +347,7 @@ innerGridWidth = 1
 innerGridLineStyle, outerGridLineStyle, arrowStyle :: HasStyle c => c -> c
 innerGridLineStyle = lw innerGridWidth . lc gridColor . dashing [3, 3] 0
 outerGridLineStyle = lw innerGridWidth . lc gridColor
-arrowStyle         = lw 3 . lc gray
+arrowStyle         = lw 5 . lc gray
 
 numberStyle :: HasStyle c => c -> c
 numberStyle = fontSize 30 . font "Monospace"
