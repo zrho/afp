@@ -70,4 +70,4 @@ data Extra = Extra
   }
 
 parseExtra :: DefaultEnv -> Object -> Parser Extra
-parseExtra _ o = Extra <$> o .: "countdownturns" <*> o .: "maxturns" <*> o .: "datadir" <*> o .: "staticdir" <*> o .: "sourceURL"
+parseExtra _ o = Extra <$> fmap (*2) (o .: "countdownturns") <*> fmap (*2) (o .: "maxturns") <*> o .: "datadir" <*> o .: "staticdir" <*> o .: "sourceURL"
