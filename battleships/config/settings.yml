@@ -5,8 +5,8 @@ Default: &defaults
   datadir: "config/"
   staticdir: "static/"
   sourceURL: "https://github.com/zrho/afp/tree/master/battleships"
-  maxturns: 150
-  countdownturns: 20
+  maxturns: 50
+  countdownturns: 40
 
 Development:
   <<: *defaults

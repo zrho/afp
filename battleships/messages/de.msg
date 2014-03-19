@@ -40,6 +40,7 @@ OpponentRemainingShips: Folgende Schiffe musst du noch finden
 ShipsUnsunk: Noch nicht gesunken
 Hints: Hinweise
 RemainingTurns n@Int: Nur noch #{show n} verbleibende Spielzüge!
+LastTurn: Letzter Zug!
 
 Legend: Legende
 LegendShipWithArrow: Schiff durch Klick bewegen

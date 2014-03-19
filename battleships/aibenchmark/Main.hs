@@ -126,5 +126,5 @@ benchmarkRules = Rules
   , rulesMove           = undefined
   , rulesDifficulty     = undefined
   , rulesMaximumTurns   = 150
-  , rulesCountdownTurns = 20
+  , rulesCountdownTurns = 40
   }

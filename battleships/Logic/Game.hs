@@ -233,7 +233,7 @@ isTimedOut game = curTurns >= maxTurns where
 
 -- | Calculates the number of remaining turns per player.
 remainingTurns :: GameState a -> Int
-remainingTurns game = (maxTurns - curTurns) `div` 2 + 1 where
+remainingTurns game = maxTurns - curTurns where
   curTurns = turnNumber game
   maxTurns = rulesMaximumTurns . gameRules $ game
 
@@ -241,7 +241,7 @@ remainingTurns game = (maxTurns - curTurns) `div` 2 + 1 where
 -- It starts when exactly countdownTurns turns remain.
 isCountdownStart :: GameState a -> Bool
 isCountdownStart game = remTurns == cdTurns where
-  remTurns = remainingTurns game 
+  remTurns = remainingTurns game
   cdTurns = rulesCountdownTurns . gameRules $ game
 
 -- | Switches the roles of active and passive player.

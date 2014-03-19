@@ -40,6 +40,7 @@ OpponentRemainingShips: These ships are yet to be found
 ShipsUnsunk: Not yet sunk
 Hints: Hints
 RemainingTurns n@Int: Only #{show n} turns remaining!
+LastTurn: Last turn!
 
 Legend: Legend
 LegendShipWithArrow: click to move the ship

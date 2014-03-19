@@ -31,9 +31,13 @@
     <div .infoBoxV>
       <h3>_{MsgHints}
       $if devModeOpt
-        <h4>_{MsgRemainingTurns $ remainingTurns game}
+        <h4>_{MsgRemainingTurns remTurns}
       $if showCountdown game
-        <h4 .alert>_{MsgRemainingTurns $ remainingTurns game}
+        <h4 .alert>
+          $if remTurns == 0
+            _{MsgLastTurn}
+          $else
+            _{MsgRemainingTurns remTurns}
       ^{shipsOpponentWidget game Vertical}
       <div  .watchreplay>
         <a .linkButton .redButton href="#!" onclick="confirmReplay()">
@@ -53,9 +57,13 @@
           _{MsgWatchReplay}
       <h3>_{MsgHints}
       $if devModeOpt
-        <h4>_{MsgRemainingTurns $ remainingTurns game}
+        <h4>_{MsgRemainingTurns remTurns}
       $if showCountdown game
-        <h4 .alert>_{MsgRemainingTurns $ remainingTurns game}
+        <h4 .alert>
+          $if remTurns == 0
+            _{MsgLastTurn}
+          $else
+            _{MsgRemainingTurns remTurns}
       ^{shipsOpponentWidget game Horizontal}
 
 <div .legendH>
@@ -65,5 +73,5 @@
 <script>
   var replayUrl = '@{ReplayR gameE}';
   var alertCountdown = '#{showAlert}';
-  var alertMessage = '_{MsgRemainingTurns $ remainingTurns game}';
+  var alertMessage = '_{MsgRemainingTurns remTurns}';
   \$(playScriptInit('@{MoveR gameE}', '@{FireR gameE}'))

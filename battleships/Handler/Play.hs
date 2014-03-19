@@ -57,6 +57,7 @@ playView game@GameState{..} gameE = defaultLayout $ do
   setNormalTitle
   addScript $ StaticR js_jquery_js
   messageRender <- getMessageRender
+  let remTurns = remainingTurns game `div` 2
   let showAlert = case expectedAction of ActionFire -> isCountdownStart game
                                          _          -> False
   $(widgetFile "board")
