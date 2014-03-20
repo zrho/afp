@@ -39,7 +39,7 @@ OpponentsFleet: Gegnerische Flotte
 OpponentRemainingShips: Folgende Schiffe musst du noch finden
 ShipsUnsunk: Noch nicht gesunken
 Hints: Hinweise
-RemainingTurns n@Int: Nur noch #{show n} verbleibende Spielzüge!
+RemainingTurns n@Int: Nur noch #{show n} verbleibende Spielzüge (nach diesem)!
 LastTurn: Letzter Zug!
 
 Legend: Legende

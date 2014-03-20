@@ -39,7 +39,7 @@ OpponentsFleet: Opponent's Fleet
 OpponentRemainingShips: These ships are yet to be found
 ShipsUnsunk: Not yet sunk
 Hints: Hints
-RemainingTurns n@Int: Only #{show n} turns remaining!
+RemainingTurns n@Int: Only #{show n} turns remaining (after this one)!
 LastTurn: Last turn!
 
 Legend: Legend

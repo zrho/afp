@@ -1,7 +1,6 @@
 {-# LANGUAGE CPP #-}
 module Settings.Development
   ( development
-  , production
   ) where
 
 import Prelude
@@ -14,7 +13,3 @@ development =
 #else
   False
 #endif
-
-{-# INLINE production #-}
-production :: Bool
-production = not development
