@@ -21,6 +21,7 @@
       <div .infoBoxH .bannerDrawn>
         <h3 .bannerText>
           _{MsgDrawn remShipsHuman}
+        <br>
         <a .linkButton .redButton href="@{ReplayR gameE}">
           _{MsgWatchReplay}
     $elseif timedOut
@@ -28,12 +29,14 @@
         <div .infoBoxH .bannerWon>
           <h3 .bannerText>
             _{MsgWonByTimeout remShipsHuman remShipsComputer}
+          <br>
           <a .linkButton .redButton href="@{ReplayR gameE}">
             _{MsgWatchReplay}
       $else 
         <div .infoBoxH .bannerLost>
           <h3 .bannerText>
             _{MsgLostByTimeout remShipsHuman remShipsComputer}
+          <br>
           <a .linkButton .redButton href="@{ReplayR gameE}">
             _{MsgWatchReplay}
     $else
@@ -41,11 +44,13 @@
         <div .infoBoxH .bannerWon>
           <h3 .bannerText>
             _{MsgWon}
+          <br>
           <a .linkButton .redButton href="@{ReplayR gameE}">
             _{MsgWatchReplay}
       $else 
         <div .infoBoxH .bannerLost>
           <h3 .bannerText>
             _{MsgLost}
+          <br>
           <a .linkButton .redButton href="@{ReplayR gameE}">
             _{MsgWatchReplay}
