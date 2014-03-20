@@ -40,7 +40,7 @@
             _{MsgRemainingTurns remTurns}
       ^{shipsOpponentWidget game Vertical}
       <div  .watchreplay>
-        <a .linkButton .yellowButton href="#!" onclick="window.open('@{SaveGameR gameE}', 'newwindow', 'width=800, height=650'); return false;">
+        <a .linkButton .yellowButton href="#!" onclick="window.open('@{SaveGameR gameE}', 'newwindow', 'width=800, height=300'); return false;">
           _{MsgSaveGame}
         <br>
         <a .linkButton .redButton href="#!" onclick="confirmReplay()">
