@@ -253,10 +253,10 @@ timedOpacity True turnNumber shotTime = opacityAfter $ turnNumber - shotTime
 timedOpacity False _ _                = opacity 1
 
 opacityAfter :: (Integral i, HasStyle c) => i -> c -> c
-opacityAfter timeDiff = opacity (foot + max 0 ((1 - foot) * f ((fromIntegral timeDiff) / steps)))
+opacityAfter timeDiff = opacity (foot + if timeDiff < steps then (1 - foot) * f ((fromIntegral timeDiff) / (fromIntegral steps)) else 0)
   where foot = 0.25  -- the minimal opacity value used
         steps = 20   -- the number of steps in which the opacity decreases from 1 to the above value
-        -- f should be a monotone function from (0,1) to (1,0), and never positive thereafter; e.g., could be f x = 1 - x
+        -- f should be a monotone function from (0,1) to (1,0); e.g., could be f x = 1 - x
         f x = let param = 0.3  -- a parameter by which to tweak the slowness of the decrease; should be between 0 and exp 1
               in (1 - log (param + x * (exp 1 - param))) / (1 - log param)
 
