@@ -79,7 +79,6 @@ div.content
   padding: 10px 15px
   margin: 5px 5px
   color: #EEE
-  display: inline-block
   margin-bottom: 10px
   text-decoration: none
   white-space: nowrap
