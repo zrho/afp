@@ -92,7 +92,7 @@ turn verbose rules shots fleet sunk count = do
           let
             -- inflict damage to the ship
             Just idx = shipCellIndex pos ship
-            newShip  = damageShip idx ship
+            newShip  = damageShip count idx ship
             -- replace ship
             newFleet = Map.insert (shipID ship) newShip fleet
           in if isShipSunk newShip

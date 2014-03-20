@@ -18,6 +18,7 @@ module Logic.Types
   , HitResponse (..)
   , Movement (..)
   , Orientation (..)
+  , Time (..)
   , Player (..)
   , PlayerState (..)
   , Options (..)
@@ -54,6 +55,7 @@ import           Data.Array
 import           Data.Bits
 import           Data.Function (on)
 import qualified Data.Map as Map
+import           Data.Maybe (fromMaybe)
 import           Data.Serialize (Serialize (..), encode, decode)
 import           Data.Serialize.Get
 import           Data.Serialize.Put
@@ -132,6 +134,10 @@ data Orientation
   | Vertical
   deriving (Enum, Bounded)
 
+-- | Represents the last time (turn number) that an event happened,
+-- if any, especially a ship hit in the Ship data type.
+newtype Time = Time { unwrapTime :: Maybe Int }
+
 -- | Encodes a ships state using position, size and orientation
 data ShipShape = ShipShape 
   { shipPosition    :: Pos
@@ -143,7 +149,7 @@ data ShipShape = ShipShape
 data Ship = Ship
   { shipID     :: ShipID         -- ^ unique ID of ship
   , shipShape  :: ShipShape      -- ^ shape of ship (including position, orientation and size)
-  , shipDamage :: Array Int Bool -- ^ damage at each position
+  , shipDamage :: Array Int Time -- ^ damage at each position
   }
 
 instance Eq Ship where
@@ -367,6 +373,12 @@ instance Serialize ShipShape where
     putPos shipPosition
     putIntegral8 shipSize
     put shipOrientation
+
+instance Serialize Time where
+  get = mkTime <$> getIntegral8 where
+    mkTime 0xFF = Time Nothing
+    mkTime i    = Time $ Just i
+  put (Time t) = putIntegral8 $ fromMaybe 0xFF t
 
 instance Serialize Ship where
   get = Ship <$> getIntegral8 <*> get <*> get

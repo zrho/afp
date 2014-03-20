@@ -120,7 +120,7 @@ reconstructOriginalFleet moves = undoMoves moves . unsinkFleet
 
 unsinkFleet :: Fleet -> Fleet
 unsinkFleet = fmap unsinkShip where
-  unsinkShip s = s { shipDamage = fmap (const False) $ shipDamage s }
+  unsinkShip s = s { shipDamage = fmap (const $ Time Nothing) $ shipDamage s }
 
 undoMoves :: [ShipMove] -> Fleet -> Fleet
 undoMoves ms fleet = foldl undo fleet ms where

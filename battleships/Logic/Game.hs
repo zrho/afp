@@ -172,8 +172,8 @@ shipCellIndex (px,py) (getShipShape -> ShipShape{..}) = case shipOrientation of
     where (sx, sy) = shipPosition
 
 -- | Inflicts damage to the specified ship cell
-damageShip :: Int -> Ship -> Ship
-damageShip i ship = ship { shipDamage = shipDamage ship // [(i,True)] }
+damageShip :: Int -> Int -> Ship -> Ship
+damageShip time i ship = ship { shipDamage = shipDamage ship // [(i, Time $ Just time)] }
 
 allSunk :: Fleet -> Bool
 allSunk = and . fmap isShipSunk
@@ -183,14 +183,14 @@ numRemainingShips :: Fleet -> Int
 numRemainingShips = Map.size . Map.filter (not . isShipSunk)
 
 isDamaged :: Ship -> Bool
-isDamaged = or . elems . shipDamage
+isDamaged = L.any (isJust . unwrapTime) . elems . shipDamage
 
 isShipSunk :: Ship -> Bool
-isShipSunk = and . elems . shipDamage
+isShipSunk = L.all (isJust . unwrapTime) . elems . shipDamage
 
 generateFleet :: FleetPlacement -> Fleet
 generateFleet = Map.fromAscList . fmap newShip . zip [1..] where
-  newShip (sID, shape) = (sID, Ship sID shape (listArray (0,shipSize shape-1) (repeat False)))
+  newShip (sID, shape) = (sID, Ship sID shape (listArray (0,shipSize shape-1) (repeat $ Time Nothing)))
 
 numberShipsOfSize :: [Int] -> Int -> Int
 numberShipsOfSize ships size = length $ filter (== size) ships
@@ -267,6 +267,7 @@ fireAt :: (MonadState (GameState a) m)
 fireAt pos = do
   self  <- gets currentPlayer
   other <- gets otherPlayer
+  time <- gets turnNumber
   let remainingFleet = Map.filter (not . isShipSunk) (playerFleet other)
   result <- case shipAt remainingFleet pos of
     Nothing -> return Water
@@ -274,7 +275,7 @@ fireAt pos = do
       let
         -- inflict damage to the ship
         Just idx = shipCellIndex pos ship
-        newShip  = damageShip idx ship
+        newShip  = damageShip time idx ship
         -- replace ship
         newFleet = Map.insert (shipID ship) newShip (playerFleet other)
         other'   = other { playerFleet = newFleet }
@@ -284,7 +285,6 @@ fireAt pos = do
         then Sunk
         else Hit
   -- add this shot to history
-  time <- gets turnNumber
   let self' = self { playerShots = Shot pos result time : playerShots self }
   modify (\gs -> gs{currentPlayer = self'})
   return result
@@ -451,8 +451,8 @@ moveShip ship movement fleet =
 
 -- | Like moveShip but without movability check; needed for replay.
 uncheckedMoveShip :: Ship -> Movement -> Fleet -> Fleet
-uncheckedMoveShip ship movement fleet = 
-  Map.adjust (\s -> s{shipShape = newShape}) (shipID ship) fleet
+uncheckedMoveShip ship movement = 
+  Map.adjust (\s -> s{shipShape = newShape}) (shipID ship)
     where newShape = movedShipShape movement (shipShape ship)
 
 -- | Checks whether a ship can be moved.
