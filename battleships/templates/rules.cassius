@@ -9,7 +9,6 @@ div.rulesBox
   box-shadow: 0 0 5px #36BBCE
   background-color: rgba(1, 89, 101, 0.25)
   width: 400px
-  height: 240px
   text-align: center
 
 div.rulesFields

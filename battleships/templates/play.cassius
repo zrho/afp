@@ -72,7 +72,6 @@ div.boards
 div.actionBox
   text-align: center
   padding-top: 16px
-  height: 64px
 
 div.boards h3, div.boards h4
   text-align: center
@@ -93,9 +92,6 @@ div.infoBoxV
 div.infoBoxH
   height: 100%
   width: 100%
-
-div.legendH
-  height: 200px
 
 div.infoH, div.legendH
   margin: 0px auto
@@ -121,5 +117,4 @@ div.infoBoxV .watchreplay
   width: 100%
 
 div.infoBoxH .watchreplay
-  padding: 20px
   margin-top: 30px

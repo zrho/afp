@@ -61,5 +61,4 @@ div.infoH
   padding-top: 15px
 
 div.infoBoxH
-  height: 100%
   width: 100%
