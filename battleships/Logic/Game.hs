@@ -231,7 +231,7 @@ isTimedOut game = curTurns >= maxTurns where
   curTurns = turnNumber game
   maxTurns = rulesMaximumTurns . gameRules $ game
 
--- | Calculates the number of remaining turns per player.
+-- | Calculates the number of remaining turns overall.
 remainingTurns :: GameState a -> Int
 remainingTurns game = maxTurns - curTurns where
   curTurns = turnNumber game

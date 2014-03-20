@@ -21,5 +21,5 @@ getAboutR = do
     let 
       sourceURL = extraSourceURL extra
       maxTurns = (extraMaxTurns extra) `div` 2
-      countdownTurns = extraCountdownTurns extra
+      countdownTurns = (extraCountdownTurns extra) `div` 2
     $(widgetFile "about")
