@@ -49,17 +49,16 @@ moveForm = liftA2 (liftA2 (,)) (iopt doubleField "X") (iopt doubleField "Y")
 -------------------------------------------------------------------------------
 
 -- | Displays the game UI to the user.
-getPlayR :: GameStateExt -> Handler Html
-getPlayR gameE = withGame gameE $ \game -> playView game gameE
+getPlayR :: Bool -> GameStateExt -> Handler Html
+getPlayR firstContact gameE = withGame gameE $ \game -> playView firstContact game gameE
 
-playView :: GameState a -> GameStateExt -> Handler Html
-playView game@GameState{..} gameE = defaultLayout $ do
+playView :: Bool -> GameState a -> GameStateExt -> Handler Html
+playView firstContact game@GameState{..} gameE = defaultLayout $ do
   setNormalTitle
   addScript $ StaticR js_jquery_js
   messageRender <- getMessageRender
   let remTurns = remainingTurns game `div` 2
-  let showAlert = case expectedAction of ActionFire -> isCountdownStart game
-                                         _          -> False
+  let showAlert = firstContact && isCountdownStart game
   $(widgetFile "board")
   $(widgetFile "play")
 
@@ -104,10 +103,10 @@ postFireR gameE = withGame gameE $ \game -> do
         case result of
           Over  -> gameEnded game'
           -- shoot again. expectedAction has not changed
-          Again -> continue game'
+          Again -> continue False game'
           -- either perform AI turn or let human move
           Next
-            | expectedAction game' == ActionMove -> continue game'
+            | expectedAction game' == ActionMove -> continue False game'
             | otherwise -> performAI game'
 
 -- | A widget that displays a table showing which ships of the opponent are remaining.
@@ -126,15 +125,15 @@ legendWidget orientation movesAllowed = $(widgetFile "legend")
 
 -- | Redirects to the game UI in case of an invalid move.
 invalidMove :: GameState a -> GameStateExt -> Handler Html
-invalidMove = playView -- \_ -> redirect . PlayR
+invalidMove = playView False -- \_ -> redirect . PlayR False
 
 -- | Redirects to the game ended screen.
 gameEnded :: (Serialize a, AI a) => GameState a -> Handler Html
 gameEnded game = expGameH game >>= gameEndedView game -- redirect . GameEndedR
 
--- | Redirects the the game UI in case the game is still on.
-continue :: (Serialize a, AI a) => GameState a -> Handler Html
-continue game = expGameH game >>= playView game -- redirect . PlayR
+-- | Redirects to the game UI in case the game is still on.
+continue :: (Serialize a, AI a) => Bool -> GameState a -> Handler Html
+continue firstContact game = expGameH game >>= playView firstContact game -- redirect . PlayR firstContact
 
 -------------------------------------------------------------------------------
 -- * AI
@@ -146,7 +145,7 @@ performAI game = do
   (result, game') <- liftIO $ runStateT aiTurn game
   case result of
     Over  -> gameEnded game'
-    Next  -> continue game'
+    Next  -> continue True game'
     Again -> error "impossible. `Again` is handled by aiTurn"
 
 -- | Determines whether the countdown should already be shown.

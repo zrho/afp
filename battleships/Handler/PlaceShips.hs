@@ -66,7 +66,7 @@ startGame Options{..} fleetPlacement = do
       , rulesCountdownTurns = extraCountdownTurns extra
       }
   game  <- liftIO (newGame rules noviceMode (development && devMode) fleetPlacement HumanPlayer :: IO (GameState DefaultAI))
-  expGameH game >>= playView game -- redirect . PlayR
+  expGameH game >>= playView True game -- redirect . PlayR True
 
 -------------------------------------------------------------------------------
 -- * Random Completion
