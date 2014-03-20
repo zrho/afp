@@ -104,10 +104,10 @@ renderEnemyGrid fleet shots rules noviceMode turnNumber uncoverFleet = mconcat
 renderPlayerGrid :: Fleet -> TrackingList -> Action -> Rules -> Int -> Diagram SVG R2
 renderPlayerGrid fleet shots requiredAction rules@Rules{..} turnNumber = mconcat
     [ markLastShots
-    , renderSunkFleet fleet
-    , fold . fmap renderArrows . Map.filter (not . isDamaged) $ fleet
+    , foldMap renderArrows . Map.filter (not . isDamaged) $ fleet
     , renderPositions $ renderMarker fleet shots rules turnNumber False
-    , fold . fmap renderShip . Map.filter (not . isShipSunk) $ fleet
+    , foldMap renderShip . Map.filter (not . isShipSunk) $ fleet
+    , renderSunkFleet fleet
     , renderPositions $ renderCell fleet shots rules turnNumber
     , contentSquare # fc waterColor
     ]
