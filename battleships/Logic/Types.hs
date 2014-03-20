@@ -56,6 +56,7 @@ import           Data.Bits
 import           Data.Function (on)
 import qualified Data.Map as Map
 import           Data.Maybe (fromMaybe)
+import           Data.Monoid
 import           Data.Serialize (Serialize (..), encode, decode)
 import           Data.Serialize.Get
 import           Data.Serialize.Put
@@ -137,6 +138,15 @@ data Orientation
 -- | Represents the last time (turn number) that an event happened,
 -- if any, especially a ship hit in the Ship data type.
 newtype Time = Time { unwrapTime :: Maybe Int }
+
+-- | Maximum monoid.
+-- Useful because we often want to know when the last time
+-- was that something happened. (last -> maximum)
+instance Monoid Time where
+  mempty = Time Nothing
+  mappend (Time Nothing)   t                = t
+  mappend t                (Time Nothing)   = t
+  mappend (Time (Just t1)) (Time (Just t2)) = Time . Just $ max t1 t2
 
 -- | Encodes a ships state using position, size and orientation
 data ShipShape = ShipShape 

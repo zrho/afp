@@ -136,7 +136,7 @@ gridRange :: (Pos, Pos)
 gridRange = ((0, 0), (fst boardSize - 1, snd boardSize - 1))
 
 renderPositions :: (Pos -> Diagram SVG R2) -> Diagram SVG R2
-renderPositions f = mconcat . map renderPos $ range gridRange where
+renderPositions f = foldMap renderPos $ range gridRange where
   renderPos p = translateToPos p $ f p
 
 -- | Gives the result of the last shot at the given position
@@ -145,8 +145,8 @@ lastShotResult :: Fleet -> TrackingList -> Int -> Pos -> Maybe (HitResponse, Int
 lastShotResult fleet shots turnNumber pos =
   case L.find ((pos == ) . shotPos) shots of
     Nothing -> Nothing
-    Just (Shot _ Hit _) -> Just $ case sinkTime fleet pos shots of
-      Just t | isShipAtSunk fleet pos -> (Sunk, t)
+    Just (Shot _ Hit hitTime) -> Just $ case unwrapTime $ sinkTime fleet pos of
+      Just t | hitTime <= t -> (Sunk, t) -- make sure that the hit wasn't after the sinking!
       _ -> (Hit, turnNumber) -- hit information is always up-to-date -> turnNumber instead of t
     Just (Shot _ res t) -> Just (res, t)
 
@@ -164,7 +164,7 @@ renderMarker fleet shots Rules{..} turnNumber showOnlyHit pos
 
 renderImpossible :: Fleet -> TrackingList -> Rules -> Int -> Pos -> Diagram SVG R2
 renderImpossible fleet shots Rules{..} turnNumber pos@(x,y)
- = alignTL $ case impossibleInfo of
+ = alignTL $ case unwrapTime impossibleInfo of
     Nothing -> mempty
     Just time -> case lastShotResult fleet shots turnNumber pos of
       Just (_, t) | t >= time -> mempty -- hint is older than actual player's actual information
@@ -172,21 +172,14 @@ renderImpossible fleet shots Rules{..} turnNumber pos@(x,y)
   where
     opac = timedOpacity rulesMove turnNumber
     impossibleInfo = findMostRecentHit diagonalCells
-      `mostRecent` findMostRecentlySunkShip adjacentCells
+      `mappend` findMostRecentlySunkShip adjacentCells
     diagonalCells = [(x + dx, y + dy) | dx <- [-1,1], dy <- [-1,1]]
     adjacentCells = [(x + dx, y + dy) | dx <- [-1,0,1], dy <- [-1,0,1]]
-    findMostRecentHit = foldr (mostRecent . getTimeOfHit) Nothing
-    getTimeOfHit p = case lastShotResult fleet shots turnNumber p of
+    findMostRecentHit = foldMap getTimeOfHit
+    getTimeOfHit p = Time $ case lastShotResult fleet shots turnNumber p of
       Just (Hit, time) -> Just time
       _                -> Nothing
-    findMostRecentlySunkShip = foldr (mostRecent . \p -> sinkTime sunkFleet p shots) Nothing
-    sunkFleet = Map.filter isShipSunk fleet
-
--- | Finds the most recent time, i.e. chooses the maximum.
-mostRecent :: Maybe Int -> Maybe Int -> Maybe Int
-mostRecent Nothing t2 = t2
-mostRecent t1 Nothing = t1
-mostRecent (Just t1) (Just t2) = Just $ max t1 t2
+    findMostRecentlySunkShip = foldMap $ sinkTime fleet
 
 renderCell :: Fleet -> TrackingList -> Rules -> Int -> Pos -> Diagram SVG R2
 renderCell fleet shots Rules{..} turnNumber pos
@@ -253,7 +246,7 @@ timedOpacity True turnNumber shotTime = opacityAfter $ turnNumber - shotTime
 timedOpacity False _ _                = opacity 1
 
 opacityAfter :: (Integral i, HasStyle c) => i -> c -> c
-opacityAfter timeDiff = opacity (foot + if timeDiff < steps then (1 - foot) * f ((fromIntegral timeDiff) / (fromIntegral steps)) else 0)
+opacityAfter timeDiff = opacity (foot + if timeDiff < steps then (1 - foot) * f (fromIntegral timeDiff / fromIntegral steps) else 0)
   where foot = 0.25  -- the minimal opacity value used
         steps = 20   -- the number of steps in which the opacity decreases from 1 to the above value
         -- f should be a monotone function from (0,1) to (1,0); e.g., could be f x = 1 - x

@@ -40,13 +40,13 @@ module Logic.Game
   , isDamaged
   , isMovable
   , isShipSunk
-  , isShipAtSunk
+  , shipAt
+  , shipSinkTime
   , sinkTime
   , moveShip
   , uncheckedMoveShip
   , numberShipsOfSize
   , shipAdmissible
-  , shipAt
   , shipCellIndex
   , shipCoordinates
   , sizesOfShips
@@ -63,6 +63,7 @@ import           Data.Foldable
 import           Data.List as L hiding (and, or, foldl, foldr, find)
 import qualified Data.Map as Map
 import           Data.Maybe
+import           Data.Monoid
 import           Logic.Types
 
 -------------------------------------------------------------------------------
@@ -142,6 +143,12 @@ shipCoordinates margin (getShipShape -> ShipShape{..}) =
     Vertical   -> [(x + d, y + i) | i <- [-margin..shipSize - 1 + margin], d <- [-margin..margin]]
   where (x, y) = shipPosition
 
+-- | Returns a ship that contains the given positon.
+-- If there are multiple ships on top of each other,
+-- you can't tell which one gets returned.
+-- So use this function carefully!
+-- A safe usage is e.g. applying it only to unsunkFleet
+-- because then you know that the ships can't overlap.
 shipAt :: (Foldable f, HasShipShape s) => f s -> Pos -> Maybe s
 shipAt fleet (px, py) = find containsP fleet where
   containsP (getShipShape -> ShipShape{..}) = case shipOrientation of
@@ -149,17 +156,18 @@ shipAt fleet (px, py) = find containsP fleet where
     Vertical   -> px == sx && py >= sy && py < sy + shipSize
     where (sx, sy) = shipPosition
 
-isShipAtSunk :: Fleet -> Pos -> Bool
-isShipAtSunk fleet pos = case shipAt fleet pos of
-  Nothing -> False
-  Just s  -> isShipSunk s
+-- | Determine the time when a given ship was sunk.
+shipSinkTime :: Ship -> Time
+shipSinkTime ship = if isShipSunk ship then lastHitTime ship else mempty
+
+-- | Determine the time when a given ship was sunk.
+lastHitTime :: Ship -> Time
+lastHitTime = fold . shipDamage -- let the maximum monoid take care of it
 
 -- | If at the given position there is a completely sunk ship, this returns the turn number in which it was sunk.
-sinkTime :: Fleet -> Pos -> [Shot] -> Maybe Int
-sinkTime fleet pos shots = case shipAt fleet pos of
-  Nothing   -> Nothing
-  Just ship -> Just $ L.maximum $ map shotTime sinkingShots
-    where sinkingShots = filter (\s -> shotPos s `L.elem` shipCoordinates 0 ship && shotResult s == Sunk) shots
+sinkTime :: Fleet -> Pos -> Time
+sinkTime fleet pos = foldMap shipSinkTime $ Map.filter isPosInShip fleet where
+  isPosInShip = isJust . shipCellIndex pos
 
 -- | Returns the zero-based index of a ship cell based on a global coordinate
 shipCellIndex :: HasShipShape s => Pos -> s -> Maybe Int
