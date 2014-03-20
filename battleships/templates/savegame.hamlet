@@ -1,0 +1,9 @@
+<h1>
+  _{MsgSaveGame}
+
+<p>
+  _{MsgSaveGameExplanation}
+  <br>
+  <br>
+  <a href=@{PlayR gameE}>
+    _{MsgCurrentGame}

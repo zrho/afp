@@ -47,6 +47,7 @@ library
                      Handler.Replay
                      Handler.Rules
                      Handler.Util
+                     Handler.SaveGame
                      Logic.AIUtil
                      Logic.Binary
                      Logic.CleverAI

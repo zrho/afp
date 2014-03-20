@@ -49,8 +49,8 @@ moveForm = liftA2 (liftA2 (,)) (iopt doubleField "X") (iopt doubleField "Y")
 -------------------------------------------------------------------------------
 
 -- | Displays the game UI to the user.
-getPlayR :: Bool -> GameStateExt -> Handler Html
-getPlayR firstContact gameE = withGame gameE $ \game -> playView firstContact game gameE
+getPlayR :: GameStateExt -> Handler Html
+getPlayR gameE = withGame gameE $ \game -> playView False game gameE
 
 playView :: Bool -> GameState a -> GameStateExt -> Handler Html
 playView firstContact game@GameState{..} gameE = defaultLayout $ do

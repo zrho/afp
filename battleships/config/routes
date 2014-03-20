@@ -7,3 +7,5 @@
 /battleships/rules                                  RulesR         GET POST
 /cgi-bin/battleships/static                         StaticR        Static getStatic
 /battleships/about                                  AboutR         GET
+/battleships/play/#GameStateExt/view                PlayR          GET
+/battleships/savegame/#GameStateExt                 SaveGameR      GET

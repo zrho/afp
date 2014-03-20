@@ -77,6 +77,8 @@ div.content
 .linkButton
   padding: 10px 15px
   color: #EEE
+  display: inline-block
+  margin-bottom: 10px
   text-decoration: none
   -webkit-border-radius: 4px
   -moz-border-radius: 4px

@@ -60,6 +60,9 @@ PauseButtonLabel: Anhalten
 UnpauseButtonLabel: Weiter
 RestartButtonLabel: Von vorne
 WatchReplay: Replay anschauen
+SaveGame: Das Spiel speichern
+SaveGameExplanation: Um das momentane Spiel zu speichern, setze ein Lesezeichen auf folgenden Link - so kommst du immer wieder zum jetzigen Stand!
+CurrentGame: Lesezeichen-tauglicher Link auf das aktuelle Spiel
 
 ConfirmLeave: Wirklich zurück zur Startseite?
 ConfirmReplay: Wirklich das Replay anschauen? Das beendet das aktuelle Spiel!

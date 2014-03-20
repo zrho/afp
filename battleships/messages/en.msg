@@ -60,6 +60,9 @@ PauseButtonLabel: Pause
 UnpauseButtonLabel: Unpause
 RestartButtonLabel: Restart
 WatchReplay: Watch replay
+SaveGame: Save the game
+SaveGameExplanation: To save the current game state, bookmark the following link - this way you can always come back to the current game!
+CurrentGame: Bookmarkable link to the current game
 
 ConfirmLeave: Do you really want to go home?
 ConfirmReplay: Do you really want to see the replay now? This ends the current game!
