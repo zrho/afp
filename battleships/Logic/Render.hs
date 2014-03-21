@@ -216,7 +216,7 @@ marker, waterSquare, shipSquare, movableSquare, fogSquare, transparentSquare
   :: (Alignable b, HasOrigin b, PathLike b, Transformable b, Semigroup b, HasStyle b, V b ~ R2)
   => b
 #endif
-marker         = lw 3 $ drawX (markerRadius * sqrt 2) <> circle markerRadius where
+marker         = lw 3 $ drawX (markerRadius * sqrt 2) where
   drawX s      = p2 (-0.5 * s, -0.5 * s) ~~ p2 (0.5 * s, 0.5 * s)
                <> p2 (-0.5 * s, 0.5 * s) ~~ p2 (0.5 * s, -0.5 * s)
 waterSquare    = square cellSize # fc waterColor
