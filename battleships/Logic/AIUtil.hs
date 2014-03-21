@@ -43,7 +43,7 @@ import           Data.Array
 import           Data.Function
 import           Data.List
 import qualified Data.Map as Map
-import           Data.Maybe (isJust, listToMaybe)
+import           Data.Maybe (listToMaybe)
 import qualified Data.Traversable (mapM)
 import           Logic.Game
 import           Logic.Random
@@ -190,7 +190,7 @@ showTrackingList list = showTracking . buildArray ((0,0), (fst boardSize - 1, sn
 showFleetPlacement :: FleetPlacement -> String
 showFleetPlacement fleet = tail $ concat
   [ (if x == 0 then "\n" else "") ++
-    (if isJust . shipAt fleet $ (x,y) then "O" else "~")
+    (if not . null . shipsAt fleet $ (x,y) then "O" else "~")
   | y <- [0..height - 1]
   , x <- [0..width - 1]
   ] where (width, height) = boardSize

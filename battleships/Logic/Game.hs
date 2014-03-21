@@ -40,7 +40,7 @@ module Logic.Game
   , isDamaged
   , isMovable
   , isShipSunk
-  , shipAt
+  , shipsAt
   , shipSinkTime
   , sinkTime
   , moveShip
@@ -130,7 +130,7 @@ shipAdmissible fleet ship = rangeCheck && freeCheck where
   rangeCheck     = L.all (inRange gridRange)
                  $ shipCoordinates 0 ship
   -- check if ship is not overlapping the safety margin of other ships
-  freeCheck      = L.all (isNothing . shipAt fleet)
+  freeCheck      = L.all (null . shipsAt fleet)
                  $ shipCoordinates 1 ship
   (w, h)         = boardSize
   gridRange      = ((0, 0), (w - 1, h - 1))
@@ -143,14 +143,9 @@ shipCoordinates margin (getShipShape -> ShipShape{..}) =
     Vertical   -> [(x + d, y + i) | i <- [-margin..shipSize - 1 + margin], d <- [-margin..margin]]
   where (x, y) = shipPosition
 
--- | Returns a ship that contains the given positon.
--- If there are multiple ships on top of each other,
--- you can't tell which one gets returned.
--- So use this function carefully!
--- A safe usage is e.g. applying it only to unsunkFleet
--- because then you know that the ships can't overlap.
-shipAt :: (Foldable f, HasShipShape s) => f s -> Pos -> Maybe s
-shipAt fleet (px, py) = find containsP fleet where
+-- | Returns the ships that contain the given positon.
+shipsAt :: (Foldable f, HasShipShape s) => f s -> Pos -> [s]
+shipsAt fleet (px, py) = filter containsP $ toList fleet where
   containsP (getShipShape -> ShipShape{..}) = case shipOrientation of
     Horizontal -> px >= sx && px < sx + shipSize && py == sy
     Vertical   -> px == sx && py >= sy && py < sy + shipSize
@@ -277,9 +272,9 @@ fireAt pos = do
   other <- gets otherPlayer
   time <- gets turnNumber
   let remainingFleet = Map.filter (not . isShipSunk) (playerFleet other)
-  result <- case shipAt remainingFleet pos of
-    Nothing -> return Water
-    Just ship -> do
+  result <- case shipsAt remainingFleet pos of
+    [] -> return Water
+    [ship] -> do
       let
         -- inflict damage to the ship
         Just idx = shipCellIndex pos ship
@@ -292,6 +287,7 @@ fireAt pos = do
       return $ if isShipSunk newShip
         then Sunk
         else Hit
+    _ -> error $ "Multiple unsunk ships at position " ++ show pos ++ ". This shouldn't happen!"
   -- add this shot to history
   let self' = self { playerShots = Shot pos result time : playerShots self }
   modify (\gs -> gs{currentPlayer = self'})
@@ -412,7 +408,10 @@ moveHuman pos = do
 -- | Find out which ship the player wants to move into which direction.
 desiredMove :: Pos -> Fleet -> Maybe (ShipID, Movement)
 desiredMove pos fleet = do 
-  Ship{..} <- shipAt remainingFleet pos
+  Ship{..} <- case shipsAt remainingFleet pos of
+    []     -> Nothing
+    [ship] -> Just ship
+    _      -> error $ "Multiple unsunk ships at positon " ++ show pos ++ ". This shouldn't happen!"
   let 
     (x,y) = shipPosition shipShape
     size  = shipSize shipShape
