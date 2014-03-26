@@ -20,6 +20,7 @@ getAboutR = do
     setNormalTitle
     let 
       sourceURL = extraSourceURL extra
+      aiURL = extraAIURL extra
       maxTurns = (extraMaxTurns extra) `div` 2
       countdownTurns = (extraCountdownTurns extra) `div` 2
     $(widgetFile "about")

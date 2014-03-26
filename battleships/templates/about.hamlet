@@ -7,4 +7,4 @@
 <p> _{MsgHowToWinFull maxTurns countdownTurns}
 
 <h1> _{MsgReallyFair}
-<p> _{MsgReallyFairFull sourceURL}
+<p> _{MsgReallyFairFull sourceURL aiURL}

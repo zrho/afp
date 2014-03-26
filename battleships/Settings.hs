@@ -67,7 +67,8 @@ data Extra = Extra
   , extraDataDir :: String
   , extraStaticDir :: String
   , extraSourceURL :: String
+  , extraAIURL :: String
   }
 
 parseExtra :: DefaultEnv -> Object -> Parser Extra
-parseExtra _ o = Extra <$> fmap (*2) (o .: "countdownturns") <*> fmap (*2) (o .: "maxturns") <*> o .: "datadir" <*> o .: "staticdir" <*> o .: "sourceURL"
+parseExtra _ o = Extra <$> fmap (*2) (o .: "countdownturns") <*> fmap (*2) (o .: "maxturns") <*> o .: "datadir" <*> o .: "staticdir" <*> o .: "sourceURL" <*> o .: "aiURL"
