@@ -1,11 +1,11 @@
 /battleships                                        HomeR          GET
+/battleships/about                                  AboutR         GET
+/battleships/rules                                  RulesR         GET POST
 /battleships/place/#Options                         PlaceShipsR    GET POST
 /battleships/place-random                           PlaceShipsRndR POST
-/battleships/play/#GameStateExt/fire                FireR          POST
-/battleships/play/#GameStateExt/move                MoveR          POST
-/battleships/replay/#GameStateExt                   ReplayR        GET
-/battleships/rules                                  RulesR         GET POST
-/cgi-bin/battleships/static                         StaticR        Static getStatic
-/battleships/about                                  AboutR         GET
-/battleships/play/#GameStateExt/view                PlayR          GET
+/battleships/saved/#GameStateExt                    PlayR          GET
+/battleships/fired/#GameStateExt                    FireR          POST
+/battleships/moved/#GameStateExt                    MoveR          POST
 /battleships/savegame/#GameStateExt                 SaveGameR      GET
+/battleships/replay/#GameStateExt                   ReplayR        GET
+/cgi-bin/battleships/static                         StaticR        Static getStatic
