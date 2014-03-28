@@ -69,7 +69,7 @@ playGame verbose rules = do
   putStrLn $ showFleetPlacement fleetPlacement
   let fleet = generateFleet fleetPlacement
   (count, _newAi) <- runStateT (turn verbose rules [] fleet Map.empty 0) (ai :: CleverAI)
-  return count
+  return $ count `div` 2 -- only count AI's shots, not the turn number
 
 -- | Let the AI play against itself. Returns the number of shots fired.
 turn :: AI a => Bool -> Rules -> TrackingList -> Fleet -> Fleet -> Int -> StateT a IO Int
@@ -86,9 +86,9 @@ turn verbose rules shots fleet sunk count = do
     when verbose . liftIO . putStrLn $ "AI's target: " ++ show pos
     -- fire the AI's shot against itself
     let
-      (response, fleet', sunk') = case shipAt (fleet Map.\\ sunk) pos of
-        Nothing   ->  (Water, fleet, sunk)
-        Just ship ->
+      (response, fleet', sunk') = case shipsAt (fleet Map.\\ sunk) pos of
+        []     -> (Water, fleet, sunk)
+        [ship] ->
           let
             -- inflict damage to the ship
             Just idx = shipCellIndex pos ship
@@ -98,6 +98,7 @@ turn verbose rules shots fleet sunk count = do
           in if isShipSunk newShip
              then (Sunk, newFleet, Map.insert (shipID ship) newShip sunk)
              else (Hit, newFleet, sunk)
+        _      -> error $ "Error: Multiple ships at position " ++ show pos ++ ". This shouldn't happen!"
     -- update the tracking list
     let shots'   = Shot pos response count:shots
     -- notify the AI
@@ -117,8 +118,8 @@ turn verbose rules shots fleet sunk count = do
       else return fleet'
     -- all ships sunk now?
     if allSunk fleet''
-      then return (count + 1)
-      else turn verbose rules shots' fleet'' sunk' (count + 1)
+      then return (count + 2)
+      else turn verbose rules shots' fleet'' sunk' (count + 2)
 
 benchmarkRules :: Rules
 benchmarkRules = Rules
