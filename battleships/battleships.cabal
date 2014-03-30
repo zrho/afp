@@ -168,3 +168,15 @@ executable aibenchmark
                    , transformers
                    , containers
                    , MonadRandom
+
+executable key-gen
+    if flag(library-only)
+        Buildable: False
+
+    main-is:         Main.hs
+    hs-source-dirs:  key-gen
+    ghc-options:     -O2 -Wall -Werror
+    build-depends:   base
+                   , mtl
+                   , bytestring
+                   , crypto-random
