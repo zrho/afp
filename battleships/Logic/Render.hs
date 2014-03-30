@@ -236,7 +236,7 @@ renderFleetOutline = fold . fmap renderShipOutline
 
 renderShipOutline :: Ship -> Diagram SVG R2
 renderShipOutline Ship {shipShape = ShipShape {shipPosition = (x,y), ..} } =
-  rect (w * cellSize) (h * cellSize) # alignTL # translateToPos (x,y) where
+  roundedRect (w * cellSize) (h * cellSize) (0.25 * cellSize) # alignTL # translateToPos (x,y) where
     (w,h) = case shipOrientation of
         Horizontal -> (realToFrac shipSize, 1)
         Vertical   -> (1, realToFrac shipSize)
