@@ -378,7 +378,7 @@ moveAI = do
 humanTurnFire :: (MonadState (GameState a) m)
         => Pos -> m Turn
 humanTurnFire target = do
-  -- assert, that the human is allowed to fire a shot
+  -- assert that the human is allowed to fire a shot
   ActionFire <- gets expectedAction
   -- setup common actions
   rules <- gets gameRules
