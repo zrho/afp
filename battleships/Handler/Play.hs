@@ -64,18 +64,18 @@ playView firstContact game@GameState{..} gameE = defaultLayout $ do
 
 -- | Handles a request to move one of the player's ships.
 postMoveR :: GameStateExt -> Handler Html
-postMoveR gameE = withGame gameE $ \game -> do
+postMoveR gameE = withGame gameE $ \game -> case expectedAction game of
+  ActionFire -> invalidMove game gameE
+  ActionMove -> do
     mpos <- runInputPost moveForm
     case mpos of 
       Just (x, y) -> case fieldPos (x,y) of
         -- invalid click
         Nothing  -> invalidMove game gameE
         -- valid click
-        Just pos -> do 
+        Just pos ->
           let humanFleet = playerFleet $ currentPlayer game
-          case expectedAction game of
-            ActionFire -> invalidMove game gameE
-            ActionMove -> case desiredMove pos humanFleet of
+          in case desiredMove pos humanFleet of
               Just (ship,movement) 
                 | isMovable movement humanFleet (humanFleet!ship)
                   -> performMove game (Just pos)
