@@ -52,6 +52,7 @@ library
                      Logic.Binary
                      Logic.CleverAI
                      Logic.Debug
+                     Logic.DefaultAI
                      Logic.Game
                      Logic.GameExt
                      Logic.Random
