@@ -93,8 +93,7 @@ renderEnemyGrid fleet shots rules noviceMode turnNumber uncoverFleet = mconcat
   [ if uncoverFleet then renderFleetHints else mempty
   , renderSunkFleet fleet
   , renderPositions $ renderMarker fleet shots rules turnNumber True
-  , if noviceMode then renderPositions $ renderImpossible fleet shots rules turnNumber else mempty
-  , renderPositions $ renderCell fleet shots rules turnNumber
+  , renderPositions $ (if noviceMode then renderImpossible else renderCell) fleet shots rules turnNumber
   , contentSquare # fc fogColor
   ]
   where
@@ -167,11 +166,11 @@ renderMarker fleet shots Rules{..} turnNumber showOnlyHit pos
     alignMarker = translate (r2 (halfCellSize, -halfCellSize))
 
 renderImpossible :: Fleet -> TrackingList -> Rules -> Int -> Pos -> Diagram SVG R2
-renderImpossible fleet shots Rules{..} turnNumber pos@(x,y)
+renderImpossible fleet shots rules@Rules{..} turnNumber pos@(x,y)
  = alignTL $ case unwrapTime impossibleInfo of
-    Nothing -> mempty
+    Nothing -> renderCell fleet shots rules turnNumber pos
     Just time -> case lastShotResult fleet shots turnNumber pos of
-      Just (_, t) | t >= time -> mempty -- hint is older than actual player's actual information
+      Just (_, t) | t >= time -> renderCell fleet shots rules turnNumber pos -- hint is older than player's actual information
       _                       -> waterSquare # opac time
   where
     opac = timedOpacity rulesMove turnNumber
