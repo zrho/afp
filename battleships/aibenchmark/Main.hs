@@ -12,6 +12,7 @@ import           Data.List (sort)
 import qualified Data.Map as Map
 import           Logic.AIUtil
 import           Logic.CleverAI
+import           Logic.StupidAI
 import           Logic.Game
 import           Logic.Types
 import           System.Environment

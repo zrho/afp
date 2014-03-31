@@ -100,7 +100,8 @@ instance AI CleverAI where
       , isMovable mvmt fleet ship
       ]
     rand <- getRandomR (0.0, 1.0)
-    return $ if rand < probMove then move else Nothing where
+    return $ if rand < probMove then move else Nothing
+   where
       -- curTurnNumber is only increased in aiMove which is invoked every other turn,
       -- so we increase the number by 2. So this number may be off by 1, but fixing this
       -- isn't worth the effort. (Because curTurnNumber is only needed to decide whether

@@ -26,7 +26,7 @@ import           Handler.Util
 import           Handler.Play
 import           Logic.AIUtil
 import           Logic.Game
-import           Logic.GameExt (DefaultAI)
+import           Logic.DefaultAI
 import           Logic.Binary (fromStrict)
 import           Logic.Types
 

@@ -28,6 +28,7 @@ import Data.Text.Lazy (toStrict)
 import Data.Text as T
 import Diagrams.Prelude
 import Diagrams.Backend.SVG
+import Logic.DefaultAI
 import Logic.GameExt
 import Logic.Render
 import Logic.Types

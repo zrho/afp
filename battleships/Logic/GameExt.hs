@@ -11,7 +11,6 @@ module Logic.GameExt
   , expGame
   , loadKey
   , GameStateExt
-  , DefaultAI
   ) where
 
 import           Prelude
@@ -21,18 +20,12 @@ import qualified Data.ByteString             as BS
 import qualified Data.ByteString.Lazy        as BL
 import           Data.Serialize (Serialize, encode, decode)
 import           Logic.Binary
-import           Logic.CleverAI (CleverAI)
 import           Logic.Types
 import           Yesod (PathPiece (..))
 
 -- | External encrypted game state representation.
 data GameStateExt = GameStateExt
   { fromStateExt :: BL.ByteString } deriving (Eq, Show, Read)
-
--- | The AI we use by default.
--- This way, only one line of code needs to be changed
--- when switching to a different AI.
-type DefaultAI = CleverAI
 
 -------------------------------------------------------------------------------
 -- * Conversions
