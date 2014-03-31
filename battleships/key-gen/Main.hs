@@ -1,4 +1,3 @@
-{-# LANGUAGE PackageImports, RecordWildCards #-}
 module Main where
 import Crypto.Random
 import System.Environment
