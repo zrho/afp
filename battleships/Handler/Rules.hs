@@ -22,19 +22,15 @@ import Logic.Types
 
 -- | Handler for the rule configuration page.
 getRulesR :: Options -> Handler Html
-getRulesR = renderRulePage Nothing
+getRulesR defaultOptions = defaultLayout $ do
+  setNormalTitle
+  $(widgetFile "rules")
 
 -- | Handler to accept the configured game rules.
 postRulesEditedR :: Handler Html
 postRulesEditedR = do
   rules <- runInputPost rulesForm
   redirect $ PlaceShipsR rules
-
--- | Displays the rule configuration page.
-renderRulePage :: Maybe AppMessage -> Options -> Handler Html
-renderRulePage formError defaultOptions = defaultLayout $ do
-  setNormalTitle
-  $(widgetFile "rules")
 
 -------------------------------------------------------------------------------
 -- * Forms

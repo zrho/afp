@@ -24,10 +24,5 @@
             <input #inputDevMode type="checkbox" name="devMode" value="yes" :(devMode defaultOptions):checked>
             <label for="inputDevMode">_{MsgInputDevMode}
 
-      $case formError
-        $of Just err
-          <p .error>
-            _{err}
-        $of Nothing
       <p .linkBlock>
         <input .linkButton .yellowButton type="submit" value="_{MsgStartPlacing}">
