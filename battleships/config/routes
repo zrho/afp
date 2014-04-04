@@ -1,7 +1,6 @@
 /battleships                                        HomeR          GET
 /battleships/about                                  AboutR         GET
-/battleships/rules/#Options                         RulesR         GET
-/battleships/rules-edited                           RulesEditedR   POST
+/battleships/rules                                  RulesR         GET POST
 /battleships/place/#Options                         PlaceShipsR    GET POST
 /battleships/place-random                           PlaceShipsRndR POST
 /battleships/saved/#GameStateExt                    PlayR          GET

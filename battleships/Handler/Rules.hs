@@ -8,7 +8,7 @@
 
 module Handler.Rules 
   ( getRulesR
-  , postRulesEditedR
+  , postRulesR
   ) where
 
 import Import
@@ -21,14 +21,17 @@ import Logic.Types
 -------------------------------------------------------------------------------
 
 -- | Handler for the rule configuration page.
-getRulesR :: Options -> Handler Html
-getRulesR defaultOptions = defaultLayout $ do
-  setNormalTitle
-  $(widgetFile "rules")
+getRulesR :: Handler Html
+getRulesR = do
+  extra <- getExtra
+  let defaultOptions = extraOptions extra
+  defaultLayout $ do
+    setNormalTitle
+    $(widgetFile "rules")
 
 -- | Handler to accept the configured game rules.
-postRulesEditedR :: Handler Html
-postRulesEditedR = do
+postRulesR :: Handler Html
+postRulesR = do
   rules <- runInputPost rulesForm
   redirect $ PlaceShipsR rules
 
