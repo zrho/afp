@@ -8,13 +8,12 @@
 
 module Handler.Rules 
   ( getRulesR
-  , postRulesR
+  , postRulesEditedR
   ) where
 
 import Import
 import Data.Maybe
 import Handler.Util
-import Logic.Game
 import Logic.Types
 
 -------------------------------------------------------------------------------
@@ -22,18 +21,18 @@ import Logic.Types
 -------------------------------------------------------------------------------
 
 -- | Handler for the rule configuration page.
-getRulesR :: Handler Html
+getRulesR :: Options -> Handler Html
 getRulesR = renderRulePage Nothing
 
 -- | Handler to accept the configured game rules.
-postRulesR :: Handler Html
-postRulesR = do
+postRulesEditedR :: Handler Html
+postRulesEditedR = do
   rules <- runInputPost rulesForm
   redirect $ PlaceShipsR rules
 
 -- | Displays the rule configuration page.
-renderRulePage :: Maybe AppMessage -> Handler Html
-renderRulePage formError = defaultLayout $ do
+renderRulePage :: Maybe AppMessage -> Options -> Handler Html
+renderRulePage formError defaultOptions = defaultLayout $ do
   setNormalTitle
   $(widgetFile "rules")
 
