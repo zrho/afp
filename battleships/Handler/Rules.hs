@@ -58,3 +58,6 @@ difficultyList =
 
 indexedDifficultyList :: [(Int, (AppMessage, DifficultyLevel))]
 indexedDifficultyList = zip [1 ..] difficultyList
+
+indexOfDifficulty :: DifficultyLevel -> Int
+indexOfDifficulty difficulty = fromJust . lookup difficulty $ map (\(i,(_,d)) -> (d,i-1)) indexedDifficultyList
