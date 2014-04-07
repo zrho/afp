@@ -66,7 +66,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{abstract}
-This document documents what we did in AFP.
+The goal of the project group ``Applied Functional Programming'' was to get an insight into web development using Haskell and the web framework \emph{Yesod}. 
+In this paper, we want to document our main project, a web implementation of the well-known game \emph{Battleships}. You can find the code on GitHub\footnote{\url{https://github.com/zrho/afp/tree/master/battleships}} and play the current production version\footnote{\url{http://www-pg.iai.uni-bonn.de/battleships}}.
 \end{abstract}
 
 \setcounter{tocdepth}{2}
@@ -77,15 +78,72 @@ This document documents what we did in AFP.
 %------------------------------------------------------------------------------
 \section{Introduction}
 \label{sect:intro}
-What did we do?
+Our main project was to develop a \emph{Battleships} web application providing a neat graphical user interface and an adjustable AI to play against. 
+Our version of the game includes some modifications to the usual rules, which are as follows:
 
-\subsection{Early Projects}
-\label{sect:early-projects}
-Tic-Tac-Toe, Number Guessing Game,...
+\begin{itemize}
+ \item 
+ In addition to firing a shot, the player is allowed to move one of his ships forward or backward by one cell (adhering to the placement regulations).
+ \item
+ As soon as one of your ships is completely sunk, it disappears (i.e. you can now move other ships across it).
+ \item
+ The number of turns is limited to prevent endless games. After timeout, the player with the most unsunk ships wins.
+\end{itemize}
 
-\subsection{Battleships}
-\label{sect:battleships-intro}
-Our version of this game...
+
+%-----------------------------------------------------------------------------
+\section{Demonstrating that the AI Plays Fair}
+\label{sect:fair-play}
+Of course, the AI should play fair and observe the same rules as the human player. Allowing ship movement makes it hard to check the AI for fair play by just playing, so we tried our best to clarify that the AI cannot ``cheat'':
+
+\begin{itemize}
+ \item After the game ends, we produce an animated recap of the course of the game to help the player comprehend what happened at what time. 
+ \item We use Haskell's type system to make it easy to find the places in the code where the AI does get information and interact with the game logic. This way, it is easier to check the code to convince oneself that the the AI cannot cheat.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Battleships AI}
+\label{sect:battleships-ai}
+In addition to a simple AI which basically does everything at random, we implemented a much more sophisticated AI which we are going to describe in some detail here.
+
+\subsection{Blocked Cells}
+When deciding on a cell to fire at, it is necessary to know which cells cannot currently be occupied by a ship. We call these cells \emph{blocked}. 
+We draw our information about blocked cells from the following situations:
+\begin{itemize}
+ \item 
+ If we just found out that at a certain position there is water, that position is blocked.
+ \item
+ If we just sunk a ship, all its cells are blocked. This includes its \emph{safety margin} (ships cannot touch, so cells directly around a ship cannot be occupied by any other ship).
+ \item 
+ If the cell is diagonally adjacent to a cell that was a successful hit, it is blocked because of the hit ship's safety margin.
+\end{itemize}
+
+
+\subsection{Probabilities}
+When ships are movable, you often cannot tell for sure whether a cell is blocked or not. Thus, we need to work with probabilities. When the AI just hit water the probability for this cell to be water is 1. Over time, however, this probability declines. The decline is modeled as exponential decay with factor 0.98. That means that 1 shot later, the water probability for the cell is 0.98, then 0.96, then 0.941 etc. The same decline is applied to the cells blocked because of a sunk ship, because right after being sunk other ships can start moving across it.
+
+\subsection{Scoring}
+The AI selects its next target by computing a \emph{score} for each position. A high score indicates a high probability to hit a ship at that position, so the AI chooses the position with the highest score as its next target. To make playing more interesting, we added some randomness to calculating the scores. The amount of randomness depends on the selected difficulty level, the scoring method depends on whether ships are movable or not.
+
+\subsubsection{Immovable Ships} Given a position to score, the AI considers all potential ships that this position is part of. These are weighted according to the probabilities computed before. Also, if a ship is hit or will be sunk in the next move according to the AI's tracking information, it is given an extra high score, because this ship is very likely to exist.
+
+Note that the AI does not consider whole fleets and weights them according to the probabilities, but only does this locally for each position. So it might happen that a position gets a positive score although it would be ruled out if the AI were testing whole fleets instead of individual ships.
+
+Then the AI applies a checkerboard pattern, i.e. multiplies half of the scores by 0.9, so it won't have to hit all cells to find all ships. Positions at the edge of the board naturally allow fewer ships to pass through them. But the AI shouldn't be biased towards the center, so the scores are divided by the scores at the beginning of the game. If we already attacked that position before, its score is 0.
+
+\subsubsection{Movable Ships} In this case there are 2 phases because of the limited amount of turns: As the timeout approaches, the AI changes its strategy to win after timeout. 
+\begin{description}
+ \item[Search Phase] 
+ This is what the AI does in the beginning. It strictly follows a checkerboard pattern to find (and not sink!) all ships. Sinking is not beneficial at this stage because it allows ships to move around more freely. Also, hit ships get score 0, because the goal is primarily to find all ships and not to hit the already found ones.
+ \item[Sink Phase] 
+ If the AI has hit enough ships (or if the countdown towards the end of the game is running), we move on to the 2nd phase. Currently ``enough ships'' means that there have been at least \verb+ sum . map (`div` 2) $ remaining+ hits where \verb+remaining :: [Int]+ stores lengths of the remaining ships. This is the minimum number of hits needed when we want all ships to be hit wherever the checkerboard pattern allows it.
+\end{description}
+In the 2nd phase, now that we've hopefully found all ships, our strategy is essentially the same as in the immovable case. But it's not useful to use a checkerboard pattern here because that was already used extensively in phase 1.
+
+
+
+\subsection{Moving Ships}
+The AI generates all possible movements of all movable ships and chooses one randomly, or - also randomly - decides not to move in a certain turn at all.
 
 %------------------------------------------------------------------------------
 % Refs:
