@@ -144,9 +144,8 @@ newtype Time = Time { unwrapTime :: Maybe Int }
 -- was that something happened. (last -> maximum)
 instance Monoid Time where
   mempty = Time Nothing
-  mappend (Time Nothing)   t                = t
-  mappend t                (Time Nothing)   = t
-  mappend (Time (Just t1)) (Time (Just t2)) = Time . Just $ max t1 t2
+  mappend (Time Nothing)   t = t
+  mappend (Time (Just t1)) t = Time . Just $ case t of { Time Nothing -> t1 ; Time (Just t2) -> max t1 t2 }
 
 -- | Encodes a ships state using position, size and orientation
 data ShipShape = ShipShape 
