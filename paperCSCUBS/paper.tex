@@ -1,0 +1,107 @@
+\documentclass[a4paper]{easychair}
+
+\newcommand{\easychair}{\textsf{easychair}}
+
+% This provides the \BibTeX macro
+\usepackage{doc}
+% \usepackage{makeidx}
+
+% If you plan on including some algorithm specification, we recommend
+% the below package. Read more details on the custom options of the
+% package documentation.
+%
+% \usepackage{algorithm2e}
+
+%\makeindex
+
+%% Document
+%%
+\begin{document}
+
+%% Front Matter
+%%
+% Regular title as in the article class.
+%
+\title{Project Group\\ Applied Functional Programming\\
+       \large{Web Development with Haskell}}
+
+% \titlerunning{} has to be set to either the main title or its shorter
+% version for the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \titlerunning
+% will be rejected by EasyChair
+
+\titlerunning{Web Development with Haskell}
+
+% Authors are joined by \and. Their affiliations are given by \inst, which indexes
+% into the list defined using \institute
+%
+\author{
+  Meike Grewing
+\and
+  Lukas Heidemann
+\and
+  Fabian Thorand
+\and 
+  Fabian Zaiser\\
+}
+
+% Institutes for affiliations are also joined by \and,
+\institute{
+  Informatik, Universit\"at Bonn,
+  Germany
+\\
+ }
+%  \authorrunning{} has to be set for the shorter version of the authors' names;
+% otherwise a warning will be rendered in the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \authorrunning
+% will be rejected by EasyChair
+
+\authorrunning{Grewing, Heidemann, Thorand, Zaiser}
+
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\maketitle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+This document documents what we did in AFP.
+\end{abstract}
+
+\setcounter{tocdepth}{2}
+
+\pagestyle{empty}
+
+
+%------------------------------------------------------------------------------
+\section{Introduction}
+\label{sect:intro}
+What did we do?
+
+\subsection{Early Projects}
+\label{sect:early-projects}
+Tic-Tac-Toe, Number Guessing Game,...
+
+\subsection{Battleships}
+\label{sect:battleships-intro}
+Our version of this game...
+
+%------------------------------------------------------------------------------
+% Refs:
+%
+\label{sect:bib}
+\bibliographystyle{plain}
+%\bibliographystyle{alpha}
+%\bibliographystyle{unsrt}
+%\bibliographystyle{abbrv}
+%\bibliography{easychair}
+
+%------------------------------------------------------------------------------
+% Index
+%\printindex
+
+%------------------------------------------------------------------------------
+\end{document}
+
+% EOF
