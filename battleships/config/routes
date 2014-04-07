@@ -3,7 +3,7 @@
 /battleships/rules                                  RulesR         GET POST
 /battleships/place/#Options                         PlaceShipsR    GET POST
 /battleships/place-random                           PlaceShipsRndR POST
-/battleships/saved/#GameStateExt                    PlayR          GET
+/battleships/saved/#Bool/#GameStateExt              PlayR          GET
 /battleships/fired/#GameStateExt                    FireR          POST
 /battleships/moved/#GameStateExt                    MoveR          POST
 /battleships/savegame/#GameStateExt                 SaveGameR      GET

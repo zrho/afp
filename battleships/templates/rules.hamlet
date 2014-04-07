@@ -1,7 +1,7 @@
 <div .rulesContent>
   <div .rulesBox>
     <h3>_{MsgRules}
-    <form method="post" action="@{RulesR}">
+    <form name="rules" method="post" action="@{RulesR}">
       <div .rulesFields>
         <div .ruleEntry>
           <input #inputAgain type="checkbox" name="againWhenHit" value="yes" :(againWhenHit defaultOptions):checked>
@@ -31,3 +31,6 @@
         $of Nothing
       <p .linkBlock>
         <input .linkButton .yellowButton type="submit" value="_{MsgStartPlacing}">
+
+<script>
+  this.rules.difficulty.selectedIndex = #{indexOfDifficulty (difficulty defaultOptions)};
