@@ -57,3 +57,9 @@ loadKey = BS.readFile
 instance PathPiece GameStateExt where
   fromPathPiece = fmap GameStateExt . impBinary
   toPathPiece   = expBinary . fromStateExt
+
+instance PathPiece Bool where
+    fromPathPiece "1" = Just True
+    fromPathPiece "0" = Just False
+    fromPathPiece _   = Nothing
+    toPathPiece b = if b then "1" else "0"

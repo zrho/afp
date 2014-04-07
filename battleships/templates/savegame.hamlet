@@ -5,5 +5,5 @@
   _{MsgSaveGameExplanation}
   <br>
   <br>
-  <a href=@{PlayR gameE}>
+  <a href=@{PlayR True gameE}>
     _{MsgCurrentGame}
