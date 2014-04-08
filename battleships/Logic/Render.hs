@@ -23,14 +23,15 @@ import           Prelude
 import           Data.Colour.SRGB
 import           Data.Foldable (fold, foldMap)
 import           Data.Function (on)
-import           Data.Ix
+import           Data.Array
 import qualified Data.List as L
 import qualified Data.Map as Map
-import           Diagrams.Prelude
+import           Diagrams.Prelude hiding (Time)
 import           Diagrams.Backend.SVG
 import           Diagrams.TwoD.Text
 import           Logic.Game
 import           Logic.Types
+import           Logic.Util
 
 -- | Specialised diagram type. Backend is `SVG`, vector space is `R2` and
 -- annotations `[Pos]`.
@@ -92,11 +93,13 @@ renderEnemyGrid :: Fleet -> TrackingList -> Rules -> Bool -> Int -> Bool -> Diag
 renderEnemyGrid fleet shots rules noviceMode turnNumber uncoverFleet = mconcat
   [ if uncoverFleet then renderFleetHints else mempty
   , renderSunkFleet fleet
-  , renderPositions $ renderMarker fleet shots rules turnNumber True
-  , renderPositions $ (if noviceMode then renderCellAndImpossible else renderCell) fleet shots rules turnNumber
+  , renderPositions $ renderMarker lastShotResultA rules turnNumber True
+  , renderPositions $ (if noviceMode then renderCellAndImpossible shots sinkTimeA else renderCell) lastShotResultA rules turnNumber
   , contentSquare # fc fogColor
   ]
   where
+    sinkTimeA = sinkTime fleet
+    lastShotResultA = lastShotResult sinkTimeA shots turnNumber
     renderFleetHints = lc red
                      . lw 2
                      . dashing [10] 0
@@ -108,13 +111,15 @@ renderPlayerGrid :: Fleet -> TrackingList -> Action -> Rules -> Int -> Diagram S
 renderPlayerGrid fleet shots requiredAction rules@Rules{..} turnNumber = mconcat
     [ markLastShots
     , foldMap renderArrows . Map.filter (not . isDamaged) $ fleet
-    , renderPositions $ renderMarker fleet shots rules turnNumber False
+    , renderPositions $ renderMarker lastShotResultA rules turnNumber False
     , foldMap renderShip . Map.filter (not . isShipSunk) $ fleet
     , renderSunkFleet fleet
-    , renderPositions $ renderCell fleet shots rules turnNumber
+    , renderPositions $ renderCell lastShotResultA rules turnNumber
     , contentSquare # fc waterColor
     ]
   where
+    sinkTimeA = sinkTime fleet
+    lastShotResultA = lastShotResult sinkTimeA shots turnNumber
     markLastShots = case L.groupBy ((==) `on` shotTime) shots of
       shotsLastRound:_ 
         -> flip foldMap (zip [1::Int ..] (reverse shotsLastRound)) $ \(idx, Shot lastShotPos _ _) ->
@@ -135,28 +140,25 @@ renderPlayerGrid fleet shots requiredAction rules@Rules{..} turnNumber = mconcat
       where
         shipCell = if isDamaged ship then shipSquare else movableSquare
 
-gridRange :: (Pos, Pos)
-gridRange = ((0, 0), (fst boardSize - 1, snd boardSize - 1))
-
 renderPositions :: (Pos -> Diagram SVG R2) -> Diagram SVG R2
 renderPositions f = foldMap renderPos $ range gridRange where
   renderPos p = translateToPos p $ f p
 
--- | Gives the result of the last shot at the given position
+-- | Stores the result of the last shot at the given position
 -- and the corresponding shot time.
-lastShotResult :: Fleet -> TrackingList -> Int -> Pos -> Maybe (HitResponse, Int)
-lastShotResult fleet shots turnNumber pos =
+lastShotResult :: Array Pos Time -> TrackingList -> Int -> Array Pos (Maybe (HitResponse, Int))
+lastShotResult sinkTimeA shots turnNumber = buildArray gridRange $ \pos ->
   case L.find ((pos == ) . shotPos) shots of
     Nothing -> Nothing
-    Just (Shot _ Hit hitTime) -> Just $ case unwrapTime $ sinkTime fleet pos of
+    Just (Shot _ Hit hitTime) -> Just $ case unwrapTime $ (sinkTimeA ! pos) of
       Just t | hitTime <= t -> (Sunk, t) -- make sure that the hit wasn't after the sinking!
       _ -> (Hit, turnNumber) -- hit information is always up-to-date -> turnNumber instead of hitTime
     Just (Shot _ res t) -> Just (res, t)
 
-renderMarker :: Fleet -> TrackingList -> Rules -> Int -> Bool -> Pos -> Diagram SVG R2
-renderMarker fleet shots Rules{..} turnNumber showOnlyHit pos
+renderMarker :: Array Pos (Maybe (HitResponse, Int)) -> Rules -> Int -> Bool -> Pos -> Diagram SVG R2
+renderMarker lastShotResultA Rules{..} turnNumber showOnlyHit pos
  = alignMarker
- $ case lastShotResult fleet shots turnNumber pos of
+ $ case lastShotResultA ! pos of
     Nothing            -> mempty
     Just (Water, time) -> if showOnlyHit then mempty else marker # lc markerWaterColor # opac time
     Just (Hit,   _   ) -> marker # lc markerHitColor
@@ -165,39 +167,39 @@ renderMarker fleet shots Rules{..} turnNumber showOnlyHit pos
     opac = timedOpacity rulesMove turnNumber
     alignMarker = translate (r2 (halfCellSize, -halfCellSize))
 
-renderCellAndImpossible :: Fleet -> TrackingList -> Rules -> Int -> Pos -> Diagram SVG R2
-renderCellAndImpossible fleet shots rules@Rules{..} turnNumber pos@(x,y)
+renderCellAndImpossible :: TrackingList -> Array Pos Time -> Array Pos (Maybe (HitResponse, Int)) -> Rules -> Int -> Pos -> Diagram SVG R2
+renderCellAndImpossible shots sinkTimeA lastShotResultA rules@Rules{..} turnNumber pos@(x,y)
  = alignTL $ case unwrapTime impossibleInfo of
-    Nothing -> renderCell fleet shots rules turnNumber pos
+    Nothing -> renderCell lastShotResultA rules turnNumber pos
     Just time -> case lastShotResultAtCurrentPos of
-      Just (_, t) | t >= time -> renderCell fleet shots rules turnNumber pos -- hint is older than player's actual information
+      Just (_, t) | t >= time -> renderCell lastShotResultA rules turnNumber pos -- hint is older than player's actual information
       _                       -> waterSquare # opac time
   where
     opac = timedOpacity rulesMove turnNumber
-    lastShotResultAtCurrentPos = lastShotResult fleet shots turnNumber pos
+    lastShotResultAtCurrentPos = lastShotResultA ! pos
     impossibleInfo = findMostRecentHit diagonalCells
       `mappend` findMostRecentlySunkShip (diagonalCells ++ adjacentCells)
       `mappend` if sawWaterHereAfterAdjacentHitNotYetSunk then Time (Just turnNumber) else mempty
-    diagonalCells = [(x + dx, y + dy) | dx <- [-1,1], dy <- [-1,1]]
-    adjacentCells = [(x + dx, y) | dx <- [-1,1]] ++ [(x, y + dy) | dy <- [-1,1]]
+    diagonalCells = filter (inRange gridRange) [(x + dx, y + dy) | dx <- [-1,1], dy <- [-1,1]]
+    adjacentCells = filter (inRange gridRange) ([(x + dx, y) | dx <- [-1,1]] ++ [(x, y + dy) | dy <- [-1,1]])
     findMostRecentHit = foldMap getTimeOfHit
-    getTimeOfHit p = Time $ case lastShotResult fleet shots turnNumber p of
+    getTimeOfHit p = Time $ case lastShotResultA ! p of
       Just (Hit, time) -> Just time
       _                -> Nothing
-    findMostRecentlySunkShip = foldMap $ sinkTime fleet
+    findMostRecentlySunkShip = foldMap $ (sinkTimeA !)
     sawWaterHereAfterAdjacentHitNotYetSunk = case lastShotResultAtCurrentPos of
       Just (Water, sawWater) -> any (\p -> case L.find ((p == ) . shotPos) shots of
-                                             Just (Shot _ Hit hitTime) -> case unwrapTime $ sinkTime fleet p of
+                                             Just (Shot _ Hit hitTime) -> case unwrapTime $ (sinkTimeA ! p) of
                                                                             Just t | hitTime <= t -> False
                                                                             _                     -> hitTime <= sawWater
                                              _                         -> False)
                                 adjacentCells
       _                      -> False
 
-renderCell :: Fleet -> TrackingList -> Rules -> Int -> Pos -> Diagram SVG R2
-renderCell fleet shots Rules{..} turnNumber pos
+renderCell :: Array Pos (Maybe (HitResponse, Int)) -> Rules -> Int -> Pos -> Diagram SVG R2
+renderCell lastShotResultA Rules{..} turnNumber pos
  = alignTL
- $ case lastShotResult fleet shots turnNumber pos of
+ $ case lastShotResultA ! pos of
     Nothing            -> mempty
     Just (Water, time) -> waterSquare # opac time
     Just (Hit,   time) -> shipSquare # opac time
