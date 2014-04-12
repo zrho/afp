@@ -117,6 +117,17 @@ Of course, the AI should play fair and observe the same rules as the human playe
 \begin{itemize}
  \item After the game ends, we produce an animated recap of the course of the game to help the player comprehend what happened at what time. 
  \item We use Haskell's type system to make it easy to find the places in the code where the AI does get information and interact with the game logic. This way, it is easier to check the code to convince oneself that the the AI cannot cheat.
+ 
+ %% The following 2 paragraphs are probably too detailed ... But shouldn't we at least mention some of Haskell's features?
+
+ More precisely, every AI is an instance of the type class\footnote{Type classes in Haskell correspond very roughly to interfaces in OOP} \verb+AI+ which has to implement the four functions \verb+aiInit+ (initializing the AI), \verb+aiFire+ (computing the next target of the AI), \verb+aiResponse+ (giving the AI feedback about its last target) and \verb+aiMove+ (computing which ship the AI moves).
+ 
+ For instance, the type signature of \verb+aiFire+ looks like this:
+ \begin{verbatim}
+  aiFire :: (MonadRandom m, MonadState ai m) => m Pos
+ \end{verbatim}
+ This means that the function is executed in a context that allows non-determinism (MonadRandom) and access to the AI's state (Monadstate) and that it returns a position (Pos) that it wants to target. Thanks to Haskell's type system, it can't have any other side-effects (IO etc.). The game handling code is polymorphic in the AI type, so it can only interact with the AI via these functions. So in order to verify that the AI doesn't receive additional information, one only needs to look at the places where these are invoked.
+
 \end{itemize}
 
 %------------------------------------------------------------------------------
