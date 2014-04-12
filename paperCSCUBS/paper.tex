@@ -108,6 +108,12 @@ Our version of the game includes some modifications to the usual rules, which ar
  \caption{Recap of the game. (animated)}
 \end{figure}
 
+%-----------------------------------------------------------------------------
+\section{Architecture and Framework}
+
+For our project, we used the \emph{Yesod} Web Framework\footnote{\url{http://www.yesodweb.com/}} developed by Michael Snoyman and others. Its goals are performance, type-safety and conciseness of code.
+
+For these purposes Yesod offers embedded DSLs for writing HTML, CSS and Javascript code which allow using variables from Haskell code and are syntactically simpler (e.g. the DSL for HTML uses indentation instead of closing tags). There is also a lot of compile-time checking involved. For example, URLs in Yesod are type safe, meaning that one specifies which parameters a certain route expects and their types. Whenever it is referenced, e.g. in hyperlinks or redirections, the compiler checks if the expected and actual data formats match. This makes 404 errors for internal links almost impossible. Yesod also has good support for internationalization. In fact, our project web site is available in English and German.
 
 %-----------------------------------------------------------------------------
 \section{Demonstrating that the AI Plays Fair}
