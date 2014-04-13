@@ -14,6 +14,7 @@ import Text.Hamlet
 import Data.Yaml
 import Yesod.Default.Config
 import Control.Applicative
+import Logic.Types
 
 import Language.Haskell.TH.Syntax
 -- import Text.Shakespeare.Text (st)
@@ -68,7 +69,10 @@ data Extra = Extra
   , extraStaticDir :: String
   , extraSourceURL :: String
   , extraAIURL :: String
+  , extraOptions :: Options
   }
 
 parseExtra :: DefaultEnv -> Object -> Parser Extra
 parseExtra _ o = Extra <$> fmap (*2) (o .: "countdownturns") <*> fmap (*2) (o .: "maxturns") <*> o .: "datadir" <*> o .: "staticdir" <*> o .: "sourceURL" <*> o .: "aiURL"
+                       <*> (Options <$> o .: "againWhenHit" <*> o .: "move" <*> o .: "noviceMode"
+                                    <*> pure True <*> fmap read (o .: "difficulty"))

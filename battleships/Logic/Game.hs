@@ -15,7 +15,6 @@ module Logic.Game
   -- * Game Functions
     boardSize
   , fleetShips
-  , defaultOptions
   , newGame
   , humanPlayerState
   , aiPlayerState
@@ -109,16 +108,6 @@ newGame r noviceMode devMode pFleet begin = do
       HumanPlayer -> template { currentPlayer = humanPlayer, otherPlayer = aiPlayer }
       AIPlayer    -> template { currentPlayer = aiPlayer, otherPlayer = humanPlayer }
   return gameState
-
--- | The default options
-defaultOptions :: Options 
-defaultOptions = Options
-  { againWhenHit = True
-  , move  = True
-  , noviceMode = False
-  , devMode = False
-  , difficulty = Hard
-  }
 
 -------------------------------------------------------------------------------
 -- * Helper Functions

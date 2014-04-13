@@ -6,6 +6,10 @@ Default: &defaults
   staticdir: "static/"
   sourceURL: "https://github.com/zrho/afp/tree/master/battleships"
   aiURL: "https://github.com/zrho/afp/wiki/Battleships:-AI"
+  againWhenHit: True
+  move: True
+  noviceMode: False
+  difficulty: Hard
   maxturns: 75
   countdownturns: 20
 
