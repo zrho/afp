@@ -14,6 +14,7 @@ module Logic.Game
   ( 
   -- * Game Functions
     boardSize
+  , gridRange
   , fleetShips
   , newGame
   , humanPlayerState
@@ -64,6 +65,7 @@ import qualified Data.Map as Map
 import           Data.Maybe
 import           Data.Monoid
 import           Logic.Types
+import           Logic.Util
 
 -------------------------------------------------------------------------------
 -- * Constants
@@ -113,6 +115,10 @@ newGame r noviceMode devMode pFleet begin = do
 -- * Helper Functions
 -------------------------------------------------------------------------------
 
+gridRange :: (Pos, Pos)
+gridRange = ((0, 0), (w - 1, h - 1))
+  where (w, h) = boardSize
+
 shipAdmissible :: FleetPlacement -> ShipShape -> Bool
 shipAdmissible fleet ship = rangeCheck && freeCheck where
   -- check if ship is completely inside grid
@@ -121,8 +127,6 @@ shipAdmissible fleet ship = rangeCheck && freeCheck where
   -- check if ship is not overlapping the safety margin of other ships
   freeCheck      = L.all (null . shipsAt fleet)
                  $ shipCoordinates 1 ship
-  (w, h)         = boardSize
-  gridRange      = ((0, 0), (w - 1, h - 1))
 
 -- | Calculates the position occupied by a ship including safety margin.
 shipCoordinates :: HasShipShape s => Int -> s -> [Pos]
@@ -148,10 +152,11 @@ shipSinkTime ship = if isShipSunk ship then lastHitTime ship else mempty
 lastHitTime :: Ship -> Time
 lastHitTime = fold . shipDamage -- let the maximum monoid take care of it
 
--- | If at the given position there is a completely sunk ship, this returns the turn number in which it was sunk.
-sinkTime :: Fleet -> Pos -> Time
-sinkTime fleet pos = foldMap shipSinkTime $ Map.filter isPosInShip fleet where
-  isPosInShip = isJust . shipCellIndex pos
+-- | If at the given position there is a completely sunk ship, this stores the turn number in which it was sunk.
+sinkTime :: Fleet -> Array Pos Time
+sinkTime fleet = buildArray gridRange $ \pos ->
+  let isPosInShip = isJust . shipCellIndex pos
+  in foldMap shipSinkTime $ Map.filter isPosInShip fleet
 
 -- | Returns the zero-based index of a ship cell based on a global coordinate
 shipCellIndex :: HasShipShape s => Pos -> s -> Maybe Int

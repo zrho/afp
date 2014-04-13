@@ -19,11 +19,8 @@ module Logic.AIUtil
   -- * Ship Functions
   , completeFleet
   -- * Helper Functions
-  , buildArray
-  , traverseArray
   , fromBool
   , maximum'
-  , maximumIx
   -- * Debugging Functions
   , showFleet
   , showFleetPlacement
@@ -34,17 +31,15 @@ module Logic.AIUtil
   ) where
 
 import           Prelude
-import           Control.Arrow
 import           Control.Monad
 import           Control.Monad.Trans
 import           Control.Monad.Trans.List
 import           Control.Monad.Random
 import           Data.Array
-import           Data.Function
 import           Data.List
 import qualified Data.Map as Map
 import           Data.Maybe (listToMaybe)
-import qualified Data.Traversable (mapM)
+import           Logic.Util
 import           Logic.Game
 import           Logic.Random
 import           Logic.Types
@@ -113,23 +108,6 @@ isWater _            = False
 
 isHitOrSunk :: Maybe HitResponse -> Bool
 isHitOrSunk h = isSunk h || isHit h  -- equivalent: isJust h && not (isWater h)
-
---------------------------------------------------------------------------------
--- * Array Utilities
---------------------------------------------------------------------------------
-
--- | Index of the maximum element in an array.
-maximumIx :: (Ix i, Ord e) => Array i e -> i
-maximumIx = fst . maximumBy (compare `on` snd) . assocs
-
--- | Distributive law for monad actions in arrays.
-traverseArray :: (Ix i, Monad m) => (a -> m b) -> Array i a -> m (Array i b)
-traverseArray = Data.Traversable.mapM
-
--- | Build an array by specifying bounds and a function that constructs
--- the value for an index.
-buildArray :: Ix i => (i, i) -> (i -> a) -> Array i a
-buildArray bs f = array bs $ fmap (id &&& f) $ range bs
 
 --------------------------------------------------------------------------------
 -- * Misc

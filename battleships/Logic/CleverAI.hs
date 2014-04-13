@@ -56,6 +56,7 @@ import qualified Data.Map as Map
 import           Data.Maybe (fromMaybe, fromJust)
 import           Data.Serialize (Serialize)
 import qualified Data.Serialize as S
+import           Logic.Util
 import           Logic.AIUtil
 import           Logic.Binary
 import           Logic.Game
