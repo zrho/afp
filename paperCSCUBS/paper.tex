@@ -171,7 +171,7 @@ Then the AI applies a checkerboard pattern, i.e. multiplies half of the scores b
  \item[Search Phase] 
  This is what the AI does in the beginning. It strictly follows a checkerboard pattern to find (and not sink!) all ships. Sinking is not beneficial at this stage because it allows ships to move around more freely. Also, hit ships get score 0, because the goal is primarily to find all ships and not to hit the already found ones.
  \item[Sink Phase] 
- If the AI has hit enough ships (or if the countdown towards the end of the game is running), we move on to the 2nd phase. Currently ``enough ships'' means that there have been at least \verb+ sum . map (`div` 2) $ remaining+ hits where \verb+remaining :: [Int]+ stores lengths of the remaining ships. This is the minimum number of hits needed when we want all ships to be hit wherever the checkerboard pattern allows it.
+ If the AI has hit enough ships (or if the countdown towards the end of the game is running), we move on to the 2nd phase. Currently ``enough ships'' means that the number of hits is at least half the number of cells occupied by the remaining ships. This is the minimum number of hits needed when we want all ships to be hit wherever the checkerboard pattern allows it.
 \end{description}
 In the 2nd phase, now that we've hopefully found all ships, our strategy is essentially the same as in the immovable case. But it's not useful to use a checkerboard pattern here because that was already used extensively in phase 1.
 
