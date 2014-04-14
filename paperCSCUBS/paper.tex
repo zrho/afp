@@ -86,7 +86,7 @@ We decided to use the following rules:
  \item When a shot hit a ship, the player may fire again.
 \end{itemize}
 
-In addition to the usual rules, our version of the game includes the some modifications:
+In addition to the usual rules, our version of the game includes some modifications:
 
 \begin{itemize}
  \item 
@@ -120,7 +120,7 @@ In addition to the usual rules, our version of the game includes the some modifi
 
 For our project, we used the \emph{Yesod} Web Framework\footnote{\url{http://www.yesodweb.com/}} developed by Michael Snoyman and others. Its goals are performance, type-safety and conciseness of code.
 
-For these purposes Yesod offers embedded DSLs\footnotetext{Domain Specific Languages} for writing HTML, CSS and Javascript code which allow using variables from Haskell code and are syntactically simpler (e.g. the DSL for HTML uses indentation instead of closing tags). There is also a lot of compile-time checking involved. For example, URLs in Yesod are type safe, meaning that one specifies which parameters a certain route expects and their types. Whenever it is referenced, e.g. in hyperlinks or redirections, the compiler checks if the expected and actual data formats match. This makes 404 errors for internal links almost impossible. Yesod also has good support for internationalization. In fact, our project web site is available in English and German.
+For these purposes Yesod offers embedded DSLs\footnotetext{Domain Specific Languages} for writing HTML, CSS and Javascript code which allow using variables from Haskell code and are syntactically simpler (e.g. the DSL for HTML uses indentation instead of closing tags). There is also a lot of compile-time checking involved. For example, URLs in Yesod are type safe, meaning that one specifies which parameters a certain route expects and their types. Whenever it is referenced, e.g. in hyperlinks or redirections, the compiler checks if the expected and actual data formats match. This makes 404 errors for internal links almost impossible. Yesod also offers good support for internationalization. In fact, our project web site is available in English and German.
 
 The game logic resides on the server and is completely written in Haskell. On the client side, we use JavaScript for ship placement, handling of clicks on the boards and viewing the replay. The game state is not stored on the server but is sent back and forth between client and server. To prevent manipulations on the client side, the state is encrypted before being exposed. %% TODO: explain why we did that.
 
@@ -141,7 +141,7 @@ Of course, the AI should play fair and observe the same rules as the human playe
  \begin{verbatim}
   aiFire :: (MonadRandom m, MonadState ai m) => m Pos
  \end{verbatim}
- This means that the function is executed in a context that allows non-determinism (\verb|MonadRandom|) and access to the AI's state (\verb|MonadState|) and that it returns a position (\verb|Pos|) that it wants to target. Thanks to Haskell's type system, it can't have any other side-effects (IO etc.). The game handling code is polymorphic in the AI type, so it can only interact with the AI via these functions. So in order to verify that the AI doesn't receive additional information, one only needs to look at the places where these are invoked.
+ This means that the function is executed in a context that allows non-determinism (\verb|MonadRandom|) and access to the AI's state (\verb|MonadState|) and that it returns a position (\verb|Pos|) which it wants to target. Thanks to Haskell's type system, it can't have any other side effects (IO etc.). The game handling code is polymorphic in the AI type, so it can only interact with the AI via these functions. Thus it is easy to verify that the AI doesn't receive additional information: One only needs to look at the places where the four aforementioned functions are invoked.
 
 \end{itemize}
 
@@ -163,29 +163,29 @@ We draw our information about blocked cells from the following situations:
 \end{itemize}
 
 \subsection{Probabilities}
-When ships are movable, you often cannot tell for sure whether a cell is blocked or not. Thus, we need to work with probabilities. When the AI just hit water the probability for this cell to be water is 1. Over time, however, this probability declines. The decline is modeled as exponential decay with factor 0.98. That means that 1 shot later, the water probability for the cell is 0.98, then 0.96, then 0.941 etc. The same decline is applied to the cells blocked because of a sunk ship, because right after being sunk other ships can start moving across it.
+When ships are movable, you often cannot tell for sure whether a cell is blocked or not. Thus, we need to work with probabilities. When the AI just hit water the probability for this cell to be water is 1. Over time, however, this probability declines. The decline is modeled as exponential decay with factor 0.98. This means that one shot later the water probability for the cell is 0.98, then 0.96, then 0.941 etc. The same decline is applied to the cells blocked because of a sunk ship, because right after being sunk other ships can start moving across it.
 
 \subsection{Scoring}
-The AI selects its next target by computing a \emph{score} for each position. A high score indicates a high probability to hit a ship at that position, so the AI chooses the position with the highest score as its next target. To make playing more interesting, we added some randomness to calculating the scores. The amount of randomness depends on the selected difficulty level, the scoring method depends on whether ships are movable or not.
+The AI selects its next target by computing a \emph{score} for each position. A high score indicates a high probability to hit a ship at that position, so the AI chooses the position with the highest score as its next target. To make playing more interesting, we added some randomness to calculating the scores. The amount of randomness depends on the selected difficulty level; the scoring method depends on whether ships are movable or not.
 
 \subsubsection{Immovable Ships} Given a position to score, the AI considers all potential ships that this position is part of. These are weighted according to the probabilities computed before. Also, if a ship is hit or will be sunk in the next move according to the AI's tracking information, it is given an extra high score, because this ship is very likely to exist.
 
-Note that the AI does not consider whole fleets and weights them according to the probabilities, but only does this locally for each position. So it might happen that a position gets a positive score although it would be ruled out if the AI were testing whole fleets instead of individual ships.
+Note that the AI does not consider and weight whole fleets according to the probabilities, but only does this locally for each position. So it might happen that a position gets a positive score although it would be ruled out if the AI were testing whole fleets instead of individual ships.
 
 Then the AI applies a checkerboard pattern, i.e. multiplies half of the scores by 0.9, so it won't have to hit all cells to find all ships. Positions at the edge of the board naturally allow fewer ships to pass through them. But the AI shouldn't be biased towards the center, so the scores are divided by the scores at the beginning of the game. If we already attacked that position before, its score is 0.
 
 \subsubsection{Movable Ships} In this case there are 2 phases because of the limited amount of turns: As the timeout approaches, the AI changes its strategy to win after timeout. 
 \begin{description}
  \item[Search Phase] 
- This is what the AI does in the beginning. It strictly follows a checkerboard pattern to find (and not sink!) all ships. Sinking is not beneficial at this stage because it allows ships to move around more freely. Also, hit ships get score 0, because the goal is primarily to find all ships and not to hit the already found ones.
+ This is what the AI does in the beginning. It strictly follows a checkerboard pattern to find (and not sink!) all ships. Sinking is not beneficial at this stage because it allows ships to move around more freely. Also, hit ships get score 0, because the primary goal is to find all ships and not to hit the already found ones.
  \item[Sink Phase] 
- If the AI has hit enough ships (or if the countdown towards the end of the game is running), we move on to the 2nd phase. Currently ``enough ships'' means that the number of hits is at least half the number of cells occupied by the remaining ships. This is the minimum number of hits needed when we want all ships to be hit wherever the checkerboard pattern allows it.
+ When the AI has hit enough ships (or if the countdown towards the end of the game is running), we move on to the 2nd phase. Currently ``enough ships'' means that the number of hits is at least half the number of cells occupied by the remaining ships. This is the minimum number of hits needed when we want all ships to be hit wherever the checkerboard pattern allows it.
 \end{description}
-In the 2nd phase, now that we've hopefully found all ships, our strategy is essentially the same as in the immovable case. But it's not useful to use a checkerboard pattern here because that was already used extensively in phase 1.
+In the second phase, now that we've hopefully found all ships, our strategy is essentially the same as in the immovable case. We just don't use the checkerboard pattern any longer because that was already used extensively in phase 1 and we have to hit all parts of a ship to sink it.
 
 
 \subsection{Moving Ships}
-The AI generates all possible movements of all movable ships and chooses one at random, or -- also randomly -- decides not to move in a certain turn at all.
+In each turn, the AI generates all possible movements of all movable ships and chooses one at random, or -- also randomly -- decides not to move at all. %Todo: Sounds a little strange, maybe we should elaborate on this?
 
 %------------------------------------------------------------------------------
 % Refs:
