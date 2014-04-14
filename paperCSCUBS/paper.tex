@@ -127,14 +127,12 @@ The game logic resides on the server and is completely written in Haskell. On th
 %-----------------------------------------------------------------------------
 \section{Demonstrating that the AI Plays Fair}
 \label{sect:fair-play}
-Of course, the AI should play fair and observe the same rules as the human player. Allowing ship movement makes it hard to check the AI for fair play by just playing, so we tried our best to clarify that the AI cannot ``cheat'':
+Of course, the AI should play fair and observe the same rules as the human player. Allowing ship movement makes it harder to check the AI for fair play (because one cannot observe its movements), so we tried our best to clarify that the AI cannot ``cheat'':
 
 \begin{itemize}
  \item After the game ends, we produce an animated recap of the course of the game to help the player comprehend what happened at what time. 
  \item We use Haskell's type system to make it easy to find the places in the code where the AI does get information and interact with the game logic. This way, it is easier to check the code to convince oneself that the the AI cannot cheat.
  
- %% The following 2 paragraphs are probably too detailed ... But shouldn't we at least mention some of Haskell's features?
-
  More precisely, every AI is an instance of the type class\footnote{Type classes in Haskell correspond very roughly to interfaces in OOP} \verb+AI+ which has to implement the four functions \verb+aiInit+ (initializing the AI), \verb+aiFire+ (computing the next target of the AI), \verb+aiResponse+ (giving the AI feedback about its last target) and \verb+aiMove+ (computing which ship the AI moves).
  
  For instance, the type signature of \verb+aiFire+ looks like this:
@@ -190,7 +188,7 @@ In each turn, the AI generates all possible movements of all movable ships and c
 %------------------------------------------------------------------------------
 \section{Conclusion}
 
-In conclusion, we have learned a lot during this project group. While web programming in Haskell still has some minor flaws (especially the use of Template Haskell in combination with a lack of proper documentation sometimes led to difficulties), it seems like an interesting concept and a great development to us. 
+In conclusion, we have learned a lot during this project group. Admittedly, web programming in Haskell still has some minor flaws (especially the use of Template Haskell in combination with a lack of proper documentation sometimes led to difficulties). However it seems like an interesting concept and a great development to us to be able to take advantage of Haskell's strengths, e.g. its expressive type system and powerful abstraction mechanisms, also in the domain of web applications.
 
 
 %------------------------------------------------------------------------------
