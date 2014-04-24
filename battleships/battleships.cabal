@@ -1,8 +1,14 @@
 name:              battleships
-version:           0.5.0
+version:           1.0.0
 cabal-version:     >= 1.8
 build-type:        Simple
+category:          Game
+author:		   Meike Grewing, Lukas Heidemann, Fabian Thorand, Fabian Zaiser
+maintainer:        thorand@cs.uni-bonn.de
+license:           BSD3
+license-file:      LICENSE
 
+synopsis:    A web-based implementation of battleships including an AI opponent.
 description: This package provides a web-based implementation of the popular
              battleships game, developed over the course of a practical functional
              programming class at the University of Bonn (<http://www.iai.uni-bonn.de/~jv/teaching/afp13/>).
@@ -61,7 +67,7 @@ library
                      Logic.StupidAI
                      Logic.Types
 
-    ghc-options:   -threaded -Wall
+    ghc-options:   -Wall
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -88,7 +94,7 @@ library
                  , wai-logger    
                  , cookie
                  , hjsmin
-                -- * more monads!!!
+                -- * more monads
                  , mtl
                  , MonadRandom
                 -- * data types
