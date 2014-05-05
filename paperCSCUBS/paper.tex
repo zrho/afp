@@ -114,7 +114,7 @@ For these purposes Yesod offers embedded DSLs\footnotetext{Domain Specific Langu
 
 The game logic resides on the server and is completely written in Haskell. On the client side, we use JavaScript for ship placement, handling of clicks on the boards and viewing the replay. The game state is not stored on the server but is sent back and forth between client and server. To prevent manipulations on the client side, the state is encrypted before being exposed.
 
-Of course we could have implemented the game with only HTML and JavaScript which would have made the transfer of the game state between client and server obsolete. But our goal was not to write an other version of Battleships but to learn about the advantages and disadvantages of using a functional programming language for web development. Battleships was merely a means to an end.
+Of course we could have implemented the game with only HTML and JavaScript which would have made the transfer of the game state between client and server obsolete. But our goal was not to write another version of Battleships but to learn about the advantages and disadvantages of using a functional programming language for web development. Battleships was merely a means to an end.
 
 
 % -----------------------------------------------------------------------------
@@ -142,7 +142,7 @@ class AI a where
 On the one hand, Haskell's type system restricts the AI to use the given random number generator (via \verb|MonadRandom|) and its own state (via \verb|MonadState|), in addition to the information given by the game rules (\verb|Rules|), the result of the AI's last shot (\verb|HitResponse|) and the AI's own fleet (\verb|Fleet|) and the shots fired at the AI's fleet (\verb|TrackingList|).
 The type system prevents the AI from having any other side effects (like IO etc.) and by using Safe Haskell (a subset of Haskell whithout functions to circumvent the type system) this constraint can be enforced by the compiler.
 
-On the other hand, the game engine is polymorphic in the AI type, so it can only interact with the AI via the functions prodived by the \verb|AI| type class. While it may be possible, to pass additional information to the AI via these functions by misusing the data types in the parameters, one can easily verify that this is not the case by looking at the places where the four aforementioned functions are invoked.
+On the other hand, the game engine is polymorphic in the AI type, so it can only interact with the AI via the functions prodived by the \verb|AI| type class. While it may be possible to pass additional information to the AI via these functions by misusing the data types in the parameters, one can easily verify that this is not the case by looking at the places where the four aforementioned functions are invoked.
 
 \end{itemize}
 
@@ -151,39 +151,16 @@ On the other hand, the game engine is polymorphic in the AI type, so it can only
 \label{sect:battleships-ai}
 In addition to a simple AI which basically does everything at random, we implemented a much more sophisticated AI which we are going to describe in some detail here.
 
-\subsection{Blocked Cells}
-When deciding on a cell to fire at, it is necessary to know which cells cannot currently be occupied by a ship. We call these cells \emph{blocked}. 
-We draw our information about blocked cells from the following situations:
-\begin{itemize}
- \item 
- If we just found out that at a certain position there is water, that position is blocked.
- \item
- If we just sunk a ship, all its cells are blocked. This includes its \emph{safety margin} (ships cannot touch, so cells directly around a ship cannot be occupied by any other ship).
- \item 
- If the cell is diagonally adjacent to a cell that was a successful hit, it is blocked because of the hit ship's safety margin.
-\end{itemize}
+\subsection{Scoring Cells}
+When deciding on a cell to fire at, it is necessary to know which cells cannot currently be occupied by a ship. This is the case if we just found out that there is water at a certain position, or just sunk a ship there, or hit a ship at a position that is diagonally adjacent to the cell. 
 
-\subsection{Probabilities}
-When ships are movable, you often cannot tell for sure whether a cell is blocked or not. Thus, we need to work with probabilities. When the AI just hit water the probability for this cell to be water is 1. Over time, however, this probability declines. The decline is modeled as exponential decay with factor 0.98. This means that one shot later the water probability for the cell is 0.98, then 0.96, then 0.941 etc. The same decline is applied to the cells blocked because of a sunk ship, because right after being sunk other ships can start moving across it.
+When ships are movable, you often cannot tell for sure whether a cell is blocked or not. Ships may move over water cells or completely sunk ships. Thus, we model the probability for a cell to be water as exponential decay with factor 0.98.
 
-\subsection{Scoring}
 The AI selects its next target by computing a \emph{score} for each position. A high score indicates a high probability to hit a ship at that position, so the AI chooses the position with the highest score as its next target. To make playing more interesting, we added some randomness to calculating the scores. The amount of randomness depends on the selected difficulty level; the scoring method depends on whether ships are movable or not.
 
-\subsubsection{Immovable Ships} Given a position to score, the AI considers all potential ships that this position is part of. These are weighted according to the probabilities computed before. Also, if a ship is hit or will be sunk in the next move according to the AI's tracking information, it is given an extra high score, because this ship is very likely to exist.
+\paragraph{Immovable Ships.} Since ships will always stay at their position, the AI never has to hit a position more than once. Given that all ships have a minimum length of two, it is sufficient to apply a \emph{checkerboard pattern} when searching for ships. For each position on the board the AI considers all potential ships that this position is part of. This way it can score the position according to the likeliness of hitting a ship there.
 
-Note that the AI does not consider and weight whole fleets according to the probabilities, but only does this locally for each position. So it might happen that a position gets a positive score although it would be ruled out if the AI were testing whole fleets instead of individual ships.
-
-Then the AI applies a checkerboard pattern, i.e. multiplies half of the scores by 0.9, so it won't have to hit all cells to find all ships. Positions at the edge of the board naturally allow fewer ships to pass through them. But the AI shouldn't be biased towards the center, so the scores are divided by the scores at the beginning of the game. If we already attacked that position before, its score is 0.
-
-\subsubsection{Movable Ships} In this case there are 2 phases because of the limited amount of turns: As the timeout approaches, the AI changes its strategy to win after timeout. 
-\begin{description}
- \item[Search Phase]
- This is what the AI does in the beginning. It strictly follows a checkerboard pattern to find (and not sink!) all ships. Sinking is not beneficial at this stage because it allows ships to move around more freely. Also, hit ships get score 0, because the primary goal is to find all ships and not to hit the already found ones.
- \item[Sink Phase]
- When the AI has hit enough ships (or if the countdown towards the end of the game is running), we move on to the 2nd phase. Currently ``enough ships'' means that the number of hits is at least half the number of cells occupied by the remaining ships. This is the minimum number of hits needed when we want all ships to be hit wherever the checkerboard pattern allows it.
-\end{description}
-In the second phase, now that we've hopefully found all ships, our strategy is essentially the same as in the immovable case. We just don't use the checkerboard pattern any longer because that was already used extensively in phase 1 and we have to hit all parts of a ship to sink it.
-
+\paragraph{Movable Ships.} In this case there are two phases because the amount of turns is limited: During the beginning, the \emph{search phase}, the AI follows a checkerboard pattern to find (and not sink!) all ships. Sinking is not beneficial at this stage because it allows ships to move around more freely. When the AI has found enough ships or there are only few turns left, the AI switches to the \emph{sink phase} and tries to completely sink all the previously discovered ships, applying the same scoring function as in the immovable case.
 
 \subsection{Moving Ships}
 In each turn, the AI generates all possible movements of all movable ships and chooses one at random, or -- also randomly -- decides not to move at all. %Todo: Sounds a little strange, maybe we should elaborate on this?
